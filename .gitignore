@@ -16,3 +16,6 @@ out/
 # Operating System files
 .DS_Store
 Thumbs.db
+
+# Doc
+docs/

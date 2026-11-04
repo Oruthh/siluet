@@ -1,5 +1,5 @@
 package dev.siluet.exception
 
-class ComponentViewNotFoundException(
+internal class ComponentViewNotFoundException(
     val componentName: String
 ): RuntimeException("Could not find view for component '$componentName'")

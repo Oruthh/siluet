@@ -1,11 +1,10 @@
 package dev.siluet.reflect
 
-import dev.siluet.render.PropertyAccessor
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.concurrent.ConcurrentHashMap
 
-class CachedReflectionPropertyAccessor(
+internal class CachedReflectionPropertyAccessor(
     private val securityPolicy: SecurityPolicy = SecurityPolicy.Default
 ) : PropertyAccessor {
     private val getterCache = ConcurrentHashMap<Class<*>, Map<String, Method>>()

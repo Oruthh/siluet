@@ -6,7 +6,7 @@ import dev.siluet.blueprint.definition.SectionDefinition
 import kotlin.collections.ifEmpty
 import kotlin.collections.map
 
-object SectionCompiler {
+internal object SectionCompiler {
     fun compile(definition: SectionDefinition): Section{
         val blocksOrder = definition.blocksOrder.ifEmpty {
             definition.blocks.keys.toList()

@@ -3,7 +3,7 @@ package dev.siluet.lexer
 import dev.siluet.SourceLocation
 import dev.siluet.exception.LexerException
 
-class SiluetLexer(
+internal class SiluetLexer(
     private val source: String,
     private val filePath: String = "<inline>"
 ) {

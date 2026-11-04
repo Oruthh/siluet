@@ -2,47 +2,50 @@ package dev.siluet.parser
 
 import dev.siluet.SourceLocation
 
+/**
+ * @suppress
+ */
 sealed interface SiluetNode{
     val sourceLocation: SourceLocation
 }
 
-data class TextNode(
+internal data class TextNode(
     val text: String,
     override val sourceLocation: SourceLocation,
 ) : SiluetNode
 
-data class PrintNode(
+internal data class PrintNode(
     val expression: ExpressionNode,
     val filters: List<FilterCallNode> = emptyList(),
     override val sourceLocation: SourceLocation,
 ) : SiluetNode
 
-data class IfNode(
+internal data class IfNode(
     val condition: ExpressionNode,
     val thenBody: List<SiluetNode>,
     val elseBody: List<SiluetNode>? = null,
     override val sourceLocation: SourceLocation,
 ) : SiluetNode
 
-data class ForNode(
+internal data class ForNode(
     val variableName: String,
     val collectionExpression: ExpressionNode,
     val body: List<SiluetNode>,
     override val sourceLocation: SourceLocation,
 ) : SiluetNode
 
-data class ComponentNode(
+internal data class ComponentNode(
     val componentName: ExpressionNode,
     val properties: Map<String, ExpressionNode>,
     override val sourceLocation: SourceLocation,
 ) : SiluetNode
 
-data class SectionsNode(
+internal data class SectionsNode(
     val sectionsGroupName: ExpressionNode?,
     override val sourceLocation: SourceLocation,
 ) : SiluetNode
 
-data class PaginateNode(
+internal data class PaginateNode(
     val collectionExpression: ExpressionNode,
     val variableName: String,
     val pageSizeExpression: ExpressionNode,
@@ -51,12 +54,12 @@ data class PaginateNode(
     override val sourceLocation: SourceLocation,
 ) : SiluetNode
 
-data class TranslationNode(
+internal data class TranslationNode(
     val translationKeyExpression: ExpressionNode,
     override val sourceLocation: SourceLocation
 ) : SiluetNode
 
-data class DirectiveNode(
+internal data class DirectiveNode(
     val name: String,
     val arguments: List<ExpressionNode>,
     val namedArguments: Map<String, ExpressionNode>,
@@ -64,46 +67,46 @@ data class DirectiveNode(
     override val sourceLocation: SourceLocation,
 ) : SiluetNode
 
-sealed interface ExpressionNode{
+internal sealed interface ExpressionNode{
     val sourceLocation: SourceLocation
 }
 
-data class LiteralNode(
+internal data class LiteralNode(
     val value: Any?,
     override val sourceLocation: SourceLocation,
 ) : ExpressionNode
 
-data class VariableNode(
+internal data class VariableNode(
     val name: String,
     override val sourceLocation: SourceLocation,
 ) : ExpressionNode
 
-data class PropertyAccessNode(
+internal data class PropertyAccessNode(
     val receiver: ExpressionNode,
     val propertyName: String,
     override val sourceLocation: SourceLocation,
 ) : ExpressionNode
 
-data class BinaryOpNode(
+internal data class BinaryOpNode(
     val left: ExpressionNode,
     val operator: BinaryOperator,
     val right: ExpressionNode,
     override val sourceLocation: SourceLocation,
 ) : ExpressionNode
 
-data class UnaryOpNode(
+internal data class UnaryOpNode(
     val operator: UnaryOperator,
     val operand: ExpressionNode,
     override val sourceLocation: SourceLocation,
 ) : ExpressionNode
 
-data class FilterCallNode(
+internal data class FilterCallNode(
     val name: String,
     val arguments: List<ExpressionNode> = emptyList(),
     val sourceLocation: SourceLocation,
 )
 
-enum class BinaryOperator {
+internal enum class BinaryOperator {
     EQUALS,
     NOT_EQUALS,
     LESS_THEN,
@@ -114,6 +117,6 @@ enum class BinaryOperator {
     OR
 }
 
-enum class UnaryOperator {
+internal enum class UnaryOperator {
     NOT
 }

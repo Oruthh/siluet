@@ -1,6 +1,6 @@
 package dev.siluet.lexer
 
-enum class TokenType {
+internal enum class TokenType {
     TEXT,
     OPEN_EXPR,
     CLOSE_EXPR,

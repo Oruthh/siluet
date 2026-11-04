@@ -1,5 +1,5 @@
 package dev.siluet.exception
 
-class SectionsGroupNotFoundException(
+internal class SectionsGroupNotFoundException(
     val sectionsGroup: String
 ): RuntimeException("Could not find sections group with name '$sectionsGroup'")

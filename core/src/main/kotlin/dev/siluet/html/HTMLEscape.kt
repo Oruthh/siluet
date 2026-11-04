@@ -1,6 +1,6 @@
 package dev.siluet.html
 
-object HTMLEscape {
+internal object HTMLEscape {
     fun escape(input: Any?): String {
         if(input == null){
             return ""

@@ -8,7 +8,7 @@ import dev.siluet.lexer.SiluetLexer
 import dev.siluet.parser.SiluetParser
 import dev.siluet.parser.SiluetView
 
-class SiluetViewsLoader(
+internal class SiluetViewsLoader(
     val cache: ViewCache,
     val assetLoader: SiluetAssetLoader
 ) {

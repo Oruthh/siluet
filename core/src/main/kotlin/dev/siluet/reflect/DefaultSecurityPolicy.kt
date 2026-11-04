@@ -1,5 +1,31 @@
 package dev.siluet.reflect
 
+import dev.siluet.exception.SiluetSecurityException
+
+/**
+ * Default implementation of [SecurityPolicy] providing sandbox guardrails against reflection exploits,
+ * remote code execution (RCE), classloader traversal, and unauthorized system access in template expressions.
+ *
+ * Secures runtime property and method evaluations across three layers of defense:
+ * 1. **Forbidden Members:** Blocks reflection metadata and thread-control methods (e.g., `class`, `getClass`, `classLoader`, `wait`).
+ * 2. **Forbidden Classes:** Forbids target receivers assignable to dangerous runtime types (e.g., [System], [Runtime], [ProcessBuilder]).
+ * 3. **Forbidden Packages:** Blocks receivers originating from system packages (e.g., `java.io`, `java.net`, `java.lang.reflect`, `kotlin.reflect`).
+ *
+ * ### Example:
+ * ```kotlin
+ * val policy = DefaultSecurityPolicy(
+ *     blockedMembers = setOf("passwordHash", "apiKey"),
+ *     blockedPackages = setOf("com.mycompany.app.internal")
+ * )
+ *
+ * val siluet = Siluet {
+ *     securityPolicy = policy
+ * }
+ * ```
+ *
+ * @param blockedMembers Additional property or method names to deny beyond standard internal members.
+ * @param blockedPackages Additional package prefixes to deny beyond standard JVM/Kotlin reflection and I/O packages.
+ */
 class DefaultSecurityPolicy(
     blockedMembers: Set<String> = emptySet(),
     blockedPackages: Set<String> = emptySet(),
@@ -38,6 +64,18 @@ class DefaultSecurityPolicy(
         java.lang.System::class.java
     )
 
+    /**
+     * Validates whether reflection-based access to [memberName] on [targetClass] is permitted.
+     *
+     * Evaluates the request sequentially against:
+     * 1. Member blacklist ([forbiddenMembers])
+     * 2. Prohibited class types and assignable supertypes ([forbiddenClasses])
+     * 3. Restricted package namespaces ([forbiddenPackagePrefixes])
+     *
+     * @param targetClass The receiver [Class] whose member is being accessed.
+     * @param memberName The property name or method identifier requested by a template expression.
+     * @throws dev.siluet.exception.SiluetSecurityException If the requested member, class, or package violates security constraints.
+     */
     override fun checkAccess(targetClass: Class<*>, memberName: String) {
         if(memberName in forbiddenMembers) {
             throw SiluetSecurityException(

@@ -5,7 +5,7 @@ import dev.siluet.exception.ParseException
 import dev.siluet.lexer.Token
 import dev.siluet.lexer.TokenType
 
-class SiluetParser(
+internal class SiluetParser(
     private val tokens: List<Token>,
 ) {
     private var current = 0

@@ -2,7 +2,7 @@ package dev.siluet.html
 
 import java.util.stream.IntStream
 
-class SafeHTML(private val content: String) : CharSequence by content {
+internal class SafeHTML(private val content: String) : CharSequence by content {
     override fun toString(): String = content
 
     override fun equals(other: Any?): Boolean {
@@ -21,4 +21,4 @@ class SafeHTML(private val content: String) : CharSequence by content {
     }
 }
 
-fun CharSequence.asSafeHTML(): SafeHTML = this as? SafeHTML ?: SafeHTML(this.toString())
+internal fun CharSequence.asSafeHTML(): SafeHTML = this as? SafeHTML ?: SafeHTML(this.toString())

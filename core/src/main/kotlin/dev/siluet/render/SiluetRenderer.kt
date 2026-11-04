@@ -3,6 +3,8 @@ package dev.siluet.render
 import dev.siluet.exception.ComponentViewNotFoundException
 import dev.siluet.exception.SectionsGroupNotFoundException
 import dev.siluet.blueprint.Template
+import dev.siluet.exception.LoopLimitExceededException
+import dev.siluet.exception.RenderException
 import dev.siluet.filter.Filter
 import dev.siluet.html.HTMLEscape
 import dev.siluet.loader.SiluetSectionsGroupLoader
@@ -22,6 +24,7 @@ import dev.siluet.parser.SectionsNode
 import dev.siluet.parser.SiluetNode
 import dev.siluet.parser.TextNode
 import dev.siluet.parser.TranslationNode
+import dev.siluet.reflect.PropertyAccessor
 
 internal class SiluetRenderer(
     private val maxLoopIterations: Int,

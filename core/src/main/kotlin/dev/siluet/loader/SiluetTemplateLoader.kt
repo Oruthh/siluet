@@ -6,7 +6,7 @@ import dev.siluet.blueprint.compile.TemplateCompiler
 import dev.siluet.blueprint.definition.TemplateDefinition
 import kotlinx.serialization.json.Json
 
-class SiluetTemplateLoader(
+internal class SiluetTemplateLoader(
     val assetLoader: SiluetAssetLoader,
     val json: Json
 ) {

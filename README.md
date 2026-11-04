@@ -210,9 +210,23 @@ Components represent self-contained HTML snippets:
 - [x] Basic data filters (`date`)
 - [ ] HTML output beautifier and whitespace management
 - [ ] Implement @schema directive and JSON properties: {} mapping for configurable UI
-- [ ] Publish Kotlin API reference (KDoc)
+- [x] Publish Kotlin API reference (KDoc)
 - [ ] Write template syntax and directives guide
 - [ ] IntelliJ IDEA plugin with syntax highlighting
+
+---
+
+## Documentation
+
+Siluet uses [Dokka](https://kotlinlang.org/docs/dokka-introduction.html) to generate its Kotlin API reference documentation (KDoc).
+
+To build and view the documentation locally, run the following Gradle task from the project root:
+
+```bash
+./gradlew dokkaGenerateHtml
+```
+
+Once the build completes, open `docs/api/index.html` in your web browser to navigate the module and package documentation.
 
 ---
 

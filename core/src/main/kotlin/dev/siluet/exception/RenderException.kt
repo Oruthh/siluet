@@ -1,8 +1,8 @@
-package dev.siluet.render
+package dev.siluet.exception
 
 import dev.siluet.SourceLocation
 
-open class RenderException(
+internal open class RenderException(
     msg: String,
     val sourceLocation: SourceLocation
 ) : RuntimeException("$msg at $sourceLocation") {

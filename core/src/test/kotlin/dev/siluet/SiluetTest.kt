@@ -4,7 +4,6 @@ import dev.siluet.exception.SiluetException
 import dev.siluet.loader.ResourceSiluetAssetLoader
 import dev.siluet.pagination.PaginationContext
 import dev.siluet.pagination.PaginationSource
-import dev.siluet.render.RenderException
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.util.Locale

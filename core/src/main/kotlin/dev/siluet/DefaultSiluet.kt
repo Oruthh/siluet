@@ -17,7 +17,7 @@ import dev.siluet.loader.SiluetTemplateLoader
 import dev.siluet.exception.ParseException
 import dev.siluet.filter.date.DateFilter
 import dev.siluet.render.RenderContext
-import dev.siluet.render.RenderException
+import dev.siluet.exception.RenderException
 import dev.siluet.locale.LocaleRegistry
 
 class DefaultSiluet(
@@ -70,13 +70,5 @@ class DefaultSiluet(
         } catch (e: LexerException) {
             throw SiluetException(e.message!!, e.sourceLocation)
         }
-    }
-
-    override fun renderView(viewPath: String, model: Any, contextBuilder: RenderContext.Builder.() -> Unit): String {
-        TODO("Not yet implemented")
-    }
-
-    override fun renderString(source: String, model: Any, contextBuilder: RenderContext.Builder.() -> Unit): String {
-        TODO("Not yet implemented")
     }
 }

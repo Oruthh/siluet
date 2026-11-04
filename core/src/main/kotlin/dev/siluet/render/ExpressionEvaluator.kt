@@ -1,5 +1,6 @@
 package dev.siluet.render
 
+import dev.siluet.exception.RenderException
 import dev.siluet.parser.BinaryOpNode
 import dev.siluet.parser.BinaryOperator
 import dev.siluet.parser.ExpressionNode
@@ -10,7 +11,7 @@ import dev.siluet.parser.UnaryOpNode
 import dev.siluet.parser.UnaryOperator
 import dev.siluet.parser.VariableNode
 
-class ExpressionEvaluator(
+internal class ExpressionEvaluator(
     private val context: EvaluationContext
 ) {
     fun evaluate(node: ExpressionNode): Any? {

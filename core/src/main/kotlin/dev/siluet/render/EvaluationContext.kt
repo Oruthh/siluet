@@ -2,8 +2,9 @@ package dev.siluet.render
 
 import dev.siluet.blueprint.Template
 import dev.siluet.filter.Filter
+import dev.siluet.reflect.PropertyAccessor
 
-class EvaluationContext(
+internal class EvaluationContext(
     val root: Any?,
     private val accessor: PropertyAccessor,
     val filters: Map<String, Filter> = emptyMap(),

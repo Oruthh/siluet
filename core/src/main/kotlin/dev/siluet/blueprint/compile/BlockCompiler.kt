@@ -4,7 +4,7 @@ import dev.siluet.blueprint.Block
 import dev.siluet.blueprint.PropertyValue
 import dev.siluet.blueprint.definition.BlockDefinition
 
-object BlockCompiler {
+internal object BlockCompiler {
     fun compile(definition: BlockDefinition): Block {
         return Block(
             name = definition.name,

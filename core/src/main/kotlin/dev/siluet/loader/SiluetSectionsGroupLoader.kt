@@ -6,7 +6,7 @@ import dev.siluet.blueprint.SectionsGroup
 import dev.siluet.blueprint.compile.SectionCompiler
 import dev.siluet.blueprint.definition.SectionsGroupDefinition
 
-class SiluetSectionsGroupLoader(
+internal class SiluetSectionsGroupLoader(
     val assetLoader: SiluetAssetLoader,
     val json: Json,
 ) {

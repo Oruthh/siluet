@@ -1,4 +1,4 @@
 package dev.siluet.blueprint
 
-interface PropertyValue {
+internal interface PropertyValue {
 }
