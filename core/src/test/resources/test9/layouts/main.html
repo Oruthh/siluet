@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LayoutTest</title>
+</head>
+<body>
+    @if(arg1 == true) {
+        <div>arg1 is true</div>
+    }
+
+    @if(arg2 == true) {
+        <div>Not rendered</div>
+    } @else {
+        <div>arg2 is false</div>
+    }
+
+    @if(arg2 != true) {
+        <div>arg2 is not true</div>
+    }
+
+    @if(arg3 > 3) {
+        <div>arg3 is greater than 3</div>
+    }
+
+    @if(arg3 < 7) {
+        <div>arg3 is smaller than 5</div>
+    }
+
+    @if(arg3 >= 5) {
+        <div>arg3 is greater or equals 5</div>
+    }
+
+    @if(arg3 <= 5) {
+        <div>arg3 is smaller or equals 5</div>
+    }
+
+    @if(arg3 == 5) {
+        <div>arg3 is 5</div>
+    }
+
+    @if(arg4 == "arg4") {
+        <div>arg4 is "arg4"</div>
+    }
+</body>
+</html>

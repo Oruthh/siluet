@@ -1,0 +1,18 @@
+# Gradle & Java build outputs
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Kotlin
+.kotlin/
+
+# IDE - IntelliJ IDEA
+.idea/
+out/
+*.iml
+*.iws
+*.ipr
+
+# Operating System files
+.DS_Store
+Thumbs.db

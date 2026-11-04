@@ -1,0 +1,5 @@
+@if(showDate) {
+    <h1>@t("now_is"): {{ date | date() }}</h1>
+} @else {
+    <h1>@t("hidden_date")</h1>
+}

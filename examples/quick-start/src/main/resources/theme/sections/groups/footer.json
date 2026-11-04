@@ -1,0 +1,10 @@
+{
+  "sections": {
+    "dataSection1": {
+      "name": "footerDataSection"
+    },
+    "copyrightSection": {
+      "name": "copyRightSection"
+    }
+  }
+}

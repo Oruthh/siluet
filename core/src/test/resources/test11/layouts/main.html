@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LayoutTest</title>
+</head>
+<body>
+    @paginate(list as page by 10, page = pageNumber){
+        @for(item in page.items){
+            {{ item }}
+        }
+    }
+</body>
+</html>

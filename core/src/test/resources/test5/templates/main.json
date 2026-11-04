@@ -1,0 +1,11 @@
+{
+  "layout": "main",
+  "sections": {
+    "simpleSection_1": {
+      "name": "simpleSection"
+    },
+    "simpleSection2_1": {
+      "name": "simpleSection2"
+    }
+  }
+}
