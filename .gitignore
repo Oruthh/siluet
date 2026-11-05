@@ -17,5 +17,5 @@ out/
 .DS_Store
 Thumbs.db
 
-# Doc
-docs/
+#Node
+node_modules/

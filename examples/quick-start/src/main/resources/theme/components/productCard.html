@@ -1,0 +1,11 @@
+<article class="card">
+    <div class="card-body">
+        <h3 class="product-title">{{ item.name }}</h3>
+        <p class="product-price">$ {{ item.price }}</p>
+    </div>
+    <div class="card-footer">
+        <button onclick="addToCart('{{ item.id }}')" class="btn-primary">
+            @t("store.actions.addToCart")
+        </button>
+    </div>
+</article>

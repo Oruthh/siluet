@@ -1,10 +1,10 @@
 {
   "sections": {
-    "dataSection1": {
-      "name": "footerDataSection"
+    "newsletterForm": {
+      "name": "newsletter"
     },
-    "copyrightSection": {
-      "name": "copyRightSection"
+    "legalInfo": {
+      "name": "copyright"
     }
   }
 }

@@ -1,4 +1,7 @@
 {
-  "now_is": "Now is",
-  "hidden_date": "Date is hidden"
+  "store": {
+    "actions": {
+      "addToCart": "Add to Cart"
+    }
+  }
 }

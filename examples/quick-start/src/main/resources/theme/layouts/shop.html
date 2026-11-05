@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ storeName }}</title>
+</head>
+<body>
+<header class="navbar">
+    <h1>{{ storeName }}</h1>
+    <div class="user-profile">
+        Welcome, {{ activeUser | default("Guest") }}!
+    </div>
+</header>
+
+<!-- Mounts all default sections configured in templates/home.json -->
+<main class="container">
+    @sections()
+</main>
+
+<!-- Mounts section groups defined under sections/groups/footer.json -->
+<footer class="site-footer">
+    @sections("footer")
+</footer>
+</body>
+</html>

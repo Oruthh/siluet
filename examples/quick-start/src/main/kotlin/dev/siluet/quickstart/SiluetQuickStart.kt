@@ -8,18 +8,27 @@ import java.util.Locale
 import kotlin.random.Random
 
 fun main() {
-    val siluet = Siluet{
+    // 1. Initialize the engine pointing to the resources directory
+    // (You can replace this with your own custom asset loader implementation)
+    val siluet = Siluet {
         assetLoader = ResourceSiluetAssetLoader("theme")
     }
 
-    val model = QuickStartModel(
-        projectName = "Siluet",
-        date = LocalDateTime.now(),
-        showDate = true,
-        randomNumbers = List(10) { Random.nextInt(0, 100) }
+    // 2. Prepare the model data
+    val model = StorefrontModel(
+        storeName = "Siluet Tech Store",
+        activeUser = "Jane Doe",
+        generatedAt = LocalDateTime.now(),
+        featuredProducts = listOf(
+            Product("p_101", "Mechanical Keyboard", 129.99),
+            Product("p_102", "Wireless Mouse", 59.99),
+            Product("p_103", "USB-C Hub", 34.50)
+        )
     )
 
-    val rendered = siluet.render("main", model) {
+    // 3. Render the "home" template configuration
+    // The locale determines which translation file (e.g., en.json) is loaded.
+    val rendered = siluet.render("home", model) {
         locale = Locale.ENGLISH
         zoneId = ZoneId.of("Europe/London")
     }

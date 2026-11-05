@@ -1,0 +1,8 @@
+{
+  "layout": "shop",
+  "sections": {
+    "productsGrid": {
+      "name": "featuredProducts"
+    }
+  }
+}

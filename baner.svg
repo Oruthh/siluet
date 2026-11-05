@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 140" width="100%" height="100%">
+  <!-- Definicja gradientu -->
+  <defs>
+    <linearGradient id="sGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7F52FF" />
+      <stop offset="100%" stop-color="#00C9FF" />
+    </linearGradient>
+  </defs>
+
+  <!-- Sygnet / Ikona -->
+  <g transform="translate(20, 20)">
+    <!-- Lewy nawias < -->
+    <path d="M 35 15 L 10 50 L 35 85" fill="none" stroke="#7F52FF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <!-- Prawy nawias > -->
+    <path d="M 65 15 L 90 50 L 65 85" fill="none" stroke="#00C9FF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Abstrakcyjne 'S' -->
+    <path d="M 60 30 C 55 20 40 20 40 35 C 40 50 60 50 60 65 C 60 80 45 80 40 70" fill="none" stroke="url(#sGrad)" stroke-width="10" stroke-linecap="round" />
+  </g>
+
+  <!-- Typografia (Tekst) -->
+  <text x="135" y="92" font-family="&#39;Inter&#39;, system-ui, -apple-system, sans-serif" font-size="64" font-weight="800" fill="#1e293b" letter-spacing="-1.5">Siluet</text>
+</svg>

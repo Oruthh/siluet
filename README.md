@@ -54,153 +54,25 @@ theme/
 
 ---
 
-## Quick Start
+## Getting Started
 
-### 1. Define the Data Model
+To see Siluet in action, learn about the theme architecture, and build your first storefront template, please refer to our official guide:
 
-Create standard Kotlin data classes representing the data passed to the template:
-
-```kotlin
-package dev.siluet.quickstart
-
-import java.time.LocalDateTime
-
-data class QuickStartModel(
-    val projectName: String,
-    val date: LocalDateTime,
-    val showDate: Boolean,
-    val randomNumbers: List<Int>,
-)
-```
-
-### 2. Configure the Engine & Render
-
-Initialize `Siluet` with an asset loader and render the template:
-
-```kotlin
-package dev.siluet.quickstart
-
-import dev.siluet.Siluet
-import dev.siluet.loader.ResourceSiluetAssetLoader
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.util.Locale
-import kotlin.random.Random
-
-fun main() {
-    // Initialize Siluet with theme resources
-    val siluet = Siluet {
-        assetLoader = ResourceSiluetAssetLoader("theme")
-    }
-
-    val model = QuickStartModel(
-        projectName = "Siluet",
-        date = LocalDateTime.now(),
-        showDate = true,
-        randomNumbers = List(10) { Random.nextInt(0, 100) }
-    )
-
-    // Render template with localization and timezone settings
-    val rendered = siluet.render("main", model) {
-        locale = Locale.ENGLISH
-        zoneId = ZoneId.of("Europe/London")
-    }
-
-    println(rendered)
-}
-```
-
----
-
-## How It Works
-
-### Template Configuration (`templates/main.json`)
-Binds a base layout to a set of dynamic sections:
-
-```json
-{
-  "layout": "main",
-  "sections": {
-    "numbersSections_1": {
-      "name": "numbersSections"
-    }
-  }
-}
-```
-
-### Layout Skeleton (`layouts/main.html`)
-Defines the document wrapper and mounts configured sections via `@sections()`:
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ projectName }}</title>
-</head>
-<body>
-    <div>Project Name: {{ projectName }}</div>
-    @sections()
-
-    <footer>
-        @sections("footer")
-    </footer>
-</body>
-</html>
-```
-
-### Sections & Section Groups
-
-Sections contain template logic and can iterate over data or inject sub-components:
-
-```html
-<!-- sections/numbersSections.html -->
-<div>
-    @for(randomNumber in randomNumbers){
-        @component("numberComponent", number = randomNumber)
-    }
-</div>
-```
-
-Groups of sections can also be defined inside JSON files (such as `sections/groups/footer.json`):
-
-```json
-{
-  "sections": {
-    "dataSection1": {
-      "name": "footerDataSection"
-    },
-    "copyrightSection": {
-      "name": "copyRightSection"
-    }
-  }
-}
-```
-
-### Components (`components/numberComponent.html`)
-
-Components represent self-contained HTML snippets:
-
-```html
-<h3>
-    {{ number }}
-</h3>
-```
+👉 **[Read the Getting Started Guide](docs/guide/getting-started.md)**
 
 ---
 
 ## Syntax Overview
 
-| Feature | Syntax Example                        | Description |
-| :--- |:--------------------------------------| :--- |
-| **Variable Output** | `{{ projectName }}`                   | Outputs an interpolated variable into the template. |
-| **Filters** | `{{ date \| date() }}`                | Passes expressions through transformation filters. |
-| **Conditionals** | `@if(showDate) { ... } @else { ... }` | Conditional block evaluation. |
-| **Loops** | `@for(item in items) { ... }`         | Iteration over collections and iterables. |
-| **Components** | `@component("name", key = value)`     | Injects a component with scoped properties. |
-| **Section Slots** | `@sections()` or `@sections("group")` | Injects page-level sections or section groups. |
-| **Translations** | `@t("translation_key")`               | Resolves localized strings from the active locale file. |
-
+| Feature | Syntax Example                        | Description | 
+| ----- |---------------------------------------| ----- | 
+| **Variable Output** | `{{ projectName }}`                   | Outputs an interpolated variable into the template. | 
+| **Filters** | `{{ date \| date("short") }}`         | Passes expressions through transformation filters. | 
+| **Conditionals** | `@if(showDate) { ... } @else { ... }` | Conditional block evaluation. | 
+| **Loops** | `@for(item in items) { ... }`         | Iteration over collections and iterables. | 
+| **Components** | `@component("name", key = value)`     | Injects a component with scoped properties. | 
+| **Section Slots** | `@sections()` or `@sections("group")` | Injects page-level sections or section groups. | 
+| **Translations** | `@t("translation_key")`               | Resolves localized strings from the active locale file. | 
 ---
 
 ## Roadmap to v0.1.0
@@ -211,23 +83,29 @@ Components represent self-contained HTML snippets:
 - [ ] HTML output beautifier and whitespace management
 - [ ] Implement @schema directive and JSON properties: {} mapping for configurable UI
 - [x] Publish Kotlin API reference (KDoc)
-- [ ] Write template syntax and directives guide
+- [x] Write template syntax and directives guide
 - [ ] IntelliJ IDEA plugin with syntax highlighting
 
 ---
 
 ## Documentation
 
-Siluet uses [Dokka](https://kotlinlang.org/docs/dokka-introduction.html) to generate its Kotlin API reference documentation (KDoc).
+Siluet's documentation is unified into a single static site, combining:
 
-To build and view the documentation locally, run the following Gradle task from the project root:
+1. **VitePress:** For guides, tutorials, and architecture overviews.
+2. **Dokka:** For the auto-generated Kotlin API reference (KDoc).
+
+To build and preview the complete documentation site locally, run the following Gradle task from the project root:
 
 ```bash
-./gradlew dokkaGenerateHtml
+./gradlew previewSite
 ```
 
-Once the build completes, open `docs/api/index.html` in your web browser to navigate the module and package documentation.
-
+This custom task will automatically:
+- Install NPM dependencies and build the VitePress site.
+- Generate the HTML API reference via Dokka.
+- Assemble both into `build/site/`.
+- Start a local JDK web server (using `SimpleFileServer`) and open `http://localhost:3080` in your default web browser.
 ---
 
 ## Contributing
