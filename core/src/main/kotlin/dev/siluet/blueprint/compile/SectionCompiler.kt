@@ -1,6 +1,5 @@
 package dev.siluet.blueprint.compile
 
-import dev.siluet.blueprint.PropertyValue
 import dev.siluet.blueprint.Section
 import dev.siluet.blueprint.definition.SectionDefinition
 import kotlin.collections.ifEmpty
@@ -21,9 +20,7 @@ internal object SectionCompiler {
         return Section(
             name = definition.name,
             properties = definition.properties.map { (propName, propValue) ->
-                propName to object : PropertyValue {
-
-                }
+                propName to PropertyValueCompiler.compile(propValue)
             }.toMap(),
             blocks = blocks
         )

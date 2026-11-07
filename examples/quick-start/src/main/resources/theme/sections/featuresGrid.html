@@ -1,0 +1,20 @@
+<!-- Read a numeric property to dynamically set the CSS grid columns -->
+<section class="features-wrapper" style="grid-template-columns: repeat({{ section.properties.columns }}, 1fr);">
+
+    <!-- Read a string property (auto-translated thanks to the 't:' prefix) -->
+    <h2 class="section-title">{{ section.properties.title }}</h2>
+
+    <div class="features-list">
+        <!-- Iterate over the blocks array defined in JSON -->
+        @for(block in section.blocks) {
+
+        <div class="feature-card">
+            <!-- Access specific properties of the current block -->
+            <i class="icon-{{ block.properties.icon }}"></i>
+            <h3>{{ block.properties.title }}</h3>
+            <p>{{ block.properties.text }}</p>
+        </div>
+
+        }
+    </div>
+</section>

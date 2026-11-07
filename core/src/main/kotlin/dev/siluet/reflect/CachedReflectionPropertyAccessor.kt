@@ -1,5 +1,6 @@
 package dev.siluet.reflect
 
+import dev.siluet.blueprint.property.PropertyValue
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.concurrent.ConcurrentHashMap

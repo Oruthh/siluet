@@ -1,0 +1,23 @@
+{
+  "layout": "main",
+  "sections": {
+    "orderedSection": {
+      "name": "orderedBlocks",
+      "blocks": {
+        "blockA": {
+          "name": "simpleBlock",
+          "properties": {
+            "title": "First Block"
+          }
+        },
+        "blockB": {
+          "name": "simpleBlock",
+          "properties": {
+            "title": "Second Block"
+          }
+        }
+      },
+      "blocksOrder": ["blockB", "blockA"]
+    }
+  }
+}

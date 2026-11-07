@@ -1,0 +1,30 @@
+{
+  "layout": "main",
+  "sections": {
+    "featuresSection": {
+      "name": "features",
+      "properties": {
+        "title": "Store Features",
+        "columns": 3,
+        "isBadgeActive": true,
+        "badgeText": "t:features.badge"
+      },
+      "blocks": {
+        "feature1": {
+          "name": "featureCard",
+          "properties": {
+            "icon": "truck",
+            "label": "Free Delivery"
+          }
+        },
+        "feature2": {
+          "name": "featureCard",
+          "properties": {
+            "icon": "shield",
+            "label": "Secure Payments"
+          }
+        }
+      }
+    }
+  }
+}

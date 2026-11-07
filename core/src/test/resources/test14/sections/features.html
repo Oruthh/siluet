@@ -1,0 +1,10 @@
+<section>
+    <h1>{{ section.properties.title }}</h1>
+    <span class="columns">{{ section.properties.columns }}</span>
+    <span class="badge">{{ section.properties.badgeText }}</span>
+    @for(block in section.blocks) {
+        <div class="{{ block.name }}">
+            <strong>{{ block.properties.icon }}</strong>: {{ block.properties.label }}
+        </div>
+    }
+</section>

@@ -1,7 +1,10 @@
 {
   "store": {
+    "welcomeMessage": "Welcome to Siluet Tech Store!",
+    "whyChooseUs": "Why Shop With Us?",
     "actions": {
-      "addToCart": "Add to Cart"
+      "addToCart": "Add to Cart",
+      "subscribe": "Subscribe Now"
     }
   }
 }

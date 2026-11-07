@@ -1,4 +1,5 @@
 {
+  "sectionsOrder": ["newsletterForm", "legalInfo"],
   "sections": {
     "newsletterForm": {
       "name": "newsletter"

@@ -17,6 +17,7 @@ resources/theme/
 ├── templates/
 │   └── home.json                # Template configuration & section mapping
 ├── sections/
+│   ├── featuresGrid.html        # Uses section properties and nested blocks
 │   ├── featuredProducts.html    # Loop logic & component calls
 │   ├── newsletter.html          # Newsletter signup section
 │   ├── copyright.html           # Footer legal & copyright info
@@ -98,18 +99,45 @@ fun main() {
 
 ### A. Template Configuration (`templates/home.json`)
 
-Binds the base layout to target sections. Keys represent injection IDs, while `"name"` points to the specific file in `sections/`:
+In Siluet, JSON files act as an **orchestration map**. The configuration tells the engine how to assemble your layouts and sections, what order to put them in, and what static data (properties and blocks) to pass down.
+
+Here we configure a "Features Grid" section with custom `properties` (including an auto-translated string using the `t:` prefix and a numeric value for styling) and nested `blocks` representing individual feature cards (like shipping or support info):
 
 ```json
 {
   "layout": "shop",
+  "sectionsOrder": ["features", "productsGrid"],
   "sections": {
+    "features": {
+      "name": "featuresGrid",
+      "properties": {
+        "title": "t:store.whyChooseUs",
+        "columns": 3
+      },
+      "blocksOrder": ["shipping", "support", "warranty"],
+      "blocks": {
+        "shipping": {
+          "name": "featureCard",
+          "properties": { "icon": "truck", "title": "Free Shipping", "text": "On all orders over $50" }
+        },
+        "support": {
+          "name": "featureCard",
+          "properties": { "icon": "headphones", "title": "24/7 Support", "text": "We are always here to help" }
+        },
+        "warranty": {
+          "name": "featureCard",
+          "properties": { "icon": "shield", "title": "1-Year Warranty", "text": "Guaranteed quality" }
+        }
+      }
+    },
     "productsGrid": {
       "name": "featuredProducts"
     }
   }
 }
 ```
+
+*(For a deep dive into configuration options, see the **Template Configuration Reference**).*
 
 ### B. Layout Skeleton (`layouts/shop.html`)
 
@@ -144,9 +172,42 @@ Defines the top-level HTML document and mounts configured sections via `@section
 </html>
 ```
 
-### C. Sections (`sections/featuredProducts.html`)
+### C. Sections, Properties, and Blocks
 
-Sections contain dynamic markup, data iteration, and component composition. Here we loop through our products to display a grid:
+Sections contain dynamic markup, data iteration, and component composition.
+
+When a section is rendered, Siluet exposes a `section` object containing the data defined in your JSON configuration. You can access its properties via `section.properties` and iterate over its nested elements via `section.blocks`.
+
+**Example 1: Consuming JSON Data (`sections/featuresGrid.html`)**
+
+This section uses the properties and blocks we defined dynamically in `home.json`:
+
+```html
+<!-- Read a numeric property to dynamically set the CSS grid columns -->
+<section class="features-wrapper" style="grid-template-columns: repeat({{ section.properties.columns }}, 1fr);">
+    
+    <!-- Read a string property (auto-translated thanks to the 't:' prefix) -->
+    <h2 class="section-title">{{ section.properties.title }}</h2>
+    
+    <div class="features-list">
+        <!-- Iterate over the blocks array defined in JSON -->
+        @for(block in section.blocks) {
+            
+            <div class="feature-card">
+                <!-- Access specific properties of the current block -->
+                <i class="icon-{{ block.properties.icon }}"></i>
+                <h3>{{ block.properties.title }}</h3>
+                <p>{{ block.properties.text }}</p>
+            </div>
+            
+        }
+    </div>
+</section>
+```
+
+**Example 2: Using Global Model Data (`sections/featuredProducts.html`)**
+
+Sections also have direct access to your Kotlin data model (like `featuredProducts`).
 
 ```html
 <section class="featured-products">
@@ -162,10 +223,11 @@ Sections contain dynamic markup, data iteration, and component composition. Here
 
 ### D. Section Groups (`sections/groups/footer.json`)
 
-Compose multiple reusable sections under a single named mount slot. This is perfect for complex footers or sidebars:
+Compose multiple reusable sections under a single named mount slot. This is perfect for complex footers or sidebars.
 
 ```json
 {
+  "sectionsOrder": ["newsletterForm", "legalInfo"],
   "sections": {
     "newsletterForm": {
       "name": "newsletter"
@@ -201,15 +263,18 @@ Compose multiple reusable sections under a single named mount slot. This is perf
 
 ### E. Translations & Localization (`locales/en.json`)
 
-Siluet supports localization out of the box using JSON dictionaries placed in the `/locales` directory. The structure of the JSON file is flattened during loading, allowing you to access nested keys using dot notation via the `@t()` directive.
+Siluet supports localization out of the box using JSON dictionaries placed in the `/locales` directory. The structure of the JSON file is flattened during loading, allowing you to access nested keys using dot notation via the `@t()` directive, or by using the `t:` prefix in JSON properties.
 
 For example, your `en.json` file:
 
 ```json
 {
   "store": {
+    "welcomeMessage": "Welcome to Siluet Tech Store!",
+    "whyChooseUs": "Why Shop With Us?",
     "actions": {
-      "addToCart": "Add to Cart"
+      "addToCart": "Add to Cart",
+      "subscribe": "Subscribe Now"
     }
   }
 }

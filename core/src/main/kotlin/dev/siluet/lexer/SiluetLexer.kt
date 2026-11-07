@@ -2,6 +2,7 @@ package dev.siluet.lexer
 
 import dev.siluet.SourceLocation
 import dev.siluet.exception.LexerException
+import dev.siluet.parser.SiluetNode
 
 internal class SiluetLexer(
     private val source: String,
@@ -11,7 +12,10 @@ internal class SiluetLexer(
     private var line: Int = 1
     private var column: Int = 1
 
-    private enum class Mode { TEXT, EXPRESSION }
+    private enum class Mode {
+        TEXT,
+        EXPRESSION
+    }
     private var mode: Mode = Mode.TEXT
     private var braceDepth: Int = 0
     private var isExpressionOpen: Boolean = false

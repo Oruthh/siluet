@@ -1,6 +1,6 @@
 package dev.siluet.cache
 
-import dev.siluet.parser.SiluetView
+import dev.siluet.view.SiluetView
 
 /**
  * Cache abstraction for storing and retrieving compiled [SiluetView] instances.

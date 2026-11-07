@@ -4,19 +4,41 @@ import dev.siluet.SourceLocation
 import dev.siluet.exception.ParseException
 import dev.siluet.lexer.Token
 import dev.siluet.lexer.TokenType
+import dev.siluet.schema.SectionSchema
+import dev.siluet.view.SiluetSectionView
+import dev.siluet.view.SiluetView
+import kotlinx.serialization.json.Json
 
 internal class SiluetParser(
     private val tokens: List<Token>,
 ) {
+    private var sectionSchema: SectionSchema? = null
+
     private var current = 0
 
-    fun parse(): List<SiluetNode> {
+    fun parseAsView(): SiluetView {
+        return SiluetView(
+            ast = parseAsNodeList()
+        )
+    }
+
+    fun parseAsSectionView(): SiluetSectionView {
+        return SiluetSectionView(
+            ast = parseAsNodeList(),
+            schema = sectionSchema
+        )
+    }
+
+    fun parseAsNodeList(): List<SiluetNode> {
+        current = 0;
+
         val nodes = mutableListOf<SiluetNode>()
         while(!isAtEnd()) {
             parseNode()?.let {
                 nodes.add(it)
             }
         }
+
         return nodes
     }
 
@@ -30,7 +52,7 @@ internal class SiluetParser(
                 )
             }
             match(TokenType.OPEN_EXPR) -> parsePrintNode()
-            match(TokenType.AT) -> parseDirectiveOrControlFlow()
+            match(TokenType.AT) -> parseDirective()
             else -> {
                 if(!isAtEnd()) {
                     advance()
@@ -71,8 +93,8 @@ internal class SiluetParser(
         )
     }
 
-    private fun parseDirectiveOrControlFlow(): SiluetNode {
-        val nameToken = consume(TokenType.IDENTIFIER, "Expected directive or control flow keyword after '@'")
+    private fun parseDirective(): SiluetNode? {
+        val nameToken = consume(TokenType.IDENTIFIER, "Expected directive keyword after '@'")
         val sourceLocation = nameToken.sourceLocation
 
         return when (nameToken.value) {
@@ -82,6 +104,10 @@ internal class SiluetParser(
             "sections" -> parseSectionsComponent(sourceLocation)
             "paginate" -> parsePaginateDirective(sourceLocation)
             "t", "translate" -> parseTranslationDirective(nameToken.value, sourceLocation)
+            "schema" -> {
+                parseSchemaDirective(sourceLocation)
+                null
+            }
             else -> parseCustomDirective(nameToken.value, sourceLocation)
         }
     }
@@ -240,6 +266,36 @@ internal class SiluetParser(
             translationKeyExpression = translationKeyExpression,
             sourceLocation = sourceLocation
         )
+    }
+
+    private fun parseSchemaDirective(
+        sourceLocation: SourceLocation
+    ) {
+        consume(TokenType.LBRACE, "Expected '{' after '@schema'")
+        var bracesDepth = 1
+        val builder = StringBuilder()
+        builder.append('{')
+
+        while(true){
+            val currentToken = advance()
+            when(currentToken.type) {
+                TokenType.LBRACE -> bracesDepth++
+                TokenType.RBRACE -> bracesDepth--
+                TokenType.EOF -> throw ParseException(
+                    "Expected '}' before EOF to close '@schema'",
+                    sourceLocation = currentToken.sourceLocation
+                )
+                else -> {}
+            }
+
+            builder.append(currentToken.value)
+
+            if(bracesDepth == 0){
+                break
+            }
+        }
+
+        sectionSchema = Json.decodeFromString<SectionSchema>(builder.toString()) //TODO proper errors
     }
 
     private fun parseCustomDirective(

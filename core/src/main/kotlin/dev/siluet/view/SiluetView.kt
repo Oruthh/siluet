@@ -1,4 +1,6 @@
-package dev.siluet.parser
+package dev.siluet.view
+
+import dev.siluet.parser.SiluetNode
 
 /**
  * Represents a pre-compiled, in-memory template view ready for rendering.
@@ -8,8 +10,8 @@ package dev.siluet.parser
  * [dev.siluet.cache.ViewCache] to bypass subsequent compilation passes when rendering
  * the same view or layout repeatedly.
  *
- * @property ast The ordered sequence of root-level [SiluetNode] elements composing the template AST.
+ * @property ast The ordered sequence of root-level [dev.siluet.parser.SiluetNode] elements composing the template AST.
  */
-data class SiluetView(
+open class SiluetView(
     val ast: List<SiluetNode>,
 )

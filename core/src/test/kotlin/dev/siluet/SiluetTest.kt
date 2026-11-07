@@ -490,4 +490,10 @@ class SiluetTest {
         }
         assertEquals("Cannot parse '{}' as a valid date/time at layouts/main.html:8:19", exception.message)
     }
+
+    @Test
+    fun `layout rendering with block and properties`() {
+
+    }
+
 }

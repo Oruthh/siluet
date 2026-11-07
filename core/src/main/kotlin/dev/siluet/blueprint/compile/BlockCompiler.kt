@@ -1,7 +1,6 @@
 package dev.siluet.blueprint.compile
 
 import dev.siluet.blueprint.Block
-import dev.siluet.blueprint.PropertyValue
 import dev.siluet.blueprint.definition.BlockDefinition
 
 internal object BlockCompiler {
@@ -9,9 +8,7 @@ internal object BlockCompiler {
         return Block(
             name = definition.name,
             properties = definition.properties.map { (propName, propValue) ->
-                propName to object : PropertyValue {
-
-                }
+                propName to PropertyValueCompiler.compile(propValue)
             }.toMap()
         )
     }

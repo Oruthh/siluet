@@ -5,6 +5,7 @@ import dev.siluet.exception.SectionsGroupNotFoundException
 import dev.siluet.blueprint.Template
 import dev.siluet.exception.LoopLimitExceededException
 import dev.siluet.exception.RenderException
+import dev.siluet.exception.SectionViewNotFoundException
 import dev.siluet.filter.Filter
 import dev.siluet.html.HTMLEscape
 import dev.siluet.loader.SiluetSectionsGroupLoader
@@ -46,7 +47,9 @@ internal class SiluetRenderer(
             accessor = accessor,
             filters = filters,
             directives = directives,
-            template = template
+            template = template,
+            localeRegistry = localeRegistry,
+            locale = renderContext.locale
         )
         val evaluator = ExpressionEvaluator(evaluationContext)
 
@@ -187,22 +190,28 @@ internal class SiluetRenderer(
                 }
 
                 for(section in sections) {
-                    val sectionsGroup = try {
+                    val sectionView = try {
                         viewsLoader.getOrCompileSectionView(section.name)
-                    } catch (e: SectionsGroupNotFoundException) {
+                    } catch (e: SectionViewNotFoundException) {
                         throw RenderException(
                             e.message!!,
                             sourceLocation = node.sourceLocation
                         )
                     }
 
-                    this.renderNodes(
-                        nodes = sectionsGroup.ast,
-                        renderContext = renderContext,
-                        evaluationContext = evaluationContext,
-                        evaluator = evaluator,
-                        buffer = buffer
-                    )
+                    evaluationContext.pushScope()
+                    evaluationContext.setLocal("section", section)
+                    try{
+                        this.renderNodes(
+                            nodes = sectionView.ast,
+                            renderContext = renderContext,
+                            evaluationContext = evaluationContext,
+                            evaluator = evaluator,
+                            buffer = buffer
+                        )
+                    } finally {
+                        evaluationContext.popScope()
+                    }
                 }
             }
 

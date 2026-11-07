@@ -27,6 +27,7 @@ export default defineConfig({
             {
                 text: 'Template Engine',
                 items: [
+                    { text: 'Template Configuration', link: '/reference/template-configuration' },
                     { text: 'Built-in Filters', link: '/reference/filters' },
                     { text: 'Directives', link: '/reference/directives' },
                     { text: 'Localization', link: '/reference/i18n' }

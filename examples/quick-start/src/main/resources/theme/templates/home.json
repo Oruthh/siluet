@@ -1,6 +1,29 @@
 {
   "layout": "shop",
+  "sectionsOrder": ["features", "productsGrid"],
   "sections": {
+    "features": {
+      "name": "featuresGrid",
+      "properties": {
+        "title": "t:store.whyChooseUs",
+        "columns": 3
+      },
+      "blocksOrder": ["shipping", "support", "warranty"],
+      "blocks": {
+        "shipping": {
+          "name": "featureCard",
+          "properties": { "icon": "truck", "title": "Free Shipping", "text": "On all orders over $50" }
+        },
+        "support": {
+          "name": "featureCard",
+          "properties": { "icon": "headphones", "title": "24/7 Support", "text": "We are always here to help" }
+        },
+        "warranty": {
+          "name": "featureCard",
+          "properties": { "icon": "shield", "title": "1-Year Warranty", "text": "Guaranteed quality" }
+        }
+      }
+    },
     "productsGrid": {
       "name": "featuredProducts"
     }

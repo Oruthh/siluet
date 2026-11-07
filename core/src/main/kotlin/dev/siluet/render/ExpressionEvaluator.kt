@@ -29,7 +29,7 @@ internal class ExpressionEvaluator(
         return context.resolveProperty(receiver, node.propertyName)
     }
 
-    private fun evaluateBinary(node: BinaryOpNode): Any? {
+    private fun evaluateBinary(node: BinaryOpNode): Any {
         if(node.operator == BinaryOperator.AND) {
             val left = evaluate(node.left)
             return if (!isTruthy(left)) {

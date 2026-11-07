@@ -13,7 +13,7 @@ class SiluetParserTest {
 
     private fun parse(source: String): List<SiluetNode> {
         val tokens = SiluetLexer(source).tokenize()
-        return SiluetParser(tokens).parse()
+        return SiluetParser(tokens).parseAsNodeList()
     }
 
     @Test

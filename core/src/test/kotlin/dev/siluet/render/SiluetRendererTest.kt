@@ -37,7 +37,7 @@ class SiluetRendererTest {
         directives: Map<String, Directive> = emptyMap()
     ): String {
         val tokens = SiluetLexer(template).tokenize()
-        val ast = SiluetParser(tokens).parse()
+        val ast = SiluetParser(tokens).parseAsNodeList()
         val renderer = SiluetRenderer(
             maxLoopIterations = 100,
             filters = filters,
