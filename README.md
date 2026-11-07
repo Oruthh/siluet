@@ -81,7 +81,8 @@ To see Siluet in action, learn about the theme architecture, and build your firs
 - [x] Basic text filters (`rawHTML`, `default`, `lowercase`, `uppercase`, `capitalize`, `truncute`)
 - [x] Basic data filters (`date`)
 - [ ] HTML output beautifier and whitespace management
-- [ ] Implement @schema directive and JSON properties: {} mapping for configurable UI
+- [ ] Implement `@schema` directive for section configuration and metadata
+- [x] Support dynamic section & block properties in templates (`section.properties`, `block.properties`)
 - [x] Publish Kotlin API reference (KDoc)
 - [x] Write template syntax and directives guide
 - [ ] IntelliJ IDEA plugin with syntax highlighting
