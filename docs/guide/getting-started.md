@@ -29,7 +29,45 @@ resources/theme/
 
 ## 1. Quick Start
 
-### Step 1: Define the Data Model
+### Step 1: Add Dependencies
+
+Add the `siluet-core` artifact from Maven Central to your build tool.
+
+#### Gradle (Kotlin DSL)
+
+```kotlin
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("dev.siluet:siluet-core:0.0.2")
+}
+```
+
+#### Gradle (Groovy)
+
+```groovy
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'dev.siluet:siluet-core:0.0.2'
+}
+```
+
+#### Maven
+
+```xml
+<dependency>
+    <groupId>dev.siluet</groupId>
+    <artifactId>siluet-core</artifactId>
+    <version>0.0.2</version>
+</dependency>
+```
+
+### Step 2: Define the Data Model
 
 Create standard Kotlin data classes representing the view model. In this case, we are building a simple storefront:
 
@@ -52,7 +90,7 @@ data class StorefrontModel(
 )
 ```
 
-### Step 2: Configure the Engine & Render
+### Step 3: Configure the Engine & Render
 
 Initialize `Siluet` with an asset loader, populate your model with real data, and render the target template:
 

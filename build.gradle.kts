@@ -7,14 +7,11 @@ plugins {
     kotlin("jvm") version "2.4.10" apply false
     id("org.jetbrains.dokka") version "2.2.0"
     id("com.github.node-gradle.node") version "7.0.2"
+    id("com.vanniktech.maven.publish") version "0.37.0" apply false
 }
 
-repositories {
-    mavenCentral()
-}
-
-val appVersion = "0.0.2"
-val appGroup = "dev.siluet"
+val libVersion = "0.0.2"
+val libGroup = "dev.siluet"
 
 dependencies {
     dokka(project(":core"))
@@ -38,8 +35,12 @@ node {
 }
 
 allprojects {
-    group = appGroup
-    version = appVersion
+    group = libGroup
+    version = libVersion
+
+    repositories {
+        mavenCentral()
+    }
 }
 
 subprojects {

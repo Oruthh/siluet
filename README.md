@@ -6,6 +6,7 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.x-7F52FF.svg?logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![Java](https://img.shields.io/badge/Java-21+-ED8B00.svg?logo=openjdk&logoColor=white)](https://openjdk.org)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
+[![Maven Central](https://img.shields.io/maven-central/v/dev.siluet/siluet-core.svg)](https://central.sonatype.com/artifact/dev.siluet/siluet-core)
 
 Siluet is a modern, AST-based templating engine for Kotlin (Java 21+, Kotlin 2.x), designed for e-commerce themes and modular web layouts.
 
