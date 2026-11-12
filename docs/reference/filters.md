@@ -80,27 +80,49 @@ Formats standard Java date/time objects (like `LocalDateTime`, `LocalDate`, `Zon
 The `date` filter accepts a format argument. You can use standard Java `DateTimeFormatter` patterns or one of the predefined aliases.
 
 **1. Default Format**
-If no argument is provided, the filter defaults to `yyyy-MM-dd HH:mm`.
+If no argument is provided, the filter defaults to `yyyy-MM-dd HH:mm`. This format is the same for every locale.
 ```html
 <!-- Renders: 2026-11-05 17:01 -->
 <p>Generated at: {{ generatedAt | date }}</p>
 ```
 
-**2. Predefined Aliases**
-Siluet provides built-in aliases for common use cases:
-*   `"short"`: Renders the date using the `dd.MM.yyyy` pattern, bound to the render context's locale.
-*   `"iso"`: Renders a standard ISO-8601 string via `DateTimeFormatter.ISO_OFFSET_DATE_TIME`.
+**2. Predefined Styles**
+Siluet provides built-in styles for common use cases. Except for `"iso"`, they follow the conventions of the render context's `Locale`, so the same template shows dates the way readers in each language expect.
+
+| Style | `Locale.US` | Polish (`pl`) |
+| :--- | :--- | :--- |
+| `"short"` | `11/10/26` | `10.11.2026` |
+| `"medium"` | `Nov 10, 2026` | `10 lis 2026` |
+| `"long"` | `November 10, 2026` | `10 listopada 2026` |
+| `"full"` | `Tuesday, November 10, 2026` | `wtorek, 10 listopada 2026` |
+| `"shortDateTime"` | `11/10/26, 2:30 PM` | `10.11.2026, 14:30` |
+| `"mediumDateTime"` | `Nov 10, 2026, 2:30:00 PM` | `10 lis 2026, 14:30:00` |
+| `"longDateTime"` | `November 10, 2026, 2:30:00 PM CET` | `10 listopada 2026 14:30:00 CET` |
+| `"fullDateTime"` | `Tuesday, November 10, 2026, 2:30:00 PM Central European Standard Time` | `wtorek, 10 listopada 2026 14:30:00 czas środkowoeuropejski standardowy` |
+| `"iso"` | `2026-11-10T14:30:00+01:00` | `2026-11-10T14:30:00+01:00` |
+
+*Examples for 10 November 2026, 14:30, rendered with `zoneId = ZoneId.of("Europe/Warsaw")`.*
+
+The date styles (`short`, `medium`, `long`, `full`) render the date only. The `…DateTime` styles add the time, converted to the render context's `ZoneId`; `longDateTime` and `fullDateTime` also include the time zone name. All of them use Java's localized formats (`DateTimeFormatter.ofLocalizedDate` / `ofLocalizedDateTime`), so the exact output comes from the JDK's locale data and may differ slightly between Java versions. `"iso"` always renders a standard ISO-8601 string via `DateTimeFormatter.ISO_OFFSET_DATE_TIME`.
 
 ```html
-<!-- Renders: 05.11.2026 -->
+<!-- Renders: 11/10/26 (Locale.US) or 10.11.2026 (pl) -->
 <span>{{ orderDate | date("short") }}</span>
 
-<!-- Renders: 2026-11-05T17:01:00+01:00 -->
+<!-- Renders: November 10, 2026 (Locale.US) or 10 listopada 2026 (pl) -->
+<span>{{ orderDate | date("long") }}</span>
+
+<!-- Renders: Nov 10, 2026, 2:30:00 PM (Locale.US) or 10 lis 2026, 14:30:00 (pl) -->
+<span>{{ orderDate | date("mediumDateTime") }}</span>
+
+<!-- Renders: 2026-11-10T14:30:00+01:00 -->
 <time datetime="{{ orderDate | date("iso") }}"></time>
 ```
 
+> **Note:** Before version 0.0.3, `"short"` always used the fixed `dd.MM.yyyy` pattern. To keep that output regardless of locale, use the custom pattern `date("dd.MM.yyyy")`.
+
 **3. Custom Java Patterns**
-You can pass any standard Java date-time pattern directly into the filter.
+You can pass any standard Java date-time pattern directly into the filter. Month and day names in the pattern are translated using the render context's locale.
 ```html
 <!-- Renders: Thursday, November 5, 2026 -->
 <p>{{ eventDate | date("EEEE, MMMM d, yyyy") }}</p>
