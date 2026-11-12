@@ -109,7 +109,7 @@ internal class SiluetRenderer(
                     )
                 }
 
-                if(items.count() > maxLoopIterations){
+                if(items is Collection<*> && items.size > maxLoopIterations) {
                     throw LoopLimitExceededException(
                         maxLoopIterations,
                         sourceLocation = node.sourceLocation
@@ -118,7 +118,16 @@ internal class SiluetRenderer(
 
                 evaluationContext.pushScope()
                 try {
+                    var iterations = 0
+
                     for (item in items) {
+                        if(++iterations > maxLoopIterations) {
+                            throw LoopLimitExceededException(
+                                maxLoopIterations,
+                                sourceLocation = node.sourceLocation
+                            )
+                        }
+
                         evaluationContext.setLocal(node.variableName, item)
                         renderNodes(node.body, renderContext, evaluationContext, evaluator, buffer)
                     }

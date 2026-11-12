@@ -74,6 +74,11 @@ class SiluetConfig {
      * Maximum allowed iterations for loop directives (e.g., `@for`) to prevent infinite
      * loops or denial-of-service conditions during template rendering.
      *
+     * The limit applies to each loop separately, not to the whole render. It is checked while
+     * iterating, so it also protects against infinite or very large lazy sources (e.g., [Sequence])
+     * without traversing them in advance. Exceeding the limit aborts the entire render with a
+     * [dev.siluet.exception.SiluetException]; no partial output is returned.
+     *
      * Defaults to `1000`.
      */
     var maxLoopIterations: Int = 1_000

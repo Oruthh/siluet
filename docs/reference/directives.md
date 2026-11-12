@@ -30,6 +30,19 @@ Iterates over collections or iterables. This is commonly used for rendering list
 </ul>
 ```
 
+**Supported sources:** collections and any `Iterable`, arrays, maps (iterated over their entries) and Kotlin `Sequence`. A `null` value renders nothing.
+
+Lazy sources such as a `Sequence`, a stream or a database cursor are traversed exactly once, so single-use sequences are safe to pass to the model.
+
+**Iteration limit:** each loop may run at most `maxLoopIterations` times (default: `1000`, configurable in `Siluet { }`). The limit is checked while iterating, so even an infinite sequence is stopped. When it is exceeded, the whole render is aborted with a `SiluetException` and no partial HTML is returned.
+
+```kotlin
+val siluet = Siluet {
+    assetLoader = ResourceSiluetAssetLoader("theme")
+    maxLoopIterations = 5_000
+}
+```
+
 ## Composition & Structure
 
 ### `@component`
