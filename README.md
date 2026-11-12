@@ -126,4 +126,15 @@ Contributions are highly welcome! Since Siluet is in active development, your fe
 
 ## License
 
-This project is licensed under the MPL 2.0 License.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+Unless otherwise noted, this notice applies to all files in this repository.
+See [LICENSE](LICENSE) for the full license text.
+
+The Siluet logo and banner images, including `logo.svg`, `baner.svg` and their
+copies in the documentation, are not covered by the MPL and may not be used
+without permission. You are welcome to refer to the project by its name, but
+please do not use the name Siluet for forks or in a way that suggests official
+endorsement.
