@@ -90,6 +90,7 @@ class DefaultFilterTest {
         val ast = SiluetParser(tokens).parseAsNodeList()
         val renderer = SiluetRenderer(
             maxLoopIterations = 100,
+            maxRenderDepth = 32,
             filters = mapOf("default" to DefaultFilter()),
             viewsLoader = SiluetViewsLoader(
                 cache = InMemorySiluetCache(),

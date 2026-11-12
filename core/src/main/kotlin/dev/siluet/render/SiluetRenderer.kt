@@ -26,9 +26,11 @@ import dev.siluet.parser.SiluetNode
 import dev.siluet.parser.TextNode
 import dev.siluet.parser.TranslationNode
 import dev.siluet.reflect.PropertyAccessor
+import dev.siluet.render.stack.RenderStack
 
 internal class SiluetRenderer(
     private val maxLoopIterations: Int,
+    private val maxRenderDepth: Int,
     private val accessor: PropertyAccessor = CachedReflectionPropertyAccessor(),
     private val filters: Map<String, Filter> = emptyMap(),
     private val directives: Map<String, Directive> = emptyMap(),
@@ -53,7 +55,15 @@ internal class SiluetRenderer(
         )
         val evaluator = ExpressionEvaluator(evaluationContext)
 
-        renderNodes(nodes, renderContext, evaluationContext, evaluator, buffer)
+        val renderStack = RenderStack(maxRenderDepth)
+
+        renderNodes(
+            nodes = nodes,
+            renderContext = renderContext,
+            evaluationContext = evaluationContext,
+            evaluator = evaluator,
+            renderStack = renderStack,
+            buffer = buffer)
         return buffer.toString()
     }
 
@@ -62,10 +72,18 @@ internal class SiluetRenderer(
         renderContext: RenderContext,
         evaluationContext: EvaluationContext,
         evaluator: ExpressionEvaluator,
+        renderStack: RenderStack,
         buffer: Appendable
     ) {
         for(node in nodes) {
-            renderNode(node, renderContext, evaluationContext, evaluator, buffer)
+            renderNode(
+                node = node,
+                renderContext = renderContext,
+                evaluationContext = evaluationContext,
+                evaluator = evaluator,
+                renderStack = renderStack,
+                buffer = buffer
+            )
         }
     }
 
@@ -74,6 +92,7 @@ internal class SiluetRenderer(
         renderContext: RenderContext,
         evaluationContext: EvaluationContext,
         evaluator: ExpressionEvaluator,
+        renderStack: RenderStack,
         buffer: Appendable
     ) {
         when (node) {
@@ -92,9 +111,21 @@ internal class SiluetRenderer(
             is IfNode -> {
                 val conditionResult = evaluator.isTruthy(evaluator.evaluate((node.condition)))
                 if(conditionResult) {
-                    renderNodes(node.thenBody, renderContext, evaluationContext, evaluator, buffer)
+                    renderNodes(
+                        nodes = node.thenBody,
+                        renderContext = renderContext,
+                        evaluationContext = evaluationContext,
+                        evaluator = evaluator,
+                        renderStack = renderStack,
+                        buffer = buffer)
                 } else if(node.elseBody != null) {
-                    renderNodes(node.elseBody, renderContext, evaluationContext, evaluator, buffer)
+                    renderNodes(
+                        nodes = node.elseBody,
+                        renderContext = renderContext,
+                        evaluationContext = evaluationContext,
+                        evaluator = evaluator,
+                        renderStack = renderStack,
+                        buffer = buffer)
                 }
             }
 
@@ -129,7 +160,14 @@ internal class SiluetRenderer(
                         }
 
                         evaluationContext.setLocal(node.variableName, item)
-                        renderNodes(node.body, renderContext, evaluationContext, evaluator, buffer)
+                        renderNodes(
+                            nodes = node.body,
+                            renderContext = renderContext,
+                            evaluationContext = evaluationContext,
+                            evaluator = evaluator,
+                            renderStack = renderStack,
+                            buffer = buffer
+                        )
                     }
                 } finally {
                     evaluationContext.popScope()
@@ -161,13 +199,20 @@ internal class SiluetRenderer(
                             sourceLocation = node.sourceLocation
                         )
                     }
-                    renderNodes(
-                        nodes = componentView.ast,
-                        renderContext = renderContext,
-                        evaluationContext = evaluationContext,
-                        evaluator = evaluator,
-                        buffer = buffer
-                    )
+
+                    renderStack.withFrame(
+                        viewFilePath = componentView.filePath,
+                        callSite = node.sourceLocation
+                    ){
+                        renderNodes(
+                            nodes = componentView.ast,
+                            renderContext = renderContext,
+                            evaluationContext = evaluationContext,
+                            evaluator = evaluator,
+                            renderStack = renderStack,
+                            buffer = buffer
+                        )
+                    }
 
                 } finally {
                     evaluationContext.popScope()
@@ -208,18 +253,24 @@ internal class SiluetRenderer(
                         )
                     }
 
-                    evaluationContext.pushScope()
-                    evaluationContext.setLocal("section", section)
-                    try{
-                        this.renderNodes(
-                            nodes = sectionView.ast,
-                            renderContext = renderContext,
-                            evaluationContext = evaluationContext,
-                            evaluator = evaluator,
-                            buffer = buffer
-                        )
-                    } finally {
-                        evaluationContext.popScope()
+                    renderStack.withFrame(
+                        viewFilePath = sectionView.filePath,
+                        callSite = node.sourceLocation
+                    ) {
+                        evaluationContext.pushScope()
+                        evaluationContext.setLocal("section", section)
+                        try{
+                            this.renderNodes(
+                                nodes = sectionView.ast,
+                                renderContext = renderContext,
+                                evaluationContext = evaluationContext,
+                                evaluator = evaluator,
+                                renderStack = renderStack,
+                                buffer = buffer
+                            )
+                        } finally {
+                            evaluationContext.popScope()
+                        }
                     }
                 }
             }
@@ -268,7 +319,13 @@ internal class SiluetRenderer(
                 evaluationContext.pushScope()
                 try {
                     evaluationContext.setLocal(variableName, paginationContext)
-                    renderNodes(node.body, renderContext, evaluationContext, evaluator, buffer)
+                    renderNodes(
+                        nodes = node.body,
+                        renderContext = renderContext,
+                        evaluationContext = evaluationContext,
+                        evaluator = evaluator,
+                        renderStack = renderStack,
+                        buffer = buffer)
                 } finally {
                     evaluationContext.popScope()
                 }
@@ -313,7 +370,13 @@ internal class SiluetRenderer(
                 val namedArgs = node.namedArguments.mapValues { evaluator.evaluate(it.value) }
                 val bodySupplier: (() -> String)? = node.body?.let { bodyNodes -> {
                     val bodyBuffer = StringBuffer()
-                    renderNodes(bodyNodes, renderContext, evaluationContext, evaluator, bodyBuffer)
+                    renderNodes(
+                        nodes = bodyNodes,
+                        renderContext = renderContext,
+                        evaluationContext = evaluationContext,
+                        evaluator = evaluator,
+                        renderStack = renderStack,
+                        buffer = bodyBuffer)
                     bodyBuffer.toString()
                 }}
 

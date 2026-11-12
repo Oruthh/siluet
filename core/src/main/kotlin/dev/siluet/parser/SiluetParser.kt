@@ -16,21 +16,16 @@ internal class SiluetParser(
 
     private var current = 0
 
-    fun parseAsView(): SiluetView {
-        return SiluetView(
-            ast = parseAsNodeList()
-        )
-    }
-
-    fun parseAsSectionView(): SiluetSectionView {
-        return SiluetSectionView(
+    fun parse(): ParseResult {
+        return ParseResult(
             ast = parseAsNodeList(),
-            schema = sectionSchema
+            sectionSchema = sectionSchema
         )
     }
 
     fun parseAsNodeList(): List<SiluetNode> {
-        current = 0;
+        current = 0
+        sectionSchema = null
 
         val nodes = mutableListOf<SiluetNode>()
         while(!isAtEnd()) {

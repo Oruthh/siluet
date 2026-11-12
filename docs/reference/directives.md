@@ -58,6 +58,28 @@ Injects a reusable, self-contained HTML component. You can pass local arguments 
 </div>
 ```
 
+A component can render other components, including itself. This makes recursive structures such as a category tree possible:
+
+```html
+<!-- components/category.html -->
+<li>
+    {{ node.name }}
+    @if(node.children) {
+        <ul>
+            @for(child in node.children) {
+                @component("category", node = child)
+            }
+        </ul>
+    }
+</li>
+```
+
+**Render depth limit:** views can be nested at most `maxRenderDepth` levels deep (default: `32`, configurable in `Siluet { }`). Every `@component` and every section mounted with `@sections` adds one level; views rendered side by side do not add up. This stops infinite recursion, such as a component that includes itself unconditionally or two components that include each other. When the limit is exceeded, the render is aborted with a `SiluetException` that shows the repeating chain of views and where it started, for example:
+
+```text
+Maximum render depth (32) exceeded while rendering 'components/ping.html': components/ping.html → components/pong.html → components/ping.html (entered from layouts/main.html:1:2) at components/pong.html:1:5
+```
+
 ### `@sections`
 
 Defines mount points (slots) within your base layouts or wrapper components. Siluet replaces these directives with the sections configured in your template's JSON mapping.
@@ -75,6 +97,8 @@ Defines mount points (slots) within your base layouts or wrapper components. Sil
     @sections("sidebar")
 </aside>
 ```
+
+Every mounted section counts toward the render depth limit (see [`@component`](#component)). Avoid mounting `@sections` inside a section that is itself part of the mounted sections, as it renders the section within itself.
 
 ## Data Handling & Pagination
 

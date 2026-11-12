@@ -84,6 +84,29 @@ class SiluetConfig {
     var maxLoopIterations: Int = 1_000
 
     /**
+     * Maximum allowed nesting depth of views (components and sections) during a single render.
+     *
+     * Protects against infinite recursion, such as a component that includes itself directly
+     * or through other components (`a` → `b` → `a`), or a section that renders `@sections`
+     * containing itself, which would otherwise end in a [StackOverflowError].
+     *
+     * Every component rendered with `@component` and every section rendered with `@sections`
+     * adds one level; the layout itself does not count. For example, a section rendered from
+     * a layout has depth `1`, and a component rendered inside that section has depth `2`.
+     * Views rendered side by side do not add up, so only the depth of nesting is limited,
+     * not the total number of views on a page.
+     *
+     * Legitimate recursion, such as rendering a category tree, works up to this limit.
+     * Exceeding it aborts the entire render with a [dev.siluet.exception.SiluetException]
+     * that points to the directive call in the template and shows the repeating chain of view
+     * files, e.g. `components/ping.html → components/pong.html → components/ping.html`;
+     * no partial output is returned.
+     *
+     * Must be greater than `0`. Defaults to `32`.
+     */
+    var maxRenderDepth: Int = 32
+
+    /**
      * Mutable map of registered template filters, keyed by their filter identifier.
      */
     val filters: MutableMap<String, Filter> = mutableMapOf()

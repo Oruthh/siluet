@@ -39,6 +39,7 @@ class SiluetLoopLimitTest {
         val ast = SiluetParser(tokens).parseAsNodeList()
         val renderer = SiluetRenderer(
             maxLoopIterations = maxLoopIterations,
+            maxRenderDepth = 32,
             viewsLoader = SiluetViewsLoader(
                 cache = InMemorySiluetCache(),
                 assetLoader = ResourceSiluetAssetLoader(),

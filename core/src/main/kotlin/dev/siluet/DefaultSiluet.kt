@@ -72,6 +72,7 @@ class DefaultSiluet(
 
         renderer = SiluetRenderer(
             maxLoopIterations = config.maxLoopIterations,
+            maxRenderDepth = config.maxRenderDepth,
             accessor = propertyAccessor,
             filters = config.filters.toMap() + defaultFilters,
             directives = config.directives.toMap(),

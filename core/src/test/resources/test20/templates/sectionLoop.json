@@ -1,0 +1,6 @@
+{
+  "layout": "sectionLoop",
+  "sections": {
+    "self": { "name": "selfMount" }
+  }
+}

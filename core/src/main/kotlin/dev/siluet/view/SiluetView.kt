@@ -11,7 +11,10 @@ import dev.siluet.parser.SiluetNode
  * the same view or layout repeatedly.
  *
  * @property ast The ordered sequence of root-level [dev.siluet.parser.SiluetNode] elements composing the template AST.
+ * @property filePath Path of the source file this view was compiled from, relative to the theme root
+ *   (e.g. `components/productCard.html`). Used in error messages and source locations.
  */
 open class SiluetView(
     val ast: List<SiluetNode>,
+    val filePath: String
 )

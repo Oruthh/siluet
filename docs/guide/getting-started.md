@@ -144,6 +144,9 @@ val siluet = Siluet {
     // Maximum number of iterations allowed in a single @for loop (default: 1000)
     maxLoopIterations = 5_000
 
+    // Maximum nesting depth of components and sections, guards against infinite recursion (default: 32)
+    maxRenderDepth = 64
+
     // Capacity of the internal caches; least frequently used entries are evicted first
     cache {
         maxViews = 2_000          // compiled layouts, sections and components (default: 1000)

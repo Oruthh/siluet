@@ -5,5 +5,6 @@ import dev.siluet.schema.SectionSchema
 
 internal class SiluetSectionView(
     ast: List<SiluetNode>,
-    val schema: SectionSchema? = null
-) : SiluetView(ast)
+    filePath: String,
+    val schema: SectionSchema? = null,
+) : SiluetView(ast, filePath)

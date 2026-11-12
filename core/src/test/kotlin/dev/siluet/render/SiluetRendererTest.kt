@@ -40,6 +40,7 @@ class SiluetRendererTest {
         val ast = SiluetParser(tokens).parseAsNodeList()
         val renderer = SiluetRenderer(
             maxLoopIterations = 100,
+            maxRenderDepth = 32,
             filters = filters,
             directives = directives,
             viewsLoader = SiluetViewsLoader(

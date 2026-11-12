@@ -36,20 +36,35 @@ internal class SiluetViewsLoader(
 
     private fun getOrCompileView(type: String, name: String, loader: () -> String): SiluetView {
         val cacheKey = "$type/$name"
+        val filePath = "$cacheKey.html"
         cache.get(cacheKey)?.let { return it }
 
-        val tokens = SiluetLexer(loader(), "$type/$name.html").tokenize()
-        val view = SiluetParser(tokens).parseAsView()
+        val tokens = SiluetLexer(loader(), filePath).tokenize()
+        val parseResult = SiluetParser(tokens).parse()
+
+        val view = SiluetView(
+            ast = parseResult.ast,
+            filePath = filePath
+        )
+
         cache.put(cacheKey, view)
 
         return view
     }
     private fun getOrCompileSectionView(name: String, loader: () -> String): SiluetSectionView {
         val cacheKey = "sections/$name"
+        val filePath = "$cacheKey.html"
         cache.get(cacheKey)?.let { return it as SiluetSectionView }
 
-        val tokens = SiluetLexer(loader(), "sections/$name.html").tokenize()
-        val view = SiluetParser(tokens).parseAsSectionView()
+        val tokens = SiluetLexer(loader(), filePath).tokenize()
+        val parseResult = SiluetParser(tokens).parse()
+
+        val view = SiluetSectionView(
+            ast = parseResult.ast,
+            filePath = filePath,
+            schema = parseResult.sectionSchema
+        )
+
         cache.put(cacheKey, view)
 
         return view

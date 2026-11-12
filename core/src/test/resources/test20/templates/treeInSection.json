@@ -1,0 +1,6 @@
+{
+  "layout": "treeInSection",
+  "sections": {
+    "tree": { "name": "treeSection" }
+  }
+}
