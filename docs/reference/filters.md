@@ -45,12 +45,21 @@ Truncates a string to a specified length. This is useful for product description
 ## Data Handling & Fallbacks
 
 ### `default`
-Provides a fallback value if the target variable is null, empty, or undefined.
+Provides a fallback value when the variable is missing: `null`, undefined, or an empty string (`""`).
 ```html
-<!-- If userName is null -->
+<!-- If userName is null or "" -->
 <p>Welcome, {{ userName | default("Guest") }}!</p>
 <!-- Renders: <p>Welcome, Guest!</p> -->
 ```
+
+Other values, including `0` and `false`, are treated as present and rendered as they are:
+```html
+<!-- If stock is 0 -->
+<span>In stock: {{ stock | default("unknown") }}</span>
+<!-- Renders: <span>In stock: 0</span> -->
+```
+
+The fallback value argument is required. Using the filter without it, e.g. `{{ userName | default }}`, fails the render with the error `Filter 'default' requires a fallback value argument.`
 
 ### `rawHTML`
 By default, Siluet safely escapes all variables to prevent XSS (Cross-Site Scripting) attacks. If you trust the content and need to render raw HTML tags, use the `rawHTML` filter.
