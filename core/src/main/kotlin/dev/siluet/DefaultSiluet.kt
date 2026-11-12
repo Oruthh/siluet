@@ -1,5 +1,6 @@
 package dev.siluet
 
+import dev.siluet.cache.InMemorySiluetCache
 import dev.siluet.exception.SiluetException
 import kotlinx.serialization.json.Json
 import dev.siluet.loader.SiluetViewsLoader
@@ -19,18 +20,19 @@ import dev.siluet.filter.date.DateFilter
 import dev.siluet.render.RenderContext
 import dev.siluet.exception.RenderException
 import dev.siluet.locale.LocaleRegistry
+import dev.siluet.reflect.CachedReflectionPropertyAccessor
 
 class DefaultSiluet(
-    private val builder: SiluetBuilder
+    config: SiluetConfig
 ) : Siluet {
-    private val assetLoader: SiluetAssetLoader = builder.assetLoader
+    private val assetLoader: SiluetAssetLoader = config.assetLoader
         ?: throw IllegalStateException("SiluetAssetLoader must be configured in SiluetConfig.")
 
     private val json = Json { ignoreUnknownKeys = true }
 
-    private val viewsLoader = SiluetViewsLoader(builder.viewCache, assetLoader)
-    private val sectionsGroupsLoader = SiluetSectionsGroupLoader(assetLoader, json)
-    private val templateLoader = SiluetTemplateLoader(assetLoader, json)
+    private val viewsLoader: SiluetViewsLoader
+    private val sectionsGroupsLoader: SiluetSectionsGroupLoader
+    private val templateLoader: SiluetTemplateLoader
     private val localeRegistry = LocaleRegistry(assetLoader)
 
     private val renderer: SiluetRenderer
@@ -47,11 +49,32 @@ class DefaultSiluet(
             "date" to DateFilter(),
         )
 
+        viewsLoader = SiluetViewsLoader(
+            cache = InMemorySiluetCache(config.cacheConfig.maxViews),
+            assetLoader = assetLoader,
+        )
+
+        sectionsGroupsLoader = SiluetSectionsGroupLoader(
+            assetLoader = assetLoader,
+            json = json,
+            cache = InMemorySiluetCache(config.cacheConfig.maxSectionsGroups),
+        )
+
+        templateLoader = SiluetTemplateLoader(
+            assetLoader = assetLoader,
+            json = json,
+            cache = InMemorySiluetCache(config.cacheConfig.maxTemplates),
+        )
+
+        val propertyAccessor = CachedReflectionPropertyAccessor(
+            securityPolicy = config.securityPolicy,
+        )
+
         renderer = SiluetRenderer(
-            maxLoopIterations = builder.maxLoopIterations,
-            accessor = builder.resolvePropertyAccessor(),
-            filters = builder.filters.toMap() + defaultFilters,
-            directives = builder.directives.toMap(),
+            maxLoopIterations = config.maxLoopIterations,
+            accessor = propertyAccessor,
+            filters = config.filters.toMap() + defaultFilters,
+            directives = config.directives.toMap(),
             viewsLoader = viewsLoader,
             sectionsGroupsLoader = sectionsGroupsLoader,
             localeRegistry = localeRegistry

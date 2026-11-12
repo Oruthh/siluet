@@ -1,0 +1,20 @@
+{
+  "layout": "landing",
+  "sectionsOrder": ["hero", "promo"],
+  "sections": {
+    "hero": {
+      "name": "hero",
+      "properties": {
+        "heading": "t:landing.hero.heading",
+        "subheading": "t:landing.hero.subheading"
+      }
+    },
+    "promo": {
+      "name": "banner",
+      "properties": {
+        "text": "t:landing.promo.text",
+        "highlighted": false
+      }
+    }
+  }
+}

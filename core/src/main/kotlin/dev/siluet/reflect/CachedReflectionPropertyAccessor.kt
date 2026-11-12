@@ -1,6 +1,5 @@
 package dev.siluet.reflect
 
-import dev.siluet.blueprint.property.PropertyValue
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.concurrent.ConcurrentHashMap
@@ -38,7 +37,7 @@ internal class CachedReflectionPropertyAccessor(
         val propertyMap = mutableMapOf<String, Method>()
 
         var currentClass: Class<*>? = clazz
-        while(currentClass != null && currentClass != Any::class.java && currentClass != java.lang.Object::class.java) {
+        while(currentClass != null && currentClass != Any::class.java && currentClass != Object::class.java) {
             for(field in currentClass.declaredFields) {
                 if(Modifier.isStatic(field.modifiers) || field.name.startsWith("$")) {
                     continue

@@ -1,0 +1,18 @@
+{
+  "sectionsOrder": ["links", "copyright"],
+  "sections": {
+    "links": {
+      "name": "footerLinks",
+      "properties": {
+        "title": "t:footer.links.title"
+      }
+    },
+    "copyright": {
+      "name": "copyright",
+      "properties": {
+        "owner": "Siluet Test Store",
+        "year": 2026
+      }
+    }
+  }
+}

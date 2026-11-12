@@ -1,0 +1,6 @@
+<section class="product-grid columns-{{ section.properties.columns }}">
+    <h2>{{ section.properties.title }}</h2>
+    @for(product in products) {
+        @component("productCard", item = product)
+    }
+</section>

@@ -1,0 +1,8 @@
+<section class="features">
+    <h2>{{ section.properties.title }}</h2>
+    <ul>
+    @for(block in section.blocks) {
+        <li class="{{ block.properties.icon }}">{{ block.properties.label }}</li>
+    }
+    </ul>
+</section>

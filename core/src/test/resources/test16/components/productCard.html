@@ -1,0 +1,9 @@
+<article class="product-card">
+    <h3>{{ item.name | uppercase }}</h3>
+    <span class="price">{{ item.price }}</span>
+    @if(item.inStock) {
+        <button>@t("product.addToCart")</button>
+    } @else {
+        <span class="out-of-stock">@t("product.outOfStock")</span>
+    }
+</article>

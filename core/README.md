@@ -104,7 +104,7 @@ val engine = Siluet {
 
 | Package | Primary Role |
 | :--- | :--- |
-| [`dev.siluet`](dev.siluet/index.html) | Root entry point (`Siluet`, `SiluetBuilder`), compilation wrapper (`SiluetView`), context, and source locations. |
+| [`dev.siluet`](dev.siluet/index.html) | Root entry point (`Siluet`, `SiluetConfig`), compilation wrapper (`SiluetView`), context, and source locations. |
 | [`dev.siluet.cache`](dev.siluet.cache/index.html) | AST caching abstraction (`ViewCache`) and heap implementation (`InMemoryViewCache`). |
 | [`dev.siluet.filter`](dev.siluet.filter/index.html) | Expression pipe transformation contract (`Filter`). |
 | [`dev.siluet.render`](dev.siluet.render/index.html) | Statement/block directive contract (`Directive`), context builder (`RenderContext`), and property resolution (`PropertyAccessor`). |

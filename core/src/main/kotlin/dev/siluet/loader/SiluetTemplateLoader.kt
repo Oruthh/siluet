@@ -4,16 +4,16 @@ import dev.siluet.exception.TemplateNotFoundException
 import dev.siluet.blueprint.Template
 import dev.siluet.blueprint.compile.TemplateCompiler
 import dev.siluet.blueprint.definition.TemplateDefinition
+import dev.siluet.cache.SiluetCache
 import kotlinx.serialization.json.Json
 
 internal class SiluetTemplateLoader(
     val assetLoader: SiluetAssetLoader,
-    val json: Json
+    val json: Json,
+    val cache: SiluetCache<String, Template>,
 ) {
-    private val templatesCache: MutableMap<String, Template> = mutableMapOf()
-
     fun getOrCompileTemplate(templateName: String): Template {
-        return templatesCache.computeIfAbsent(templateName, this::compileTemplate)
+        return cache.computeIfAbsent(templateName, this::compileTemplate)
     }
     private fun compileTemplate(templateName: String): Template {
         val templateSource = assetLoader.loadTemplate(templateName)

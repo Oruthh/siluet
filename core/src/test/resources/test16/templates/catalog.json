@@ -1,0 +1,42 @@
+{
+  "layout": "main",
+  "sections": {
+    "list": {
+      "name": "productGrid",
+      "properties": {
+        "title": "t:catalog.title",
+        "columns": 4
+      }
+    },
+    "features": {
+      "name": "featureList",
+      "properties": {
+        "title": "t:catalog.features.title"
+      },
+      "blocksOrder": ["returns", "delivery", "payments"],
+      "blocks": {
+        "delivery": {
+          "name": "feature",
+          "properties": {
+            "icon": "truck",
+            "label": "t:catalog.features.delivery"
+          }
+        },
+        "payments": {
+          "name": "feature",
+          "properties": {
+            "icon": "shield",
+            "label": "t:catalog.features.payments"
+          }
+        },
+        "returns": {
+          "name": "feature",
+          "properties": {
+            "icon": "arrow",
+            "label": "t:catalog.features.returns"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "layout": {
+    "title": "Online Store"
+  },
+  "landing": {
+    "title": "Winter Sale",
+    "hero": {
+      "heading": "Winter Sale Is Here",
+      "subheading": "Up to 50% off selected products"
+    },
+    "promo": {
+      "text": "Sign up and get free delivery"
+    }
+  },
+  "home": {
+    "hero": {
+      "heading": "Welcome to our store",
+      "subheading": "Quality products at fair prices"
+    },
+    "featured": {
+      "title": "Featured products"
+    },
+    "promo": {
+      "text": "Free delivery on orders over 100"
+    }
+  },
+  "catalog": {
+    "title": "All products",
+    "features": {
+      "title": "Why shop with us",
+      "delivery": "Fast delivery",
+      "payments": "Secure payments",
+      "returns": "30-day returns"
+    }
+  },
+  "product": {
+    "addToCart": "Add to cart",
+    "outOfStock": "Out of stock"
+  },
+  "footer": {
+    "rights": "All rights reserved",
+    "links": {
+      "title": "Information",
+      "about": "About us",
+      "contact": "Contact"
+    }
+  }
+}

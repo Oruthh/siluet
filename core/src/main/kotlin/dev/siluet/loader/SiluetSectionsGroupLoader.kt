@@ -5,15 +5,15 @@ import dev.siluet.exception.SectionsGroupNotFoundException
 import dev.siluet.blueprint.SectionsGroup
 import dev.siluet.blueprint.compile.SectionCompiler
 import dev.siluet.blueprint.definition.SectionsGroupDefinition
+import dev.siluet.cache.SiluetCache
 
 internal class SiluetSectionsGroupLoader(
     val assetLoader: SiluetAssetLoader,
     val json: Json,
+    val cache: SiluetCache<String, SectionsGroup>
 ) {
-    private val sectionsGroupsCache: MutableMap<String, SectionsGroup> = mutableMapOf()
-
     fun getOrCompileSectionsGroup(sectionName: String): SectionsGroup {
-        return sectionsGroupsCache.computeIfAbsent(sectionName, this::compileSectionsGroup)
+        return cache.computeIfAbsent(sectionName, this::compileSectionsGroup)
     }
 
     private fun compileSectionsGroup(name: String): SectionsGroup {

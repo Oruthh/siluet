@@ -1,0 +1,27 @@
+{
+  "layout": "main",
+  "sectionsOrder": ["hero", "featured", "promo"],
+  "sections": {
+    "hero": {
+      "name": "hero",
+      "properties": {
+        "heading": "t:home.hero.heading",
+        "subheading": "t:home.hero.subheading"
+      }
+    },
+    "featured": {
+      "name": "productGrid",
+      "properties": {
+        "title": "t:home.featured.title",
+        "columns": 3
+      }
+    },
+    "promo": {
+      "name": "banner",
+      "properties": {
+        "text": "t:home.promo.text",
+        "highlighted": true
+      }
+    }
+  }
+}

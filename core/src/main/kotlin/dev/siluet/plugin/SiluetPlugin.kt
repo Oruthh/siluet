@@ -1,6 +1,6 @@
 package dev.siluet.plugin
 
-import dev.siluet.SiluetBuilder
+import dev.siluet.SiluetConfig
 
 /**
  * Extension contract for modular plugins extending the Siluet templating engine.
@@ -26,7 +26,7 @@ import dev.siluet.SiluetBuilder
  * }
  * ```
  *
- * Installed into an engine instance via [SiluetBuilder.install]:
+ * Installed into an engine instance via [SiluetConfig.install]:
  * ```kotlin
  * val siluet = Siluet {
  *     install(MoneyPlugin) {
@@ -44,5 +44,5 @@ interface SiluetPlugin<TConfig: Any> {
      * @param builder The engine builder being configured.
      * @param configure Optional configuration lambda applied to the plugin's [TConfig] instance.
      */
-    fun install(builder: SiluetBuilder, configure: TConfig.() -> Unit = {})
+    fun install(builder: SiluetConfig, configure: TConfig.() -> Unit = {})
 }

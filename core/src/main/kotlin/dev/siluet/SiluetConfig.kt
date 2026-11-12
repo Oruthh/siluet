@@ -1,14 +1,11 @@
 package dev.siluet
 
-import dev.siluet.cache.InMemoryViewCache
-import dev.siluet.cache.ViewCache
+import dev.siluet.cache.CacheConfig
 import dev.siluet.loader.SiluetAssetLoader
-import dev.siluet.reflect.CachedReflectionPropertyAccessor
 import dev.siluet.reflect.SecurityPolicy
 import dev.siluet.render.Directive
 import dev.siluet.filter.Filter
 import dev.siluet.plugin.SiluetPlugin
-import dev.siluet.reflect.PropertyAccessor
 import dev.siluet.render.RenderContext
 
 /**
@@ -33,19 +30,37 @@ import dev.siluet.render.RenderContext
  * }
  * ```
  */
-class SiluetBuilder {
+class SiluetConfig {
+    /**
+     * Configuration defining capacity limits for internal engine caches.
+     *
+     * Configurable via the [cache] DSL block.
+     */
+    var cacheConfig: CacheConfig = CacheConfig()
+        private set
+
+    /**
+     * Configures internal cache capacities using a [CacheConfig] DSL block.
+     *
+     * ### Example:
+     * ```kotlin
+     * cache {
+     *     maxViews = 2_000
+     *     maxTemplates = 100
+     * }
+     * ```
+     *
+     * @param block Configuration lambda applied to a new [CacheConfig] instance.
+     */
+    fun cache(block: CacheConfig.() -> Unit) {
+        cacheConfig = CacheConfig().apply(block)
+    }
+
     /**
      * The loader responsible for resolving templates, layouts, sections, components,
      * and locale files from the filesystem, classpath resources, or a remote store.
      */
     var assetLoader: SiluetAssetLoader? = null
-
-    /**
-     * Cache provider used to store and retrieve compiled view templates and AST structures.
-     *
-     * Defaults to an [InMemoryViewCache].
-     */
-    var viewCache: ViewCache = InMemoryViewCache()
 
     /**
      * Security policy regulating reflection, member access, and forbidden types
@@ -54,14 +69,6 @@ class SiluetBuilder {
      * Defaults to [SecurityPolicy.Default].
      */
     var securityPolicy: SecurityPolicy = SecurityPolicy.Default
-
-    /**
-     * Custom property accessor used to resolve object properties and method calls in expressions.
-     *
-     * If set to `null`, Siluet defaults to a [CachedReflectionPropertyAccessor] initialized
-     * with the current [securityPolicy].
-     */
-    var propertyAccessor: PropertyAccessor? = null
 
     /**
      * Maximum allowed iterations for loop directives (e.g., `@for`) to prevent infinite
@@ -140,20 +147,12 @@ class SiluetBuilder {
      * @param TConfig Configuration type expected by the plugin.
      * @param plugin The plugin to install into this builder.
      * @param configure Optional configuration lambda applied to the plugin's config object.
-     * @return This [SiluetBuilder] instance for method chaining.
+     * @return This [SiluetConfig] instance for method chaining.
      */
     fun <TConfig : Any> install(
         plugin: SiluetPlugin<TConfig>,
         configure: TConfig.() -> Unit = {}
-    ): SiluetBuilder = apply {
+    ): SiluetConfig = apply {
         plugin.install(this, configure)
-    }
-
-    /**
-     * Resolves the active [PropertyAccessor], falling back to a reflection-based accessor
-     * guarded by [securityPolicy] if no custom accessor was provided.
-     */
-    internal fun resolvePropertyAccessor(): PropertyAccessor {
-        return propertyAccessor ?: CachedReflectionPropertyAccessor(securityPolicy)
     }
 }

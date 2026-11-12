@@ -1,0 +1,48 @@
+{
+  "layout": {
+    "title": "Sklep internetowy"
+  },
+  "landing": {
+    "title": "Zimowa wyprzedaż",
+    "hero": {
+      "heading": "Zimowa wyprzedaż już trwa",
+      "subheading": "Do 50% taniej na wybrane produkty"
+    },
+    "promo": {
+      "text": "Zarejestruj się i odbierz darmową dostawę"
+    }
+  },
+  "home": {
+    "hero": {
+      "heading": "Witamy w naszym sklepie",
+      "subheading": "Dobre produkty w uczciwych cenach"
+    },
+    "featured": {
+      "title": "Polecane produkty"
+    },
+    "promo": {
+      "text": "Darmowa dostawa przy zamówieniach powyżej 100"
+    }
+  },
+  "catalog": {
+    "title": "Wszystkie produkty",
+    "features": {
+      "title": "Dlaczego warto u nas kupować",
+      "delivery": "Szybka dostawa",
+      "payments": "Bezpieczne płatności",
+      "returns": "30 dni na zwrot"
+    }
+  },
+  "product": {
+    "addToCart": "Dodaj do koszyka",
+    "outOfStock": "Brak w magazynie"
+  },
+  "footer": {
+    "rights": "Wszelkie prawa zastrzeżone",
+    "links": {
+      "title": "Informacje",
+      "about": "O nas",
+      "contact": "Kontakt"
+    }
+  }
+}

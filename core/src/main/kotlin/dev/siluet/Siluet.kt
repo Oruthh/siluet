@@ -13,7 +13,7 @@ import dev.siluet.render.RenderContext
  *     assetLoader = ResourceSiluetAssetLoader("theme")
  * }
  * ```
- * @see SiluetBuilder
+ * @see SiluetConfig
  */
 interface Siluet {
     /**
@@ -48,11 +48,11 @@ interface Siluet {
          * }
          * ```
          *
-         * @param block Configuration lambda applied to [SiluetBuilder].
+         * @param block Configuration lambda applied to [SiluetConfig].
          * @return A configured [Siluet] instance backed by [DefaultSiluet].
          */
-        operator fun invoke(block: SiluetBuilder.() -> Unit = {}): Siluet {
-            val config = SiluetBuilder().apply(block)
+        operator fun invoke(block: SiluetConfig.() -> Unit = {}): Siluet {
+            val config = SiluetConfig().apply(block)
             return DefaultSiluet(config)
         }
     }

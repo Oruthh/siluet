@@ -1,10 +1,10 @@
 package dev.siluet.render
 
 import dev.siluet.blueprint.Template
+import dev.siluet.cache.InMemorySiluetCache
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import dev.siluet.loader.SiluetViewsLoader
-import dev.siluet.cache.InMemoryViewCache
 import dev.siluet.filter.Filter
 import dev.siluet.lexer.SiluetLexer
 import dev.siluet.loader.ResourceSiluetAssetLoader
@@ -43,12 +43,13 @@ class SiluetRendererTest {
             filters = filters,
             directives = directives,
             viewsLoader = SiluetViewsLoader(
-                cache = InMemoryViewCache(),
+                cache = InMemorySiluetCache(),
                 assetLoader = ResourceSiluetAssetLoader(),
             ),
             sectionsGroupsLoader = SiluetSectionsGroupLoader(
                 assetLoader = ResourceSiluetAssetLoader(),
-                json = json
+                json = json,
+                cache = InMemorySiluetCache(),
             ),
             localeRegistry = LocaleRegistry(
                 assetLoader = ResourceSiluetAssetLoader(),
