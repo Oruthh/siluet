@@ -297,7 +297,9 @@ internal class SiluetRenderer(
                     )
                 }
 
-                buffer.append(translation)
+                val escapedTranslation = HTMLEscape.escape(translation)
+
+                buffer.append(escapedTranslation)
             }
 
             is DirectiveNode -> {

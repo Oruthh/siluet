@@ -1,0 +1,11 @@
+{
+  "layout": "main",
+  "sections": {
+    "translations": {
+      "name": "translations",
+      "properties": {
+        "title": "t:xss.script"
+      }
+    }
+  }
+}

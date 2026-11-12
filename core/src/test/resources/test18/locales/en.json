@@ -1,0 +1,12 @@
+{
+  "xss": {
+    "script": "<script>alert('xss')</script>"
+  },
+  "attr": {
+    "hint": "Say \"hello\" & <wave>"
+  },
+  "plain": {
+    "hello": "Hello",
+    "food": "Fish & Chips"
+  }
+}

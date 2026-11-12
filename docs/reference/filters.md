@@ -70,6 +70,8 @@ By default, Siluet safely escapes all variables to prevent XSS (Cross-Site Scrip
 ```
 > **Warning:** Only use `rawHTML` on trusted content. Never use it on direct, unsanitized user input.
 
+`rawHTML` cannot be applied to the `@t()` / `@translate()` directives: their output is always escaped. See [Localization](./i18n.md#escaping).
+
 ---
 
 ## Date Formatting
