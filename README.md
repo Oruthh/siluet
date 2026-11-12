@@ -79,7 +79,7 @@ To see Siluet in action, learn about the theme architecture, and build your firs
 ## Roadmap to v0.1.0
 - [x] Core AST compiler, Lexer, and Parser
 - [x] Basic directives (`@if`, `@else`, `@for`, `@sections`, `@component`, `@t`, `@translate`, `@paginate`)
-- [x] Basic text filters (`rawHTML`, `default`, `lowercase`, `uppercase`, `capitalize`, `truncute`)
+- [x] Basic text filters (`rawHTML`, `default`, `lowercase`, `uppercase`, `capitalize`, `truncate`)
 - [x] Basic data filters (`date`)
 - [ ] HTML output beautifier and whitespace management
 - [ ] Implement `@schema` directive for section configuration and metadata

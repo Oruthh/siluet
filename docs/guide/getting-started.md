@@ -133,6 +133,28 @@ fun main() {
 }
 ```
 
+### Step 4 (Optional): Tune the Engine
+
+The `Siluet { }` block accepts additional settings. All of them have sensible defaults:
+
+```kotlin
+val siluet = Siluet {
+    assetLoader = ResourceSiluetAssetLoader("theme")
+
+    // Maximum number of iterations allowed in a single @for loop (default: 1000)
+    maxLoopIterations = 5_000
+
+    // Capacity of the internal caches; least frequently used entries are evicted first
+    cache {
+        maxViews = 2_000          // compiled layouts, sections and components (default: 1000)
+        maxTemplates = 100        // parsed templates/*.json (default: 50)
+        maxSectionsGroups = 100   // parsed sections/groups/*.json (default: 50)
+    }
+}
+```
+
+A `Siluet` instance is thread-safe. Create it once (e.g., at application startup) and share it across requests, so that compiled templates are reused from the cache.
+
 ## 2. Template Architecture
 
 ### A. Template Configuration (`templates/home.json`)

@@ -15,7 +15,7 @@ import dev.siluet.SiluetConfig
  * }
  *
  * object MoneyPlugin : SiluetPlugin<MoneyConfig> {
- *     override fun install(builder: SiluetBuilder, configure: MoneyConfig.() -> Unit) {
+ *     override fun install(builder: SiluetConfig, configure: MoneyConfig.() -> Unit) {
  *         val config = MoneyConfig().apply(configure)
  *
  *         builder.filter("currency") { value, args, _ ->
@@ -39,9 +39,9 @@ import dev.siluet.SiluetConfig
  */
 interface SiluetPlugin<TConfig: Any> {
     /**
-     * Installs plugin capabilities and components into the provided [builder].
+     * Installs plugin capabilities and components into the provided engine configuration.
      *
-     * @param builder The engine builder being configured.
+     * @param builder The engine configuration being populated.
      * @param configure Optional configuration lambda applied to the plugin's [TConfig] instance.
      */
     fun install(builder: SiluetConfig, configure: TConfig.() -> Unit = {})

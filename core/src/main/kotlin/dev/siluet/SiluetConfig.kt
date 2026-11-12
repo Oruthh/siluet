@@ -9,9 +9,9 @@ import dev.siluet.plugin.SiluetPlugin
 import dev.siluet.render.RenderContext
 
 /**
- * DSL builder for configuring and instantiating a [Siluet] template engine.
+ * DSL configuration for instantiating a [Siluet] template engine.
  *
- * Provides options for asset resolution, view caching, reflection security,
+ * Provides options for asset resolution, cache limits, reflection security,
  * iteration guardrails, custom directives, filters, and third-party plugins.
  *
  * ### Example:
@@ -145,7 +145,7 @@ class SiluetConfig {
      * ```
      *
      * @param TConfig Configuration type expected by the plugin.
-     * @param plugin The plugin to install into this builder.
+     * @param plugin The plugin to install into this configuration.
      * @param configure Optional configuration lambda applied to the plugin's config object.
      * @return This [SiluetConfig] instance for method chaining.
      */

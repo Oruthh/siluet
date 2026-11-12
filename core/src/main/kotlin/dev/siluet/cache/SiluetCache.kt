@@ -41,6 +41,10 @@ interface SiluetCache<K, V> {
      * Returns the cached value for the specified [key] if present; otherwise computes
      * a value using [func], stores it in the cache, and returns it.
      *
+     * The operation is not required to be atomic: when several threads miss the same [key]
+     * concurrently, [func] may be invoked more than once and the last computed value is kept.
+     * [func] should therefore be side-effect free.
+     *
      * @param key The key whose associated value is to be retrieved or computed.
      * @param func The function used to compute a value when [key] is absent from the cache.
      * @return The existing or newly computed value associated with [key].

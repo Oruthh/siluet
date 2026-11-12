@@ -12,7 +12,7 @@ The `:core` module provides compilation, AST parsing, runtime evaluation, securi
 
 - **Extensible Architecture:** First-class support for custom pipe filters (`Filter`), tag/block directives (`Directive`), and modular extensions (`SiluetPlugin`).
 
-- **Built-in AST Caching:** High-throughput `ViewCache` SPI with a thread-safe `InMemoryViewCache` implementation.
+- **Built-in Caching:** Compiled views, templates, and section groups are kept in bounded, thread-safe caches (`SiluetCache`, `InMemorySiluetCache`) with configurable limits (`CacheConfig`).
 
 - **Pluggable Asset Loading:** Storage-agnostic asset resolution (`SiluetAssetLoader`) supporting classpath resources (`ResourceSiluetAssetLoader`), local filesystems, or remote stores.
 
@@ -37,6 +37,13 @@ val siluet = Siluet {
     // Guard against runaway iterations
     maxLoopIterations = 1_000
 
+    // Limit the number of cached compiled views, templates, and section groups
+    cache {
+        maxViews = 1_000
+        maxTemplates = 50
+        maxSectionsGroups = 50
+    }
+
     // Register custom filters
     filter("uppercase") { value, _, _ ->
         value?.toString()?.uppercase()
@@ -51,24 +58,17 @@ val siluet = Siluet {
 }
 ```
 
-**2. Rendering Operations**
+**2. Rendering**
 
 ```kotlin
-// 1. Render an orchestrated template defined in theme/templates/home.json
+// Render an orchestrated template defined in theme/templates/home.json
 val pageHtml = siluet.render("home", viewModel) {
     locale = Locale.US
     zoneId = ZoneId.of("America/New_York")
 }
-
-// 2. Render an individual partial or component directly
-val cardHtml = siluet.renderView("components/productCard", productModel)
-
-// 3. Render raw template markup from memory
-val renderedSnippet = siluet.renderString(
-    source = "Hello, {{ user.name | uppercase }}!",
-    model = mapOf("user" to mapOf("name" to "Alice"))
-)
 ```
+
+A single `Siluet` instance is thread-safe and is meant to be shared: create it once and reuse it for all renders.
 
 **Architecture & Concepts**
 
@@ -76,11 +76,11 @@ val renderedSnippet = siluet.renderString(
 
 1. **Source Loading:** `SiluetAssetLoader` locates the raw markup or JSON definition.
 2. **Lexing & Parsing:** The raw source is transformed into an AST of `SiluetNode` elements wrapped within a `SiluetView`.
-3. **Caching:** The resulting `SiluetView` is stored in `ViewCache` to eliminate parsing overhead on subsequent evaluations.
-4. **Evaluation:** `RenderContext` and `PropertyAccessor` bind model data to the AST, outputting the final string.
+3. **Caching:** The resulting `SiluetView` is stored in a bounded `InMemorySiluetCache` (LFU eviction, limits set via `cache { }`) to eliminate parsing overhead on subsequent evaluations. Parsed JSON templates and section groups are cached the same way.
+4. **Evaluation:** `RenderContext` and the reflection-based property accessor bind model data to the AST, outputting the final string.
 
 ```text
-Template Source ──▶ Lexer & Parser ──▶ SiluetView (AST) ──▶ ViewCache
+Template Source ──▶ Lexer & Parser ──▶ SiluetView (AST) ──▶ SiluetCache
                                              │
 Model Data + RenderContext ──────────────────┴─────────────▶ Rendered Output
 ```
@@ -105,10 +105,10 @@ val engine = Siluet {
 | Package | Primary Role |
 | :--- | :--- |
 | [`dev.siluet`](dev.siluet/index.html) | Root entry point (`Siluet`, `SiluetConfig`), compilation wrapper (`SiluetView`), context, and source locations. |
-| [`dev.siluet.cache`](dev.siluet.cache/index.html) | AST caching abstraction (`ViewCache`) and heap implementation (`InMemoryViewCache`). |
+| [`dev.siluet.cache`](dev.siluet.cache/index.html) | Caching abstraction (`SiluetCache`), bounded thread-safe implementation (`InMemorySiluetCache`), and cache limits (`CacheConfig`). |
 | [`dev.siluet.filter`](dev.siluet.filter/index.html) | Expression pipe transformation contract (`Filter`). |
-| [`dev.siluet.render`](dev.siluet.render/index.html) | Statement/block directive contract (`Directive`), context builder (`RenderContext`), and property resolution (`PropertyAccessor`). |
-| [`dev.siluet.reflect`](dev.siluet.reflect/index.html) | Reflection sandbox policies (`SecurityPolicy`, `DefaultSecurityPolicy`) and security exceptions. |
+| [`dev.siluet.render`](dev.siluet.render/index.html) | Statement/block directive contract (`Directive`) and render context (`RenderContext`). |
+| [`dev.siluet.reflect`](dev.siluet.reflect/index.html) | Property resolution (`PropertyAccessor`) and reflection sandbox policies (`SecurityPolicy`, `DefaultSecurityPolicy`). |
 | [`dev.siluet.loader`](dev.siluet.loader/index.html) | Asset discovery contracts (`SiluetAssetLoader`) and classpath loader (`ResourceSiluetAssetLoader`). |
 | [`dev.siluet.pagination`](dev.siluet.pagination/index.html) | Paginated data wrappers (`PaginationContext`) and page fetching abstractions (`PaginationSource`). |
 | [`dev.siluet.plugin`](dev.siluet.plugin/index.html) | Modular plugin contract (`SiluetPlugin`) for bundling filters, directives, and configuration. |
