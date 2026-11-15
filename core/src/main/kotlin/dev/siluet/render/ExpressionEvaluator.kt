@@ -1,5 +1,6 @@
 package dev.siluet.render
 
+import dev.siluet.exception.PropertyAccessException
 import dev.siluet.exception.RenderException
 import dev.siluet.parser.BinaryOpNode
 import dev.siluet.parser.BinaryOperator
@@ -17,7 +18,7 @@ internal class ExpressionEvaluator(
     fun evaluate(node: ExpressionNode): Any? {
         return when (node) {
             is LiteralNode -> node.value
-            is VariableNode -> context.resolveVariable(node.name)
+            is VariableNode -> withPropertyErrorLocation(node) { context.resolveVariable(node.name) }
             is PropertyAccessNode -> evaluatePropertyAccess(node)
             is BinaryOpNode -> evaluateBinary(node)
             is UnaryOpNode -> evaluateUnary(node)
@@ -26,7 +27,15 @@ internal class ExpressionEvaluator(
 
     private fun evaluatePropertyAccess(node: PropertyAccessNode): Any? {
         val receiver = evaluate(node.receiver) ?: return null
-        return context.resolveProperty(receiver, node.propertyName)
+        return withPropertyErrorLocation(node) { context.resolveProperty(receiver, node.propertyName) }
+    }
+
+    private inline fun <T> withPropertyErrorLocation(node: ExpressionNode, block: () -> T): T {
+        return try {
+            block()
+        } catch (e: PropertyAccessException) {
+            throw RenderException(e.message!!, node.sourceLocation)
+        }
     }
 
     private fun evaluateBinary(node: BinaryOpNode): Any {

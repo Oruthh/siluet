@@ -30,7 +30,8 @@ export default defineConfig({
                     { text: 'Template Configuration', link: '/reference/template-configuration' },
                     { text: 'Built-in Filters', link: '/reference/filters' },
                     { text: 'Directives', link: '/reference/directives' },
-                    { text: 'Localization', link: '/reference/i18n' }
+                    { text: 'Localization', link: '/reference/i18n' },
+                    { text: 'Data Model & Security', link: '/reference/data-model' }
                 ]
             }
         ],

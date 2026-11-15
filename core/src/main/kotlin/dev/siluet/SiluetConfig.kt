@@ -66,6 +66,11 @@ class SiluetConfig {
      * Security policy regulating reflection, member access, and forbidden types
      * during expression evaluation on context data models.
      *
+     * Templates can read every public getter of the objects in the model (including computed
+     * and interface properties); the policy is checked before each getter is invoked.
+     * Prefer passing dedicated view models to templates and use [dev.siluet.reflect.DefaultSecurityPolicy]
+     * with `blockedMembers` / `blockedPackages` to deny additional members.
+     *
      * Defaults to [SecurityPolicy.Default].
      */
     var securityPolicy: SecurityPolicy = SecurityPolicy.Default

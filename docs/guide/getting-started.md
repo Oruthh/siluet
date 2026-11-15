@@ -90,6 +90,12 @@ data class StorefrontModel(
 )
 ```
 
+Computed properties work too, e.g. `val isOnSale: Boolean get() = discount > 0` can be used in a template as `@if(product.isOnSale)`.
+
+::: tip
+Pass a dedicated view model like this one rather than your domain or database entities: templates can read every public getter of the objects in the model. See [Data Model & Security](/reference/data-model).
+:::
+
 ### Step 3: Configure the Engine & Render
 
 Initialize `Siluet` with an asset loader, populate your model with real data, and render the target template:
@@ -153,6 +159,11 @@ val siluet = Siluet {
         maxTemplates = 100        // parsed templates/*.json (default: 50)
         maxSectionsGroups = 100   // parsed sections/groups/*.json (default: 50)
     }
+
+    // Extra members and packages that templates must never read (added on top of the defaults)
+    securityPolicy = DefaultSecurityPolicy(
+        blockedMembers = setOf("passwordHash")
+    )
 }
 ```
 

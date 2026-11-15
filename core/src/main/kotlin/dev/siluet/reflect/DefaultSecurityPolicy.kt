@@ -8,8 +8,12 @@ import dev.siluet.exception.SiluetSecurityException
  *
  * Secures runtime property and method evaluations across three layers of defense:
  * 1. **Forbidden Members:** Blocks reflection metadata and thread-control methods (e.g., `class`, `getClass`, `classLoader`, `wait`).
- * 2. **Forbidden Classes:** Forbids target receivers assignable to dangerous runtime types (e.g., [System], [Runtime], [ProcessBuilder]).
- * 3. **Forbidden Packages:** Blocks receivers originating from system packages (e.g., `java.io`, `java.net`, `java.lang.reflect`, `kotlin.reflect`).
+ * 2. **Forbidden Classes:** Forbids target receivers assignable to dangerous runtime types (e.g., [System], [Runtime], [ProcessBuilder], [Thread]).
+ * 3. **Forbidden Packages:** Blocks receivers originating from system packages (e.g., `java.io`, `java.net`, `java.lang.reflect`, `kotlin.reflect`, `jdk.internal`, `sun.`).
+ *
+ * Templates can read every public getter of the objects passed in the model, including computed ones.
+ * Pass dedicated view models / DTOs rather than framework objects (e.g. JPA entities, whose proxies expose
+ * framework internals through public getters), and use [blockedMembers] for sensitive properties.
  *
  * ### Example:
  * ```kotlin
@@ -52,7 +56,10 @@ class DefaultSecurityPolicy(
         "java.nio",
         "java.net",
         "java.security",
-        "kotlin.reflect"
+        "kotlin.reflect",
+        "jdk.internal",
+        "sun.",
+        "com.sun."
     ) + blockedPackages).distinct()
 
     private val forbiddenClasses: Set<Class<*>> = setOf(
@@ -61,7 +68,11 @@ class DefaultSecurityPolicy(
         java.lang.Runtime::class.java,
         java.lang.Process::class.java,
         java.lang.ProcessBuilder::class.java,
-        java.lang.System::class.java
+        java.lang.System::class.java,
+        java.lang.Thread::class.java,
+        java.lang.ThreadGroup::class.java,
+        java.lang.Module::class.java,
+        java.lang.ModuleLayer::class.java
     )
 
     /**
