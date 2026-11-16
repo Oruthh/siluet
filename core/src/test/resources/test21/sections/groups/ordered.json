@@ -1,0 +1,25 @@
+{
+  "sections": {
+    "x": {
+      "name": "marker",
+      "properties": {
+        "label": "X"
+      }
+    },
+    "y": {
+      "name": "marker",
+      "properties": {
+        "label": "Y"
+      }
+    },
+    "z": {
+      "name": "marker",
+      "properties": {
+        "label": "Z"
+      }
+    }
+  },
+  "sectionsOrder": [
+    "z"
+  ]
+}

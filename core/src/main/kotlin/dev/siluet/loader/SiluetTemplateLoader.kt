@@ -1,10 +1,12 @@
 package dev.siluet.loader
 
-import dev.siluet.exception.TemplateNotFoundException
+import dev.siluet.exception.internal.TemplateNotFoundException
 import dev.siluet.blueprint.Template
 import dev.siluet.blueprint.compile.TemplateCompiler
 import dev.siluet.blueprint.definition.TemplateDefinition
 import dev.siluet.cache.SiluetCache
+import dev.siluet.exception.internal.SectionsCompilationException
+import dev.siluet.exception.internal.TemplateLoadingException
 import kotlinx.serialization.json.Json
 
 internal class SiluetTemplateLoader(
@@ -16,11 +18,15 @@ internal class SiluetTemplateLoader(
         return cache.computeIfAbsent(templateName, this::compileTemplate)
     }
     private fun compileTemplate(templateName: String): Template {
-        val templateSource = assetLoader.loadTemplate(templateName)
+        val templateAsset = assetLoader.loadTemplate(templateName)
             ?: throw TemplateNotFoundException(templateName)
 
-        val definition = json.decodeFromString<TemplateDefinition>(templateSource)
-        val template = TemplateCompiler.compile(definition)
+        val definition = json.decodeFromString<TemplateDefinition>(templateAsset.content)
+        val template = try{
+            TemplateCompiler.compile(definition)
+        } catch (e: SectionsCompilationException) {
+            throw TemplateLoadingException(e.message!!, templateAsset.sourceName)
+        }
 
         return Template(
             layout = template.layout,

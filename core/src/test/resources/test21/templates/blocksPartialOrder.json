@@ -1,0 +1,34 @@
+{
+  "layout": "main",
+  "sections": {
+    "features": {
+      "name": "marker",
+      "properties": {
+        "label": "F"
+      },
+      "blocks": {
+        "shipping": {
+          "name": "item",
+          "properties": {
+            "label": "shipping"
+          }
+        },
+        "support": {
+          "name": "item",
+          "properties": {
+            "label": "support"
+          }
+        },
+        "warranty": {
+          "name": "item",
+          "properties": {
+            "label": "warranty"
+          }
+        }
+      },
+      "blocksOrder": [
+        "warranty"
+      ]
+    }
+  }
+}

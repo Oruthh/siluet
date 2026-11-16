@@ -1,4 +1,4 @@
-package dev.siluet.exception
+package dev.siluet.exception.internal
 
 internal class ComponentViewNotFoundException(
     val componentName: String

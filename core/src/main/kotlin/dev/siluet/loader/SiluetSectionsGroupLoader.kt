@@ -1,11 +1,13 @@
 package dev.siluet.loader
 
 import kotlinx.serialization.json.Json
-import dev.siluet.exception.SectionsGroupNotFoundException
+import dev.siluet.exception.internal.SectionsGroupNotFoundException
 import dev.siluet.blueprint.SectionsGroup
-import dev.siluet.blueprint.compile.SectionCompiler
+import dev.siluet.blueprint.compile.SectionsCompiler
 import dev.siluet.blueprint.definition.SectionsGroupDefinition
 import dev.siluet.cache.SiluetCache
+import dev.siluet.exception.internal.SectionsCompilationException
+import dev.siluet.exception.internal.SectionsGroupLoadingException
 
 internal class SiluetSectionsGroupLoader(
     val assetLoader: SiluetAssetLoader,
@@ -17,23 +19,19 @@ internal class SiluetSectionsGroupLoader(
     }
 
     private fun compileSectionsGroup(name: String): SectionsGroup {
-        val sectionsGroupSource = assetLoader.loadSectionsGroup(name)
+        val sectionsGroupAsset = assetLoader.loadSectionsGroup(name)
             ?: throw SectionsGroupNotFoundException(name)
 
-        val definition = json.decodeFromString<SectionsGroupDefinition>(sectionsGroupSource)
+        val definition = json.decodeFromString<SectionsGroupDefinition>(sectionsGroupAsset.content)
 
-        val sectionsOrder = definition.sectionsOrder.ifEmpty {
-            definition.sections.keys.toList()
-        }
-
-        val sections = sectionsOrder.map { sectionKey ->
-            val sectionDef = definition.sections[sectionKey]!!
-
-            SectionCompiler.compile(sectionDef)
+        val sections = try{
+            SectionsCompiler.compile(definition.sections, definition.sectionsOrder)
+        } catch (e: SectionsCompilationException) {
+            throw SectionsGroupLoadingException(e.message!!, sectionsGroupAsset.sourceName)
         }
         
         return SectionsGroup(
-            sections = sections
+            sections = sections,
         )
     }
 }

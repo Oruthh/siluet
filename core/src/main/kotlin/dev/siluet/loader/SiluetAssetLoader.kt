@@ -24,7 +24,7 @@ interface SiluetAssetLoader {
      * @param name The template identifier without file extension.
      * @return The raw JSON configuration string, or `null` if not found.
      */
-    fun loadTemplate(name: String): String?
+    fun loadTemplate(name: String): SiluetAsset?
 
     /**
      * Loads a shared section group configuration by its [name].
@@ -35,7 +35,7 @@ interface SiluetAssetLoader {
      * @param name The section group identifier without file extension.
      * @return The raw JSON group configuration string, or `null` if not found.
      */
-    fun loadSectionsGroup(name: String): String?
+    fun loadSectionsGroup(name: String): SiluetAsset?
 
     /**
      * Loads an outer layout template by its [name].
@@ -46,7 +46,7 @@ interface SiluetAssetLoader {
      * @param name The layout identifier without file extension.
      * @return The raw layout template string, or `null` if not found.
      */
-    fun loadLayout(name: String): String?
+    fun loadLayout(name: String): SiluetAsset?
 
     /**
      * Loads an individual section template by its [name].
@@ -57,7 +57,7 @@ interface SiluetAssetLoader {
      * @param name The section identifier without file extension.
      * @return The raw section template string, or `null` if not found.
      */
-    fun loadSection(name: String): String?
+    fun loadSection(name: String): SiluetAsset?
 
     /**
      * Loads a reusable component template by its [name].
@@ -68,7 +68,7 @@ interface SiluetAssetLoader {
      * @param name The component identifier without file extension.
      * @return The raw component template string, or `null` if not found.
      */
-    fun loadComponent(name: String): String?
+    fun loadComponent(name: String): SiluetAsset?
 
     /**
      * Loads localization translation data for the given [locale].
@@ -79,5 +79,5 @@ interface SiluetAssetLoader {
      * @param locale The requested [Locale].
      * @return The raw JSON localization string, or `null` if no translations exist for this locale.
      */
-    fun loadLocale(locale: Locale): String?
+    fun loadLocale(locale: Locale): SiluetAsset?
 }

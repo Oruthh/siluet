@@ -11,5 +11,4 @@ package dev.siluet.exception
  * @see dev.siluet.reflect.SecurityPolicy
  * @see dev.siluet.reflect.DefaultSecurityPolicy
  */
-class SiluetSecurityException(message: String) : RuntimeException(message) {
-}
+class SiluetSecurityException(message: String) : RuntimeException(message)

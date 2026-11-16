@@ -1,14 +1,15 @@
-package dev.siluet.render
+package dev.siluet
 
 import dev.siluet.blueprint.Template
 import dev.siluet.cache.InMemorySiluetCache
-import dev.siluet.exception.LoopLimitExceededException
+import dev.siluet.exception.internal.LoopLimitExceededException
 import dev.siluet.lexer.SiluetLexer
 import dev.siluet.loader.ResourceSiluetAssetLoader
 import dev.siluet.loader.SiluetSectionsGroupLoader
 import dev.siluet.loader.SiluetViewsLoader
 import dev.siluet.locale.LocaleRegistry
 import dev.siluet.parser.SiluetParser
+import dev.siluet.render.SiluetRenderer
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.assertTimeoutPreemptively
 import org.junit.jupiter.api.Test

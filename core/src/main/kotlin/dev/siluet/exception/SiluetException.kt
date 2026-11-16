@@ -12,8 +12,7 @@ import dev.siluet.SourceLocation
  * @param message Diagnostic message explaining the underlying failure.
  * @property sourceLocation The exact coordinates within the source template where the error occurred.
  */
-class SiluetException(
+open class SiluetException(
     message: String,
-    val sourceLocation: SourceLocation,
-) : RuntimeException(message) {
-}
+    cause: Throwable? = null
+) : RuntimeException(message, cause)

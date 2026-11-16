@@ -11,11 +11,11 @@ internal class LocaleRegistry(
 
     fun getTranslation(locale: Locale, translationId: String): String {
         val translations = translationCache.computeIfAbsent(locale) { locale ->
-            val jsonSource = assetLoader.loadLocale(locale)
+            val asset = assetLoader.loadLocale(locale)
                 ?: assetLoader.loadLocale(Locale.getDefault())
                 ?: throw LocaleNotFoundException(locale) //TODO implement something better
 
-            LocaleParser.parse(jsonSource)
+            LocaleParser.parse(asset.content)
         }
 
         return translations[translationId] ?: translationId //TODO implement something better

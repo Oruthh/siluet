@@ -1,7 +1,6 @@
 package dev.siluet
 
 import dev.siluet.cache.InMemorySiluetCache
-import dev.siluet.exception.SiluetException
 import kotlinx.serialization.json.Json
 import dev.siluet.loader.SiluetViewsLoader
 import dev.siluet.render.SiluetRenderer
@@ -11,14 +10,19 @@ import dev.siluet.filter.string.LowerCaseFilter
 import dev.siluet.filter.string.RawHTMLFilter
 import dev.siluet.filter.string.TruncateFilter
 import dev.siluet.filter.string.UpperCaseFilter
-import dev.siluet.exception.LexerException
+import dev.siluet.exception.internal.LexerException
 import dev.siluet.loader.SiluetAssetLoader
 import dev.siluet.loader.SiluetSectionsGroupLoader
 import dev.siluet.loader.SiluetTemplateLoader
-import dev.siluet.exception.ParseException
+import dev.siluet.exception.internal.ParseException
 import dev.siluet.filter.date.DateFilter
 import dev.siluet.render.RenderContext
-import dev.siluet.exception.RenderException
+import dev.siluet.exception.internal.RenderException
+import dev.siluet.exception.SiluetAssetNotFoundException
+import dev.siluet.exception.SiluetBlueprintException
+import dev.siluet.exception.SiluetViewException
+import dev.siluet.exception.internal.TemplateLoadingException
+import dev.siluet.exception.internal.TemplateNotFoundException
 import dev.siluet.locale.LocaleRegistry
 import dev.siluet.reflect.CachedReflectionPropertyAccessor
 
@@ -88,11 +92,15 @@ class DefaultSiluet(
             val layoutView = viewsLoader.getOrCompileLayoutView(template.layout)
             renderer.render(layoutView.ast, model, template, contextBuilder)
         } catch (e: RenderException) {
-            throw SiluetException(e.message!!, e.sourceLocation)
+            throw SiluetViewException(e.message!!, e.sourceLocation)
         } catch (e: ParseException) {
-            throw SiluetException(e.message!!, e.sourceLocation)
+            throw SiluetViewException(e.message!!, e.sourceLocation)
         } catch (e: LexerException) {
-            throw SiluetException(e.message!!, e.sourceLocation)
+            throw SiluetViewException(e.message!!, e.sourceLocation)
+        } catch (e: TemplateLoadingException) {
+            throw SiluetBlueprintException(e.message!!, e.sourceName)
+        } catch (_: TemplateNotFoundException) {
+            throw SiluetAssetNotFoundException("template", templateName)
         }
     }
 }

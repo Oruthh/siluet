@@ -1,7 +1,7 @@
 package dev.siluet.parser
 
 import dev.siluet.SourceLocation
-import dev.siluet.exception.ParseException
+import dev.siluet.exception.internal.ParseException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertNull

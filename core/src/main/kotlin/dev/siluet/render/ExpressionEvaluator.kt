@@ -1,7 +1,7 @@
 package dev.siluet.render
 
-import dev.siluet.exception.PropertyAccessException
-import dev.siluet.exception.RenderException
+import dev.siluet.exception.internal.PropertyAccessException
+import dev.siluet.exception.internal.RenderException
 import dev.siluet.parser.BinaryOpNode
 import dev.siluet.parser.BinaryOperator
 import dev.siluet.parser.ExpressionNode

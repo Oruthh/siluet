@@ -1,7 +1,7 @@
 package dev.siluet.render.stack
 
 import dev.siluet.SourceLocation
-import dev.siluet.exception.RenderDepthExceededException
+import dev.siluet.exception.internal.RenderDepthExceededException
 
 internal class RenderStack(
     private val maxDepth: Int,
@@ -15,9 +15,9 @@ internal class RenderStack(
         require(maxDepth > 0) { "maxDepth must be greater than 0, but was $maxDepth" }
     }
 
-    fun <T> withFrame(viewFilePath: String, callSite: SourceLocation, block: () -> T): T {
+    fun <T> withFrame(sourceName: String, callSite: SourceLocation, block: () -> T): T {
         val frame = RenderFrame(
-            viewFilePath = viewFilePath,
+            sourceName = sourceName,
             callSite = callSite
         )
 

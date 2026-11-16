@@ -1,0 +1,14 @@
+{
+  "sections": {
+    "header": {
+      "name": "marker",
+      "properties": {
+        "label": "HD"
+      }
+    }
+  },
+  "sectionsOrder": [
+    "header",
+    "header"
+  ]
+}

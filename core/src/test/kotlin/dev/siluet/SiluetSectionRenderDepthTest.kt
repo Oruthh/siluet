@@ -1,6 +1,7 @@
 package dev.siluet
 
 import dev.siluet.exception.SiluetException
+import dev.siluet.exception.SiluetViewException
 import dev.siluet.loader.ResourceSiluetAssetLoader
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -41,33 +42,33 @@ class SiluetSectionRenderDepthTest {
 
     @Test
     fun `section mounting itself fails with a clear error`() {
-        val exception = assertFailsWith<SiluetException> {
+        val exception = assertFailsWith<SiluetViewException> {
             siluet.render("sectionLoop")
         }
 
         assertMessageContains(exception, "Maximum render depth ($MAX_DEPTH) exceeded")
         assertMessageContains(
             exception,
-            "'sections/selfMount.html': sections/selfMount.html → sections/selfMount.html " +
-                    "(entered from layouts/sectionLoop.html:1:2)"
+            "'/test20/sections/selfMount.html': /test20/sections/selfMount.html → /test20/sections/selfMount.html " +
+                    "(entered from /test20/layouts/sectionLoop.html:1:2)"
         )
         // <section>@sections()</section>
-        assertEquals(SourceLocation("sections/selfMount.html", 1, 11), exception.sourceLocation)
+        assertEquals(SourceLocation("/test20/sections/selfMount.html", 1, 11), exception.sourceLocation)
     }
 
     @Test
     fun `section mounting its own group fails with a clear error`() {
-        val exception = assertFailsWith<SiluetException> {
+        val exception = assertFailsWith<SiluetViewException> {
             siluet.render("groupLoop")
         }
 
         assertMessageContains(
             exception,
-            "'sections/groupSelf.html': sections/groupSelf.html → sections/groupSelf.html " +
-                    "(entered from layouts/groupLoop.html:1:2)"
+            "'/test20/sections/groupSelf.html': /test20/sections/groupSelf.html → /test20/sections/groupSelf.html " +
+                    "(entered from /test20/layouts/groupLoop.html:1:2)"
         )
         // <aside>@sections("loopGroup")</aside>
-        assertEquals(SourceLocation("sections/groupSelf.html", 1, 9), exception.sourceLocation)
+        assertEquals(SourceLocation("/test20/sections/groupSelf.html", 1, 9), exception.sourceLocation)
     }
 
     @Test
@@ -87,8 +88,8 @@ class SiluetSectionRenderDepthTest {
         }
 
         assertMessageContains(exception, "Maximum render depth ($MAX_DEPTH) exceeded")
-        assertMessageContains(exception, "components/category.html → components/category.html")
+        assertMessageContains(exception, "/test20/components/category.html → /test20/components/category.html")
         // Recursion of 'category' started in the section.
-        assertMessageContains(exception, "(entered from sections/treeSection.html:1:2)")
+        assertMessageContains(exception, "(entered from /test20/sections/treeSection.html:1:2)")
     }
 }

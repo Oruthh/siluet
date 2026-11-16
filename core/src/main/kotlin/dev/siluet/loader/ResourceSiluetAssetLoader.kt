@@ -30,7 +30,7 @@ class ResourceSiluetAssetLoader(
      * @param name The template identifier (without the `.json` extension).
      * @return Raw JSON configuration string, or `null` if the resource does not exist.
      */
-    override fun loadTemplate(name: String): String? {
+    override fun loadTemplate(name: String): SiluetAsset? {
         return load("templates/$name.json")
     }
 
@@ -40,7 +40,7 @@ class ResourceSiluetAssetLoader(
      * @param name The section group identifier (without the `.json` extension).
      * @return Raw JSON configuration string, or `null` if the resource does not exist.
      */
-    override fun loadSectionsGroup(name: String): String? {
+    override fun loadSectionsGroup(name: String): SiluetAsset? {
         return load("sections/groups/$name.json")
     }
 
@@ -50,7 +50,7 @@ class ResourceSiluetAssetLoader(
      * @param name The layout file identifier (without the `.html` extension).
      * @return Raw HTML/template markup string, or `null` if the resource does not exist.
      */
-    override fun loadLayout(name: String): String? {
+    override fun loadLayout(name: String): SiluetAsset? {
         return load("layouts/$name.html")
     }
 
@@ -60,7 +60,7 @@ class ResourceSiluetAssetLoader(
      * @param name The section file identifier (without the `.html` extension).
      * @return Raw HTML/template markup string, or `null` if the resource does not exist.
      */
-    override fun loadSection(name: String): String? {
+    override fun loadSection(name: String): SiluetAsset? {
         return load("sections/$name.html")
     }
 
@@ -70,7 +70,7 @@ class ResourceSiluetAssetLoader(
      * @param name The component file identifier (without the `.html` extension).
      * @return Raw HTML/template markup string, or `null` if the resource does not exist.
      */
-    override fun loadComponent(name: String): String? {
+    override fun loadComponent(name: String): SiluetAsset? {
         return load("components/$name.html")
     }
 
@@ -82,7 +82,7 @@ class ResourceSiluetAssetLoader(
      * @param locale The target [Locale].
      * @return Raw JSON locale dictionary string, or `null` if the resource does not exist.
      */
-    override fun loadLocale(locale: Locale): String? {
+    override fun loadLocale(locale: Locale): SiluetAsset? {
         return load("locales/${locale.language}.json")
     }
 
@@ -92,7 +92,7 @@ class ResourceSiluetAssetLoader(
      * @param path The relative resource path (e.g., `"templates/index.json"`).
      * @return UTF-8 decoded file content as a [String], or `null` if the resource cannot be found on the classpath.
      */
-    private fun load(path: String): String? {
+    private fun load(path: String): SiluetAsset? {
         val normalized = if(prefix.isEmpty()) {
             path
         } else {
@@ -105,6 +105,9 @@ class ResourceSiluetAssetLoader(
         }
         return javaClass.getResourceAsStream(resourcePath)
             ?.bufferedReader()
-            ?.use { it.readText() }
+            ?.use { SiluetAsset(
+                sourceName = resourcePath,
+                content = it.readText()
+            ) }
     }
 }

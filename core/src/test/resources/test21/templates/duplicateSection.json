@@ -1,0 +1,21 @@
+{
+  "layout": "main",
+  "sections": {
+    "hero": {
+      "name": "marker",
+      "properties": {
+        "label": "H"
+      }
+    },
+    "promo": {
+      "name": "marker",
+      "properties": {
+        "label": "P"
+      }
+    }
+  },
+  "sectionsOrder": [
+    "hero",
+    "hero"
+  ]
+}

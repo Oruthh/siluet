@@ -1,6 +1,6 @@
 package dev.siluet.reflect
 
-import dev.siluet.exception.PropertyAccessException
+import dev.siluet.exception.internal.PropertyAccessException
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier

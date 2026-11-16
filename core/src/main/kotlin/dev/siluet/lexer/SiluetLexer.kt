@@ -1,8 +1,7 @@
 package dev.siluet.lexer
 
 import dev.siluet.SourceLocation
-import dev.siluet.exception.LexerException
-import dev.siluet.parser.SiluetNode
+import dev.siluet.exception.internal.LexerException
 
 internal class SiluetLexer(
     private val source: String,

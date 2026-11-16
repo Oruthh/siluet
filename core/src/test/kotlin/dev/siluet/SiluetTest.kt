@@ -488,7 +488,7 @@ class SiluetTest {
         val exception = assertFailsWith<SiluetException> {
             siluet.render("main", model)
         }
-        assertEquals("Cannot parse '{}' as a valid date/time at layouts/main.html:8:19", exception.message)
+        assertEquals("Cannot parse '{}' as a valid date/time at /test13/layouts/main.html:8:19", exception.message)
     }
 
     @Test

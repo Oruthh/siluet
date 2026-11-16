@@ -1,6 +1,6 @@
 package dev.siluet.reflect
 
-import dev.siluet.exception.PropertyAccessException
+import dev.siluet.exception.internal.PropertyAccessException
 import dev.siluet.reflect.fixtures.Account
 import dev.siluet.reflect.fixtures.FatalTestError
 import dev.siluet.reflect.fixtures.FluentBean

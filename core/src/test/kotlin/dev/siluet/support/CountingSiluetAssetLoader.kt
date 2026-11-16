@@ -1,5 +1,6 @@
 package dev.siluet.support
 
+import dev.siluet.loader.SiluetAsset
 import dev.siluet.loader.SiluetAssetLoader
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
@@ -17,17 +18,17 @@ class CountingSiluetAssetLoader(
 ) : SiluetAssetLoader {
     private val counters = ConcurrentHashMap<String, AtomicInteger>()
 
-    override fun loadTemplate(name: String): String? = count("templates/$name") { delegate.loadTemplate(name) }
+    override fun loadTemplate(name: String): SiluetAsset? = count("templates/$name") { delegate.loadTemplate(name) }
 
-    override fun loadSectionsGroup(name: String): String? = count("groups/$name") { delegate.loadSectionsGroup(name) }
+    override fun loadSectionsGroup(name: String): SiluetAsset? = count("groups/$name") { delegate.loadSectionsGroup(name) }
 
-    override fun loadLayout(name: String): String? = count("layouts/$name") { delegate.loadLayout(name) }
+    override fun loadLayout(name: String): SiluetAsset? = count("layouts/$name") { delegate.loadLayout(name) }
 
-    override fun loadSection(name: String): String? = count("sections/$name") { delegate.loadSection(name) }
+    override fun loadSection(name: String): SiluetAsset? = count("sections/$name") { delegate.loadSection(name) }
 
-    override fun loadComponent(name: String): String? = count("components/$name") { delegate.loadComponent(name) }
+    override fun loadComponent(name: String): SiluetAsset? = count("components/$name") { delegate.loadComponent(name) }
 
-    override fun loadLocale(locale: Locale): String? = count("locales/${locale.language}") { delegate.loadLocale(locale) }
+    override fun loadLocale(locale: Locale): SiluetAsset? = count("locales/${locale.language}") { delegate.loadLocale(locale) }
 
     /** Number of calls for the given key (`0` if never requested). */
     fun callsFor(key: String): Int = counters[key]?.get() ?: 0
@@ -41,7 +42,7 @@ class CountingSiluetAssetLoader(
 
     fun reset() = counters.clear()
 
-    private inline fun count(key: String, load: () -> String?): String? {
+    private inline fun count(key: String, load: () -> SiluetAsset?): SiluetAsset? {
         counters.computeIfAbsent(key) { AtomicInteger() }.incrementAndGet()
         return load()
     }

@@ -1,7 +1,7 @@
 package dev.siluet.lexer
 
 import dev.siluet.SourceLocation
-import dev.siluet.exception.LexerException
+import dev.siluet.exception.internal.LexerException
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals

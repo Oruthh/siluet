@@ -16,5 +16,5 @@ import dev.siluet.parser.SiluetNode
  */
 open class SiluetView(
     val ast: List<SiluetNode>,
-    val filePath: String
+    val sourceName: String
 )

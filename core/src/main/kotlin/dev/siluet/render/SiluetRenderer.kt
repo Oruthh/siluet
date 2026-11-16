@@ -1,11 +1,13 @@
 package dev.siluet.render
 
-import dev.siluet.exception.ComponentViewNotFoundException
-import dev.siluet.exception.SectionsGroupNotFoundException
+import dev.siluet.exception.internal.ComponentViewNotFoundException
+import dev.siluet.exception.internal.SectionsGroupNotFoundException
 import dev.siluet.blueprint.Template
-import dev.siluet.exception.LoopLimitExceededException
-import dev.siluet.exception.RenderException
-import dev.siluet.exception.SectionViewNotFoundException
+import dev.siluet.exception.SiluetBlueprintException
+import dev.siluet.exception.internal.LoopLimitExceededException
+import dev.siluet.exception.internal.RenderException
+import dev.siluet.exception.internal.SectionViewNotFoundException
+import dev.siluet.exception.internal.SectionsGroupLoadingException
 import dev.siluet.filter.Filter
 import dev.siluet.html.HTMLEscape
 import dev.siluet.loader.SiluetSectionsGroupLoader
@@ -201,7 +203,7 @@ internal class SiluetRenderer(
                     }
 
                     renderStack.withFrame(
-                        viewFilePath = componentView.filePath,
+                        sourceName = componentView.sourceName,
                         callSite = node.sourceLocation
                     ){
                         renderNodes(
@@ -238,6 +240,11 @@ internal class SiluetRenderer(
                             e.message!!,
                             sourceLocation = node.sourceLocation
                         )
+                    } catch (e: SectionsGroupLoadingException) {
+                        throw SiluetBlueprintException(
+                            e.message!!,
+                            sourceName = e.sourceName
+                        )
                     }
                 } else {
                     evaluationContext.template.sections
@@ -254,7 +261,7 @@ internal class SiluetRenderer(
                     }
 
                     renderStack.withFrame(
-                        viewFilePath = sectionView.filePath,
+                        sourceName = sectionView.sourceName,
                         callSite = node.sourceLocation
                     ) {
                         evaluationContext.pushScope()

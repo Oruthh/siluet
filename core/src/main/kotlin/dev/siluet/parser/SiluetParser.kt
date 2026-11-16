@@ -1,12 +1,10 @@
 package dev.siluet.parser
 
 import dev.siluet.SourceLocation
-import dev.siluet.exception.ParseException
+import dev.siluet.exception.internal.ParseException
 import dev.siluet.lexer.Token
 import dev.siluet.lexer.TokenType
 import dev.siluet.schema.SectionSchema
-import dev.siluet.view.SiluetSectionView
-import dev.siluet.view.SiluetView
 import kotlinx.serialization.json.Json
 
 internal class SiluetParser(

@@ -1,7 +1,7 @@
 package dev.siluet.render.stack
 
 import dev.siluet.SourceLocation
-import dev.siluet.exception.RenderDepthExceededException
+import dev.siluet.exception.internal.RenderDepthExceededException
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -22,7 +22,7 @@ class RenderStackTest {
     ) {
         if (views.isEmpty()) return block()
         val view = views.first()
-        withFrame(viewFilePath = view, callSite = location(caller)) {
+        withFrame(sourceName = view, callSite = location(caller)) {
             nest(views.drop(1), view, block)
         }
     }
@@ -89,7 +89,7 @@ class RenderStackTest {
         }
 
         assertEquals(2, exception.maxDepth)
-        assertEquals("components/c.html", exception.rejectedFrame.viewFilePath)
+        assertEquals("components/c.html", exception.rejectedFrame.sourceName)
         assertEquals(location("components/b.html"), exception.sourceLocation)
     }
 
@@ -112,7 +112,7 @@ class RenderStackTest {
         assertEquals(listOf(2, 1), depthsAfterError)
         assertEquals(0, stack.depth)
         // The exception must keep its own snapshot of the chain, not a view of the (now empty) stack.
-        assertEquals(listOf("components/a.html", "components/b.html"), exception.chain.map { it.viewFilePath })
+        assertEquals(listOf("components/a.html", "components/b.html"), exception.chain.map { it.sourceName })
     }
 
     // --- Message -------------------------------------------------------------------------------
@@ -126,8 +126,12 @@ class RenderStackTest {
         assertEquals(
             "Maximum render depth (4) exceeded while rendering 'components/loop.html': " +
                     "components/loop.html → components/loop.html " +
-                    "(entered from layouts/loop.html:1:1) at components/loop.html:1:1",
+                    "(entered from layouts/loop.html:1:1)",
             exception.message
+        )
+        assertEquals(
+            "components/loop.html:1:1",
+            exception.sourceLocation.toString()
         )
     }
 
@@ -143,8 +147,12 @@ class RenderStackTest {
         assertEquals(
             "Maximum render depth (4) exceeded while rendering 'components/ping.html': " +
                     "components/ping.html → components/pong.html → components/ping.html " +
-                    "(entered from layouts/mutual.html:1:1) at components/pong.html:1:1",
+                    "(entered from layouts/mutual.html:1:1)",
             exception.message
+        )
+        assertEquals(
+            "components/pong.html:1:1",
+            exception.sourceLocation.toString()
         )
     }
 
@@ -161,8 +169,12 @@ class RenderStackTest {
         assertEquals(
             "Maximum render depth (4) exceeded while rendering 'components/loop.html': " +
                     "components/loop.html → components/loop.html " +
-                    "(entered from sections/hero.html:1:1) at components/loop.html:1:1",
+                    "(entered from sections/hero.html:1:1)",
             exception.message
+        )
+        assertEquals(
+            "components/loop.html:1:1",
+            exception.sourceLocation.toString()
         )
     }
 
@@ -180,7 +192,7 @@ class RenderStackTest {
 
         assertEquals(
             listOf("components/banner.html"),
-            exception.chain.map { it.viewFilePath },
+            exception.chain.map { it.sourceName },
             "The section must not be treated as part of the component cycle"
         )
     }

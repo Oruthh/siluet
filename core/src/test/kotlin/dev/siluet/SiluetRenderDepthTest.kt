@@ -1,6 +1,7 @@
 package dev.siluet
 
 import dev.siluet.exception.SiluetException
+import dev.siluet.exception.SiluetViewException
 import dev.siluet.loader.ResourceSiluetAssetLoader
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -64,18 +65,18 @@ class SiluetComponentDepthTest {
             message.contains("Maximum render depth ($DEFAULT_MAX_DEPTH) exceeded"),
             "Unexpected message: $message"
         )
-        assertTrue(message.contains("'components/loop.html'"), "Message should name the component file: $message")
+        assertTrue(message.contains("'/test19/components/loop.html'"), "Message should name the component file: $message")
     }
 
     @Test
     fun `direct recursion error points to the component call in the template`() {
-        val exception = assertFailsWith<SiluetException> {
+        val exception = assertFailsWith<SiluetViewException> {
             siluet.render("loop")
         }
 
         // <div>@component("loop")</div> - directive locations currently point to the directive
         // name (column 7), not to '@' (column 6). Change to 6 if the parser is fixed.
-        assertEquals(SourceLocation("components/loop.html", 1, 7), exception.sourceLocation)
+        assertEquals(SourceLocation("/test19/components/loop.html", 1, 7), exception.sourceLocation)
     }
 
     @Test
@@ -86,26 +87,26 @@ class SiluetComponentDepthTest {
 
         val message = exception.message.orEmpty()
         assertTrue(
-            message.contains("'components/loop.html': components/loop.html → components/loop.html"),
+            message.contains("'/test19/components/loop.html': /test19/components/loop.html → /test19/components/loop.html"),
             "Message should contain the cycle: $message"
         )
         // layouts/loop.html is just @component("loop") - directive name starts in column 2.
         assertTrue(
-            message.contains("(entered from layouts/loop.html:1:2)"),
+            message.contains("(entered from /test19/layouts/loop.html:1:2)"),
             "Message should point to where the recursion started: $message"
         )
     }
 
     @Test
     fun `indirect recursion fails with SiluetException`() {
-        val exception = assertFailsWith<SiluetException> {
+        val exception = assertFailsWith<SiluetViewException> {
             siluet.render("mutual")
         }
 
         val message = exception.message.orEmpty()
         assertTrue(message.contains("Maximum render depth"), "Unexpected message: $message")
         assertTrue(
-            exception.sourceLocation.filePath in setOf("components/ping.html", "components/pong.html"),
+            exception.sourceLocation.filePath in setOf("/test19/components/ping.html", "/test19/components/pong.html"),
             "Error should point to one of the recursive components, was: ${exception.sourceLocation}"
         )
     }
@@ -118,7 +119,7 @@ class SiluetComponentDepthTest {
 
         val message = exception.message.orEmpty()
         assertTrue(
-            message.contains("components/ping.html → components/pong.html → components/ping.html"),
+            message.contains("/test19/components/ping.html → /test19/components/pong.html → /test19/components/ping.html"),
             "Message should contain the chain: $message"
         )
     }
@@ -160,7 +161,7 @@ class SiluetComponentDepthTest {
 
     @Test
     fun `nesting one level over the limit fails`() {
-        val exception = assertFailsWith<SiluetException> {
+        val exception = assertFailsWith<SiluetViewException> {
             renderTree(chain(DEFAULT_MAX_DEPTH + 1))
         }
 
@@ -168,7 +169,7 @@ class SiluetComponentDepthTest {
             exception.message.orEmpty().contains("Maximum render depth ($DEFAULT_MAX_DEPTH) exceeded"),
             "Unexpected message: ${exception.message}"
         )
-        assertEquals("components/category.html", exception.sourceLocation.filePath)
+        assertEquals("/test19/components/category.html", exception.sourceLocation.filePath)
     }
 
     // --- Depth tracking ------------------------------------------------------------------------

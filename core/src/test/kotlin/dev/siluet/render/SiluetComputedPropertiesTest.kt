@@ -3,7 +3,7 @@ package dev.siluet.render
 import dev.siluet.SourceLocation
 import dev.siluet.blueprint.Template
 import dev.siluet.cache.InMemorySiluetCache
-import dev.siluet.exception.RenderException
+import dev.siluet.exception.internal.RenderException
 import dev.siluet.exception.SiluetSecurityException
 import dev.siluet.lexer.SiluetLexer
 import dev.siluet.loader.ResourceSiluetAssetLoader
