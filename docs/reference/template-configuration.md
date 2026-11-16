@@ -12,9 +12,7 @@ A template represents a single page type (e.g., `home.json`, `product.json`). It
 
 * **`sections`** *(Object)*: A dictionary (map) of sections to be injected into the layout. The keys act as unique identifiers for the sections.
 
-* **`sectionsOrder`** *(Array of Strings, optional)*: Explicitly defines the rendering order of the sections.
-
-> **Note on Ordering:** By default, Siluet renders sections in the exact order they are declared inside the `sections` object. The `sectionsOrder` array is an optional helper feature. It allows you to quickly reorder the layout without having to cut and paste large JSON blocks. If `sectionsOrder` is empty or omitted, it simply falls back to the original declaration order.
+* **`sectionsOrder`** *(Array of Strings, optional)*: Keys of sections that should be rendered first, in the listed order. See [Ordering Rules](#ordering-rules).
 
 **Example: `templates/home.json`**
 
@@ -45,7 +43,7 @@ Sections are the primary building blocks of your UI. A section can define its ow
 
 * **`blocks`** *(Object, optional)*: A dictionary of child blocks nested within this section.
 
-* **`blocksOrder`** *(Array of Strings, optional)*: An optional array to easily reorder blocks without modifying the `blocks` dictionary (works identically to `sectionsOrder`).
+* **`blocksOrder`** *(Array of Strings, optional)*: Keys of blocks that should be rendered first, in the listed order. Follows the same [Ordering Rules](#ordering-rules) as `sectionsOrder`.
 
 ### Block Definition Schema
 
@@ -84,11 +82,31 @@ Blocks are very similar to sections but are typically used for repeatable elemen
 }
 ```
 
+### Ordering Rules
+
+`sectionsOrder` and `blocksOrder` let you reorder sections and blocks without cutting and pasting large JSON objects. Both follow the same rules, in templates and in section groups:
+
+* Keys listed in the order are rendered **first**, in the listed order.
+* Keys that are **not listed** are rendered **after them**, in the order they are declared in `sections` / `blocks`. Adding a new section without updating `sectionsOrder` therefore renders it at the end; nothing is skipped.
+* An empty or omitted order renders everything in declaration order.
+* A key that is **not defined** in `sections` / `blocks` is an error. This catches typos such as `"shiping"`.
+* A key listed **more than once** is an error.
+
+For example, with sections `hero`, `promo`, `footer` and `newsletter` declared in this order, `"sectionsOrder": ["footer"]` renders `footer`, `hero`, `promo`, `newsletter`.
+
+Invalid orders fail the render with a `SiluetBlueprintException` that names the key, the section it belongs to and the file it comes from:
+
+```text
+'shiping' listed in blocksOrder of section 'features' is not defined. Defined: 'shipping', 'support'. in /theme/templates/home.json
+```
+
+See [Error Handling](/reference/errors) for the full list of exceptions.
+
 ## 3. Section Groups
 
 Sometimes you need to reuse the same set of sections across multiple templates (for example, a complex footer or sidebar). Instead of duplicating the section definitions in every template, you can define a **Sections Group**.
 
-A Section Group uses the same structure as a Template but omits the `layout` property. These are typically saved in `sections/groups/`.
+A Section Group uses the same structure as a Template but omits the `layout` property. These are typically saved in `sections/groups/`. Its `sectionsOrder` follows the same [Ordering Rules](#ordering-rules); errors point to the group's file, not to the template that uses it.
 
 To render a group in your HTML layout, you use the `@sections()` directive and pass the group's name as an argument.
 

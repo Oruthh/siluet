@@ -74,10 +74,10 @@ Only getters are invoked. Templates cannot call:
 ### Missing Values and Failures
 
 - An unknown property, or a property whose value is `null`, renders as an empty string and is falsy in `@if`.
-- If a getter throws, rendering fails with a `SiluetException` pointing at the property in the template:
+- If a getter throws, rendering fails with a `SiluetViewException` pointing at the property in the template:
 
 ```text
-Failed to read property 'finalPrice' of 'com.example.ProductView': ArithmeticException: / by zero at sections/product.html:12:19
+Failed to read property 'finalPrice' of 'com.example.ProductView': ArithmeticException: / by zero at /theme/sections/product.html:12:19
 ```
 
 - A public getter of a non-public class is read through a public interface or superclass that declares it. If there is none, rendering fails with the same kind of error instead of silently rendering nothing.
@@ -96,7 +96,7 @@ The default policy (`DefaultSecurityPolicy`) blocks:
 | Classes (and subclasses) | `Class`, `ClassLoader`, `Runtime`, `Process`, `ProcessBuilder`, `System`, `Thread`, `ThreadGroup`, `Module`, `ModuleLayer` |
 | Packages | `java.lang.reflect`, `java.lang.invoke`, `java.lang.management`, `java.io`, `java.nio`, `java.net`, `java.security`, `kotlin.reflect`, `jdk.internal`, `sun.`, `com.sun.` |
 
-A violation fails the render with `SiluetSecurityException`.
+A violation fails the render with `SiluetSecurityException` (see [Error Handling](/reference/errors)).
 
 ### Blocking Your Own Members and Packages
 

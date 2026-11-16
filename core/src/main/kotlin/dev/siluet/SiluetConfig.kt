@@ -82,7 +82,7 @@ class SiluetConfig {
      * The limit applies to each loop separately, not to the whole render. It is checked while
      * iterating, so it also protects against infinite or very large lazy sources (e.g., [Sequence])
      * without traversing them in advance. Exceeding the limit aborts the entire render with a
-     * [dev.siluet.exception.SiluetException]; no partial output is returned.
+     * [dev.siluet.exception.SiluetViewException]; no partial output is returned.
      *
      * Defaults to `1000`.
      */
@@ -102,9 +102,9 @@ class SiluetConfig {
      * not the total number of views on a page.
      *
      * Legitimate recursion, such as rendering a category tree, works up to this limit.
-     * Exceeding it aborts the entire render with a [dev.siluet.exception.SiluetException]
-     * that points to the directive call in the template and shows the repeating chain of view
-     * files, e.g. `components/ping.html → components/pong.html → components/ping.html`;
+     * Exceeding it aborts the entire render with a [dev.siluet.exception.SiluetViewException]
+     * that points to the directive call in the template and shows the repeating chain of views,
+     * e.g. `/theme/components/ping.html → /theme/components/pong.html → /theme/components/ping.html`;
      * no partial output is returned.
      *
      * Must be greater than `0`. Defaults to `32`.

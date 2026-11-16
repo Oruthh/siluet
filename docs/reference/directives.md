@@ -34,7 +34,7 @@ Iterates over collections or iterables. This is commonly used for rendering list
 
 Lazy sources such as a `Sequence`, a stream or a database cursor are traversed exactly once, so single-use sequences are safe to pass to the model.
 
-**Iteration limit:** each loop may run at most `maxLoopIterations` times (default: `1000`, configurable in `Siluet { }`). The limit is checked while iterating, so even an infinite sequence is stopped. When it is exceeded, the whole render is aborted with a `SiluetException` and no partial HTML is returned.
+**Iteration limit:** each loop may run at most `maxLoopIterations` times (default: `1000`, configurable in `Siluet { }`). The limit is checked while iterating, so even an infinite sequence is stopped. When it is exceeded, the whole render is aborted with a `SiluetViewException` and no partial HTML is returned.
 
 ```kotlin
 val siluet = Siluet {
@@ -74,10 +74,10 @@ A component can render other components, including itself. This makes recursive 
 </li>
 ```
 
-**Render depth limit:** views can be nested at most `maxRenderDepth` levels deep (default: `32`, configurable in `Siluet { }`). Every `@component` and every section mounted with `@sections` adds one level; views rendered side by side do not add up. This stops infinite recursion, such as a component that includes itself unconditionally or two components that include each other. When the limit is exceeded, the render is aborted with a `SiluetException` that shows the repeating chain of views and where it started, for example:
+**Render depth limit:** views can be nested at most `maxRenderDepth` levels deep (default: `32`, configurable in `Siluet { }`). Every `@component` and every section mounted with `@sections` adds one level; views rendered side by side do not add up. This stops infinite recursion, such as a component that includes itself unconditionally or two components that include each other. When the limit is exceeded, the render is aborted with a `SiluetViewException` that shows the repeating chain of views and where it started, for example:
 
 ```text
-Maximum render depth (32) exceeded while rendering 'components/ping.html': components/ping.html → components/pong.html → components/ping.html (entered from layouts/main.html:1:2) at components/pong.html:1:5
+Maximum render depth (32) exceeded while rendering '/theme/components/ping.html': /theme/components/ping.html → /theme/components/pong.html → /theme/components/ping.html (entered from /theme/layouts/main.html:1:2) at /theme/components/pong.html:1:5
 ```
 
 ### `@sections`

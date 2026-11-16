@@ -34,6 +34,9 @@ interface Siluet {
      * @param model The data model exposed to the template context. Defaults to [Unit] when no data is required.
      * @param contextBuilder Optional DSL builder configuring render-time context parameters such as locale or timezone.
      * @return The fully rendered HTML string.
+     * @throws dev.siluet.exception.SiluetViewException If rendering fails at a position in an HTML view.
+     * @throws dev.siluet.exception.SiluetBlueprintException If the template or a section group it uses is invalid.
+     * @throws dev.siluet.exception.SiluetAssetNotFoundException If the template does not exist.
      */
     fun render(templateName: String, model: Any = Unit, contextBuilder: RenderContext.Builder.() -> Unit = {}): String
 

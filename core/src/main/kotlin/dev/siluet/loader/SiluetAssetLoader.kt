@@ -9,8 +9,21 @@ import java.util.Locale
  * allowing templates and configurations to be loaded from classpath resources, the local filesystem,
  * databases, or remote stores (e.g., S3 or a headless CMS).
  *
- * All methods return raw strings representing the file contents (HTML markup or JSON strings)
- * or `null` if the requested asset does not exist.
+ * All methods return a [SiluetAsset] with the raw content (HTML markup or JSON) and a source name,
+ * or `null` if the requested asset does not exist. The source name is shown in error messages and must
+ * be unique per asset; see [SiluetAsset] for details.
+ *
+ * ### Example:
+ * ```kotlin
+ * class DatabaseAssetLoader(private val repository: ThemeRepository) : SiluetAssetLoader {
+ *     override fun loadSection(name: String): SiluetAsset? =
+ *         repository.findSection(name)?.let { row ->
+ *             SiluetAsset(sourceName = "db:theme_sections#${row.id}", content = row.html)
+ *         }
+ *
+ *     // ... other methods
+ * }
+ * ```
  *
  * @see ResourceSiluetAssetLoader
  */
@@ -22,7 +35,7 @@ interface SiluetAssetLoader {
      * the layout, sections, and block properties for a specific route or view.
      *
      * @param name The template identifier without file extension.
-     * @return The raw JSON configuration string, or `null` if not found.
+     * @return The template asset with its JSON configuration, or `null` if not found.
      */
     fun loadTemplate(name: String): SiluetAsset?
 
@@ -33,7 +46,7 @@ interface SiluetAssetLoader {
      * representing shared UI regions such as headers or footers across multiple templates.
      *
      * @param name The section group identifier without file extension.
-     * @return The raw JSON group configuration string, or `null` if not found.
+     * @return The section group asset with its JSON configuration, or `null` if not found.
      */
     fun loadSectionsGroup(name: String): SiluetAsset?
 
@@ -44,7 +57,7 @@ interface SiluetAssetLoader {
      * the document frame and placeholders where sections or views are injected.
      *
      * @param name The layout identifier without file extension.
-     * @return The raw layout template string, or `null` if not found.
+     * @return The layout asset with its HTML markup, or `null` if not found.
      */
     fun loadLayout(name: String): SiluetAsset?
 
@@ -55,7 +68,7 @@ interface SiluetAssetLoader {
      * a modular, configurable building block within a page layout.
      *
      * @param name The section identifier without file extension.
-     * @return The raw section template string, or `null` if not found.
+     * @return The section asset with its HTML markup, or `null` if not found.
      */
     fun loadSection(name: String): SiluetAsset?
 
@@ -66,7 +79,7 @@ interface SiluetAssetLoader {
      * lightweight snippets or partials invoked directly by other templates or sections.
      *
      * @param name The component identifier without file extension.
-     * @return The raw component template string, or `null` if not found.
+     * @return The component asset with its HTML markup, or `null` if not found.
      */
     fun loadComponent(name: String): SiluetAsset?
 
@@ -77,7 +90,7 @@ interface SiluetAssetLoader {
      * key-value translation mappings used by translation directives (such as `@t`).
      *
      * @param locale The requested [Locale].
-     * @return The raw JSON localization string, or `null` if no translations exist for this locale.
+     * @return The locale asset with its JSON translations, or `null` if no translations exist for this locale.
      */
     fun loadLocale(locale: Locale): SiluetAsset?
 }

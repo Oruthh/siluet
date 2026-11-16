@@ -31,7 +31,8 @@ export default defineConfig({
                     { text: 'Built-in Filters', link: '/reference/filters' },
                     { text: 'Directives', link: '/reference/directives' },
                     { text: 'Localization', link: '/reference/i18n' },
-                    { text: 'Data Model & Security', link: '/reference/data-model' }
+                    { text: 'Data Model & Security', link: '/reference/data-model' },
+                    { text: 'Error Handling', link: '/reference/errors' }
                 ]
             }
         ],

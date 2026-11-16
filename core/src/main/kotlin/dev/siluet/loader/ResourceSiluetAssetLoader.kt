@@ -15,8 +15,11 @@ import java.util.Locale
  * val loader = ResourceSiluetAssetLoader("theme")
  *
  * // Loads "theme/templates/index.json"
- * val templateJson = loader.loadTemplate("index")
+ * val template = loader.loadTemplate("index")
+ * template?.sourceName // "/theme/templates/index.json"
  * ```
+ *
+ * The [SiluetAsset.sourceName] of every asset is its absolute classpath path, including the [prefix].
  *
  * @param prefix Root directory path prepended to all asset paths (e.g., `"theme"` or `"templates/v1"`).
  *               Defaults to an empty string (root of classpath).
@@ -28,7 +31,7 @@ class ResourceSiluetAssetLoader(
      * Loads a page orchestration configuration from `templates/<name>.json`.
      *
      * @param name The template identifier (without the `.json` extension).
-     * @return Raw JSON configuration string, or `null` if the resource does not exist.
+     * @return The template asset, or `null` if the resource does not exist.
      */
     override fun loadTemplate(name: String): SiluetAsset? {
         return load("templates/$name.json")
@@ -38,7 +41,7 @@ class ResourceSiluetAssetLoader(
      * Loads a reusable section group configuration from `sections/groups/<name>.json`.
      *
      * @param name The section group identifier (without the `.json` extension).
-     * @return Raw JSON configuration string, or `null` if the resource does not exist.
+     * @return The section group asset, or `null` if the resource does not exist.
      */
     override fun loadSectionsGroup(name: String): SiluetAsset? {
         return load("sections/groups/$name.json")
@@ -48,7 +51,7 @@ class ResourceSiluetAssetLoader(
      * Loads an outer layout template from `layouts/<name>.html`.
      *
      * @param name The layout file identifier (without the `.html` extension).
-     * @return Raw HTML/template markup string, or `null` if the resource does not exist.
+     * @return The layout asset, or `null` if the resource does not exist.
      */
     override fun loadLayout(name: String): SiluetAsset? {
         return load("layouts/$name.html")
@@ -58,7 +61,7 @@ class ResourceSiluetAssetLoader(
      * Loads an individual section template from `sections/<name>.html`.
      *
      * @param name The section file identifier (without the `.html` extension).
-     * @return Raw HTML/template markup string, or `null` if the resource does not exist.
+     * @return The section asset, or `null` if the resource does not exist.
      */
     override fun loadSection(name: String): SiluetAsset? {
         return load("sections/$name.html")
@@ -68,7 +71,7 @@ class ResourceSiluetAssetLoader(
      * Loads a reusable component template from `components/<name>.html`.
      *
      * @param name The component file identifier (without the `.html` extension).
-     * @return Raw HTML/template markup string, or `null` if the resource does not exist.
+     * @return The component asset, or `null` if the resource does not exist.
      */
     override fun loadComponent(name: String): SiluetAsset? {
         return load("components/$name.html")
@@ -80,7 +83,7 @@ class ResourceSiluetAssetLoader(
      * Resolution uses the two-letter ISO 639-1 language code (e.g., `locales/en.json`, `locales/pl.json`).
      *
      * @param locale The target [Locale].
-     * @return Raw JSON locale dictionary string, or `null` if the resource does not exist.
+     * @return The locale asset, or `null` if the resource does not exist.
      */
     override fun loadLocale(locale: Locale): SiluetAsset? {
         return load("locales/${locale.language}.json")
@@ -90,7 +93,7 @@ class ResourceSiluetAssetLoader(
      * Reads a resource from the classpath by its relative [path], normalized with the configured [prefix].
      *
      * @param path The relative resource path (e.g., `"templates/index.json"`).
-     * @return UTF-8 decoded file content as a [String], or `null` if the resource cannot be found on the classpath.
+     * @return The UTF-8 decoded content with its classpath path as source name, or `null` if the resource cannot be found on the classpath.
      */
     private fun load(path: String): SiluetAsset? {
         val normalized = if(prefix.isEmpty()) {

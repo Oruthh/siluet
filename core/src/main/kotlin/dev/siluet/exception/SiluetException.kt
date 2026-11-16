@@ -1,16 +1,19 @@
 package dev.siluet.exception
 
-import dev.siluet.SourceLocation
-
 /**
- * Base runtime exception thrown when an error occurs during template tokenization,
- * parsing, compilation, or execution in Siluet.
+ * Base class of exceptions thrown by Siluet when a page cannot be rendered.
  *
- * Retains a [sourceLocation] reference pointing to the exact template file, line,
- * and column where the error originated to facilitate diagnostic reporting and debugging.
+ * Catch it to handle any rendering failure, or catch a subclass to learn where the error is:
+ * - [SiluetViewException]: an error at a position in an HTML view (layout, section or component),
+ *   with the exact [SiluetViewException.sourceLocation],
+ * - [SiluetBlueprintException]: an invalid JSON blueprint (template or section group),
+ *   with the [SiluetBlueprintException.sourceName] of the file,
+ * - [SiluetAssetNotFoundException]: an asset requested by the application does not exist.
  *
- * @param message Diagnostic message explaining the underlying failure.
- * @property sourceLocation The exact coordinates within the source template where the error occurred.
+ * No partial output is returned when a render fails.
+ *
+ * @param message Diagnostic message explaining the failure.
+ * @param cause The underlying exception, if any.
  */
 open class SiluetException(
     message: String,
