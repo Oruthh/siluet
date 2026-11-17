@@ -23,6 +23,7 @@ import dev.siluet.exception.SiluetBlueprintException
 import dev.siluet.exception.SiluetViewException
 import dev.siluet.exception.internal.TemplateLoadingException
 import dev.siluet.exception.internal.TemplateNotFoundException
+import dev.siluet.filter.string.TranslationFilter
 import dev.siluet.locale.LocaleRegistry
 import dev.siluet.reflect.CachedReflectionPropertyAccessor
 
@@ -49,6 +50,7 @@ class DefaultSiluet(
             "uppercase" to UpperCaseFilter(),
             "capitalize" to CapitalizeFilter(),
             "truncate" to TruncateFilter(),
+            "t" to TranslationFilter(localeRegistry),
 
             "date" to DateFilter(),
         )

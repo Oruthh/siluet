@@ -149,23 +149,3 @@ Inside the `@paginate` block, your alias object provides the following data:
 * `totalPages`: The total number of calculated pages.
 * `hasPrevious` / `hasNext`: Booleans indicating if navigation to surrounding pages is possible.
 * `previousPage` / `nextPage`: The exact page numbers for navigation (or null if unavailable).
-
-## Localization (I18N)
-
-### `@t` / `@translate`
-
-Fetches localized strings from your translation JSON dictionaries (e.g., `locales/en.json`). Siluet automatically flattens nested JSON keys, allowing you to access them using dot notation.
-
-Both `@t` and `@translate` act exactly the same — `@t` is just a convenient, shorter alias.
-
-```html
-<!-- Using the short alias (Recommended) -->
-<button class="checkout-btn">
-    @t("cart.actions.checkout")
-</button>
-
-<!-- Using the full directive -->
-<p class="disclaimer">
-    @translate("footer.legal.terms")
-</p>
-```

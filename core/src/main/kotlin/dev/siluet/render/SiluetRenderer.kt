@@ -12,7 +12,6 @@ import dev.siluet.filter.Filter
 import dev.siluet.html.HTMLEscape
 import dev.siluet.loader.SiluetSectionsGroupLoader
 import dev.siluet.loader.SiluetViewsLoader
-import dev.siluet.locale.LocaleNotFoundException
 import dev.siluet.locale.LocaleRegistry
 import dev.siluet.pagination.PaginationContext
 import dev.siluet.pagination.PaginationSource
@@ -26,7 +25,6 @@ import dev.siluet.parser.PrintNode
 import dev.siluet.parser.SectionsNode
 import dev.siluet.parser.SiluetNode
 import dev.siluet.parser.TextNode
-import dev.siluet.parser.TranslationNode
 import dev.siluet.reflect.PropertyAccessor
 import dev.siluet.render.stack.RenderStack
 
@@ -336,34 +334,6 @@ internal class SiluetRenderer(
                 } finally {
                     evaluationContext.popScope()
                 }
-            }
-
-            is TranslationNode -> {
-                val translationKey = evaluator.evaluate(node.translationKeyExpression)
-                    ?: throw RenderException(
-                        "Translation Key evaluated to null",
-                        sourceLocation = node.sourceLocation
-                    )
-
-                if(translationKey !is String) {
-                    throw RenderException(
-                        "Translation key must be a string",
-                        sourceLocation = node.sourceLocation
-                    )
-                }
-
-                val translation = try{
-                     localeRegistry.getTranslation(renderContext.locale, translationKey)
-                } catch (e: LocaleNotFoundException) {
-                    throw RenderException(
-                        e.message!!,
-                        sourceLocation = node.sourceLocation
-                    )
-                }
-
-                val escapedTranslation = HTMLEscape.escape(translation)
-
-                buffer.append(escapedTranslation)
             }
 
             is DirectiveNode -> {

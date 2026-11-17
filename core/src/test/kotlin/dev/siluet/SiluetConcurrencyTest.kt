@@ -92,7 +92,6 @@ class SiluetConcurrencyTest {
         outputs.forEach { (case, html) ->
             assertTrue(html.isNotBlank(), "Empty output for $case")
             assertFalse(html.contains("{{"), "Unrendered expression in $case")
-            assertFalse(html.contains("@t("), "Unrendered translation directive in $case")
             assertFalse(html.contains("home.hero.heading"), "Untranslated key in $case")
             assertFalse(html.contains("landing.hero.heading"), "Untranslated key in $case")
             assertFalse(html.contains("catalog.title"), "Untranslated key in $case")

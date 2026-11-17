@@ -23,7 +23,7 @@
   Write layouts, sections, and reusable components in clean HTML with intuitive directives like `@sections`, `@component`, and `@for`.
 
 * **🌍 Built-in Internationalization**  
-  Native dictionary-based i18n support out of the box using simple `@t` and `@translate` directives.
+  Native dictionary-based i18n support out of the box using the simple `t` filter.
 
 * **🛠️ Extensible Runtime**  
   Tailored for modern Kotlin and Java 21+. Customize asset loaders, filters, data models, and context resolvers.

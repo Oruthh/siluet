@@ -87,7 +87,7 @@ interface SiluetAssetLoader {
      * Loads localization translation data for the given [locale].
      *
      * Typically maps to a JSON dictionary (e.g., `locales/<language>.json`) containing
-     * key-value translation mappings used by translation directives (such as `@t`).
+     * key-value translation mappings used by the `t` filter and `t:` properties.
      *
      * @param locale The requested [Locale].
      * @return The locale asset with its JSON translations, or `null` if no translations exist for this locale.

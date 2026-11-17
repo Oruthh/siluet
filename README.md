@@ -19,7 +19,7 @@ Instead of monolithic templates, Siluet decouples page orchestration from render
 * **JSON-Driven Page Orchestration:** Assemble layouts, dynamic sections, and section groups declaratively via JSON schemas.
 * **Component-Based Architecture:** Reusable HTML components and sections keep templates modular and maintainable.
 * **Compiles to AST:** Built on a dedicated Lexer and Parser that compiles templates into an Abstract Syntax Tree for high execution efficiency.
-* **Built-in Internationalization:** Native locale dictionary support via the `@t` directive.
+* **Built-in Internationalization:** Native locale dictionary support via the `t` filter.
 * **Extensible & Type-Safe:** Built natively for Kotlin with support for custom loaders, data models, filters, and directives.
 
 ---
@@ -73,14 +73,15 @@ To see Siluet in action, learn about the theme architecture, and build your firs
 | **Loops** | `@for(item in items) { ... }`         | Iteration over collections and iterables. | 
 | **Components** | `@component("name", key = value)`     | Injects a component with scoped properties. | 
 | **Section Slots** | `@sections()` or `@sections("group")` | Injects page-level sections or section groups. | 
-| **Translations** | `@t("translation_key")`               | Resolves localized strings from the active locale file. | 
+| **Translations** | `{{ "translation_key" \| t }}`        | Resolves localized strings from the active locale file. | 
 ---
 
 ## Roadmap to v0.1.0
 - [x] Core AST compiler, Lexer, and Parser
-- [x] Basic directives (`@if`, `@else`, `@for`, `@sections`, `@component`, `@t`, `@translate`, `@paginate`)
+- [x] Basic directives (`@if`, `@else`, `@for`, `@sections`, `@component`, `@paginate`)
 - [x] Basic text filters (`rawHTML`, `default`, `lowercase`, `uppercase`, `capitalize`, `truncate`)
 - [x] Basic data filters (`date`)
+- [x] Localization filter (`t`)
 - [ ] HTML output beautifier and whitespace management
 - [ ] Implement `@schema` directive for section configuration and metadata
 - [x] Support dynamic section & block properties in templates (`section.properties`, `block.properties`)

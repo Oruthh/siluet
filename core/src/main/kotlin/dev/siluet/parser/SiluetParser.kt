@@ -96,7 +96,6 @@ internal class SiluetParser(
             "component" -> parseComponentDirective(sourceLocation)
             "sections" -> parseSectionsComponent(sourceLocation)
             "paginate" -> parsePaginateDirective(sourceLocation)
-            "t", "translate" -> parseTranslationDirective(nameToken.value, sourceLocation)
             "schema" -> {
                 parseSchemaDirective(sourceLocation)
                 null
@@ -243,20 +242,6 @@ internal class SiluetParser(
             pageSizeExpression = pageSizeExpression,
             pageNumberExpression = pageNumberExpression,
             body = block,
-            sourceLocation = sourceLocation
-        )
-    }
-
-    private fun parseTranslationDirective(
-        name: String,
-        sourceLocation: SourceLocation
-    ): TranslationNode {
-        consume(TokenType.LPAREN, "Expected '(' after '@$name'")
-        val translationKeyExpression = parseExpression()
-        consume(TokenType.RPAREN, "Expected ')' after translation key")
-        
-        return TranslationNode(
-            translationKeyExpression = translationKeyExpression,
             sourceLocation = sourceLocation
         )
     }

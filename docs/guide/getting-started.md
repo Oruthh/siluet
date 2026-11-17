@@ -321,7 +321,7 @@ Compose multiple reusable sections under a single named mount slot. This is perf
     <form class="newsletter-form">
         <input type="email" placeholder="Enter your email" required>
         <button type="submit" class="btn-secondary">
-            @t("store.actions.subscribe")
+            {{ "store.actions.subscribe" | t }}
         </button>
     </form>
 </section>
@@ -337,7 +337,7 @@ Compose multiple reusable sections under a single named mount slot. This is perf
 
 ### E. Translations & Localization (`locales/en.json`)
 
-Siluet supports localization out of the box using JSON dictionaries placed in the `/locales` directory. The structure of the JSON file is flattened during loading, allowing you to access nested keys using dot notation via the `@t()` directive, or by using the `t:` prefix in JSON properties.
+Siluet supports localization out of the box using JSON dictionaries placed in the `/locales` directory. The structure of the JSON file is flattened during loading, allowing you to access nested keys using dot notation via the `t` filter, or by using the `t:` prefix in JSON properties.
 
 For example, your `en.json` file:
 
@@ -356,7 +356,7 @@ For example, your `en.json` file:
 
 ### F. Atomic Components (`components/productCard.html`)
 
-Encapsulated UI fragments accepting local arguments passed from parent sections. In this example, we use `@t()` to fetch the localized button text defined in our JSON dictionary:
+Encapsulated UI fragments accepting local arguments passed from parent sections. In this example, we use the `t` filter to fetch the localized button text defined in our JSON dictionary:
 
 ```html
 <article class="card">
@@ -366,7 +366,7 @@ Encapsulated UI fragments accepting local arguments passed from parent sections.
     </div>
     <div class="card-footer">
         <button onclick="addToCart('{{ item.id }}')" class="btn-primary">
-            @t("store.actions.addToCart")
+            {{ "store.actions.addToCart" | t }}
         </button>
     </div>
 </article>

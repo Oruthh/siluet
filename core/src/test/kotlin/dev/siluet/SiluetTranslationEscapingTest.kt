@@ -9,11 +9,12 @@ import kotlin.test.assertTrue
 
 /**
  * Translations must always be HTML-escaped, regardless of how they are rendered (issue #12).
+ * Translations in views are printed with the `t` filter (`{{ "key" | t }}`).
  *
  * Resources: `test18/`
- * - `layouts/main.html`: `@t` in text, inside an attribute, and a plain translation,
- * - `sections/translations.html`: `@t` in a section and a `t:` property printed via `{{ }}`,
- * - `components/card.html`: a `t:` property passed as a component argument and `@t` in a component,
+ * - `layouts/main.html`: the `t` filter in text, inside an attribute, and a plain translation,
+ * - `sections/translations.html`: the `t` filter in a section and a `t:` property printed via `{{ }}`,
+ * - `components/card.html`: a `t:` property passed as a component argument and the `t` filter in a component,
  * - `locales/en.json`: values containing `<script>`, quotes, `&` and `'`.
  */
 class SiluetTranslationEscapingTest {
@@ -37,7 +38,7 @@ class SiluetTranslationEscapingTest {
         assertTrue(rendered.contains(expected), "Expected to find:\n$expected\n\nin output:\n$rendered")
     }
 
-    // --- @t directive --------------------------------------------------------------------------
+    // --- t filter ------------------------------------------------------------------------------
 
     @Test
     fun `script tag from translation is never rendered as HTML`() {
@@ -46,27 +47,27 @@ class SiluetTranslationEscapingTest {
     }
 
     @Test
-    fun `@t output in layout is escaped`() {
+    fun `t filter output in layout is escaped`() {
         assertRenderedContains("<header>$ESCAPED_SCRIPT</header>")
     }
 
     @Test
-    fun `@t output inside an attribute is escaped and keeps the attribute valid`() {
+    fun `t filter output inside an attribute is escaped and keeps the attribute valid`() {
         assertRenderedContains("<input placeholder=\"$ESCAPED_HINT\">")
     }
 
     @Test
-    fun `@t output in section is escaped`() {
+    fun `t filter output in section is escaped`() {
         assertRenderedContains("<h2>$ESCAPED_SCRIPT</h2>")
     }
 
     @Test
-    fun `@t output in component is escaped`() {
+    fun `t filter output in component is escaped`() {
         assertRenderedContains("|$ESCAPED_FOOD</div>")
     }
 
     @Test
-    fun `@t output without special characters is unchanged`() {
+    fun `t filter output without special characters is unchanged`() {
         assertRenderedContains("<p class=\"plain\">Hello</p>")
     }
 
@@ -85,10 +86,10 @@ class SiluetTranslationEscapingTest {
     // --- Consistency ---------------------------------------------------------------------------
 
     @Test
-    fun `@t and t property render the same translation identically`() {
-        val viaDirective = rendered.substringAfter("<h2>").substringBefore("</h2>")
+    fun `t filter and t property render the same translation identically`() {
+        val viaFilter = rendered.substringAfter("<h2>").substringBefore("</h2>")
         val viaProperty = rendered.substringAfter("<h3>").substringBefore("</h3>")
 
-        assertEquals(viaProperty, viaDirective)
+        assertEquals(viaProperty, viaFilter)
     }
 }

@@ -70,7 +70,20 @@ By default, Siluet safely escapes all variables to prevent XSS (Cross-Site Scrip
 ```
 > **Warning:** Only use `rawHTML` on trusted content. Never use it on direct, unsanitized user input.
 
-`rawHTML` cannot be applied to the `@t()` / `@translate()` directives: their output is always escaped. See [Localization](./i18n.md#escaping).
+`rawHTML` works on translations too: `{{ "key" | t | rawHTML }}` prints the translation without escaping. Use it only with locale files you fully trust. See [Localization](./i18n.md#escaping).
+
+---
+
+## Localization
+
+### `t`
+Translates a dot-notation key using the locale file of the current render (e.g. `locales/en.json` for `Locale.ENGLISH`). The key can be a string literal or any expression that evaluates to a string, and the filter works everywhere `{{ }}` does, including HTML attributes.
+```html
+<!-- If "store.actions.addToCart" is "Add to Cart" -->
+<button title="{{ "store.actions.addToCart" | t }}">{{ "store.actions.addToCart" | t | uppercase }}</button>
+<!-- Renders: <button title="Add to Cart">ADD TO CART</button> -->
+```
+Like any printed value, the translation is HTML-escaped. If a key is missing from the locale file, the key itself is printed. A key that is not a string fails the render with a `Filter 't'` error. See [Localization](./i18n.md) for dictionaries and locale configuration.
 
 ---
 

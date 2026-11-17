@@ -54,11 +54,6 @@ internal data class PaginateNode(
     override val sourceLocation: SourceLocation,
 ) : SiluetNode
 
-internal data class TranslationNode(
-    val translationKeyExpression: ExpressionNode,
-    override val sourceLocation: SourceLocation
-) : SiluetNode
-
 internal data class DirectiveNode(
     val name: String,
     val arguments: List<ExpressionNode>,
