@@ -7,6 +7,8 @@ internal class SiluetLexer(
     private val source: String,
     private val filePath: String = "<inline>"
 ) {
+    private val htmlContextTracker = HtmlContextTracker(source)
+
     private var cursor: Int = 0
     private var line: Int = 1
     private var column: Int = 1
@@ -27,6 +29,14 @@ internal class SiluetLexer(
                 Mode.TEXT -> scanText(tokens)
                 Mode.EXPRESSION -> scanExpression(tokens)
             }
+        }
+
+        val unclosedHtml = htmlContextTracker.unclosed()
+        if(unclosedHtml != null){
+            throw LexerException(
+                unclosedHtml.message,
+                sourceLocation = calculateSourceLocation(unclosedHtml.index)
+            )
         }
 
         tokens.add(
@@ -51,7 +61,9 @@ internal class SiluetLexer(
         while (!isAtEnd()) {
             val c = peek()
 
-            if(c == '\\') {
+            val htmlContext = htmlContextTracker.advance(cursor)
+
+            if(c == '\\' && htmlContext.directives) {
                 val next = peek(1)
                 if(next == '{' || next == '@' || next == '\\' || next == '}') {
                     advance()
@@ -60,7 +72,7 @@ internal class SiluetLexer(
                 }
             }
 
-            if(c == '{' && peek(1) == '{') {
+            if(c == '{' && peek(1) == '{' && htmlContext.prints) {
                 flushTextToken(buffer, startLine, startColumn, tokens)
                 val exprLine = line
                 val exprColumn = column
@@ -82,27 +94,7 @@ internal class SiluetLexer(
                 return
             }
 
-            if(c == '@' && peek(1).isLetter()) {
-                flushTextToken(buffer, startLine, startColumn, tokens)
-                val atLine = line
-                val atColumn = column
-                advance()
-                tokens.add(
-                    Token(
-                        type = TokenType.AT,
-                        value = "@",
-                        sourceLocation = SourceLocation(
-                            filePath = filePath,
-                            line = atLine,
-                            column = atColumn
-                        )
-                    )
-                )
-                mode = Mode.EXPRESSION
-                return
-            }
-
-            if (c == '}' && peek(1) == '}' && isExpressionOpen) {
+            if (c == '}' && peek(1) == '}' && isExpressionOpen && htmlContext.prints) {
                 val braceLine = line
                 val braceColumn = column
                 advance()
@@ -122,7 +114,7 @@ internal class SiluetLexer(
                 return
             }
 
-            if (c == '}' && braceDepth > 0) {
+            if (c == '}' && braceDepth > 0 && htmlContext.directives) {
                 flushTextToken(buffer, startLine, startColumn, tokens)
                 val braceLine = line
                 val braceColumn = column
@@ -139,6 +131,26 @@ internal class SiluetLexer(
                         )
                     )
                 )
+                return
+            }
+
+            if(c == '@' && peek(1).isLetter() && htmlContext.directives) {
+                flushTextToken(buffer, startLine, startColumn, tokens)
+                val atLine = line
+                val atColumn = column
+                advance()
+                tokens.add(
+                    Token(
+                        type = TokenType.AT,
+                        value = "@",
+                        sourceLocation = SourceLocation(
+                            filePath = filePath,
+                            line = atLine,
+                            column = atColumn
+                        )
+                    )
+                )
+                mode = Mode.EXPRESSION
                 return
             }
 
@@ -611,5 +623,17 @@ internal class SiluetLexer(
 
     private fun isAtEnd(): Boolean {
         return cursor >= source.length
+    }
+
+    private fun calculateSourceLocation(index: Int): SourceLocation {
+        val before = source.substring(0, index)
+        val line = before.count { it == '\n' } + 1
+        val column = index - before.lastIndexOf('\n')
+
+        return SourceLocation(
+            filePath = filePath,
+            line = line,
+            column = column
+        )
     }
 }

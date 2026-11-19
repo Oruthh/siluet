@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en" data-bs-theme="auto">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Landing page with inline CSS and JS">
+  <title>Northwind &middot; Home</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.example.com/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-abc+def/ghi=" crossorigin="anonymous">
+  <!-- Theme tokens: keep in sync with the design system -->
+  <style>
+    @import url("https://fonts.example.com/css2?family=Inter:wght@400;600&display=swap");
+    @charset "utf-8";
+
+    @font-face {
+      font-family: "Northwind Icons";
+      src: url("/fonts/icons.woff2") format("woff2"),
+           url("/fonts/icons.woff") format("woff");
+      font-display: swap;
+    }
+
+    :root {
+      --nw-primary: #3b5bdb;
+      --nw-radius: .5rem;
+    }
+
+    .bd-placeholder-img { font-size: 1.125rem; text-anchor: middle; user-select: none; }
+    .nav-scroller .nav { display: flex; flex-wrap: nowrap; overflow-x: auto; }
+    .hero::after { content: "\2192"; margin-left: .25rem; }
+    a[href^="mailto:"]::before { content: "\2709  "; }
+
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg { font-size: 3.5rem; }
+      .hero { padding: 6rem 0; }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .spinner { animation: spin 1s linear infinite; }
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @supports (backdrop-filter: blur(4px)) {
+      .navbar { backdrop-filter: blur(4px); }
+    }
+
+    @layer components {
+      .btn-nw { border-radius: var(--nw-radius); }
+    }
+  </style>
+</head>
+<body class="d-flex flex-column h-100">
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+    <style>
+      @media (prefers-color-scheme: dark) { .icon { fill: #fff; } }
+      .icon { fill: currentColor; }
+    </style>
+    <symbol id="check" viewBox="0 0 16 16"><path class="icon" d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></symbol>
+  </svg>
+
+  <header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark" aria-label="Main navigation">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">Northwind</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav me-auto mb-2 mb-md-0">
+            <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="https://social.example/@northwind" target=_blank rel=noopener>Social</a></li>
+            <li class="nav-item"><a class="nav-link disabled" aria-disabled="true">Disabled</a></li>
+          </ul>
+          <form class="d-flex" role="search" onsubmit="if (!this.q.value) { event.preventDefault(); return false; }">
+            <input class="form-control me-2" type="search" name="q" placeholder="Search" aria-label="Search" pattern="[^<>{}]+">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+          </form>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="flex-shrink-0">
+    <section class="hero text-center" data-bs-config='{"interval": 5000, "pause": "hover", "wrap": true}'>
+      <h1 class="display-5 fw-bold">Build faster &amp; ship sooner</h1>
+      <p class="lead">Prices start at 5 &lt; 10 &gt; 3 units. Use the code {SPRING} at checkout; braces in text are fine when they are not part of a block.</p>
+      <button type="button" class="btn btn-primary btn-lg px-4" onclick="track('cta', { place: 'hero', ts: Date.now() })">Get started</button>
+    </section>
+
+    <div class="container marketing">
+      <div class="row">
+        <div class="col-lg-4">
+          <svg class="bd-placeholder-img rounded-circle" width="140" height="140" role="img" aria-label="Placeholder" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="var(--bs-secondary-color)"/></svg>
+          <h2 class="fw-normal">Heading</h2>
+          <p>Some representative placeholder content for the three columns of text below the carousel.</p>
+          <p><a class="btn btn-secondary" href="#details" title="Read > more">View details &raquo;</a></p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer mt-auto py-3 bg-body-tertiary">
+    <div class="container">
+      <span class="text-body-secondary">&copy; 2026 Northwind &middot; <a href="mailto:hello@northwind.example?subject=Hi%20there">hello at northwind</a></span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.example.com/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-xyz" crossorigin="anonymous"></script>
+  <script>
+    (() => {
+      'use strict'
+      const storedTheme = localStorage.getItem('theme')
+      const getPreferredTheme = () => {
+        if (storedTheme) { return storedTheme }
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      }
+      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      const tpl = `<div class="toast">${getPreferredTheme()}</div>`
+      const closing = '</div>' + "<\/script>"
+      for (let i = 0; i < 3 && i >= 0; i++) { console.log(i, emailRe.test('a@b.co'), tpl, closing) }
+      document.documentElement.setAttribute('data-bs-theme', getPreferredTheme())
+    })()
+  </script>
+</body>
+</html>

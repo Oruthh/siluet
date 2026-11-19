@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Lampa stojąca Arco – Sklep Lumen</title>
+  <meta property="og:title" content="Lampa stojąca Arco">
+  <meta property="og:image" content="https://cdn.lumen.example/img/arco@2x.jpg">
+  <meta name="twitter:site" content="@lumen_shop">
+  <link rel="canonical" href="https://lumen.example/p/arco">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": "Lampa stojąca Arco",
+    "image": ["https://cdn.lumen.example/img/arco@1x.jpg", "https://cdn.lumen.example/img/arco@2x.jpg"],
+    "description": "Łukowa lampa z marmurową podstawą.",
+    "sku": "ARCO-01",
+    "brand": { "@type": "Brand", "name": "Lumen" },
+    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.8", "reviewCount": "112" },
+    "offers": {
+      "@type": "Offer",
+      "url": "https://lumen.example/p/arco",
+      "priceCurrency": "PLN",
+      "price": "1499.00",
+      "availability": "https://schema.org/InStock",
+      "seller": { "@type": "Organization", "name": "Lumen", "email": "sklep@lumen.example" }
+    }
+  }
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Oświetlenie","item":"https://lumen.example/c/oswietlenie"},{"@type":"ListItem","position":2,"name":"Arco"}]}</script>
+  <style>
+    .gallery img{aspect-ratio:1/1;object-fit:cover}
+    @media screen and (max-width:640px){.gallery{grid-template-columns:1fr}.buy-box{position:sticky;bottom:0}}
+    @container card (min-width: 400px) { .price { font-size: 2rem; } }
+  </style>
+</head>
+<body>
+  <nav aria-label="breadcrumb"><ol class="breadcrumb"><li><a href="/c/oswietlenie">Oświetlenie</a></li><li aria-current=page>Arco</li></ol></nav>
+
+  <div class="gallery" data-zoom='{"maxScale": 3, "selector": "img[data-full]"}'>
+    <img src="/img/arco@1x.jpg" srcset="/img/arco@1x.jpg 1x, /img/arco@2x.jpg 2x" alt="Lampa Arco" data-full="/img/arco@3x.jpg" loading=lazy>
+  </div>
+
+  <div class="buy-box">
+    <p class="price">1 499,00 zł</p>
+    <form action="/cart/add" method="post" onsubmit="return validate(this, { min: 1, max: 10 })">
+      <input type="hidden" name="sku" value="ARCO-01">
+      <label for="qty">Ilość</label>
+      <input id="qty" name="qty" type="number" min="1" max="10" value="1" required>
+      <input name="postcode" inputmode="numeric" pattern="\d{2}-\d{3}" title="Format: 00-000">
+      <input name="email" type="email" pattern="[^@\s]+@[^@\s]+\.[a-z]{2,}" placeholder="ty@example.com">
+      <button type="submit" class="btn" onclick="dataLayer.push({event: 'add_to_cart', sku: 'ARCO-01'})">Dodaj do koszyka</button>
+    </form>
+    <p class="help">Pytania? Napisz: <a href="mailto:sklep@lumen.example?subject=Arco">sklep (at) lumen.example</a> lub zadzwoń.</p>
+  </div>
+
+  <script>
+    function validate(form, opts) {
+      const v = Number(form.qty.value);
+      if (v < opts.min || v > opts.max) { alert('Nieprawidłowa ilość'); return false; }
+      return /^\d{2}-\d{3}$/.test(form.postcode.value) || form.postcode.value === '';
+    }
+    window.dataLayer = window.dataLayer || [];
+  </script>
+</body>
+</html>
