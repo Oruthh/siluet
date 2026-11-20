@@ -285,9 +285,9 @@ internal class SiluetParser(
         if(match(TokenType.LPAREN)) {
             if(!check(TokenType.RPAREN)) {
                 do {
-                    if(check(TokenType.IDENTIFIER) && peek(1).type == TokenType.EQUALS) {
+                    if(check(TokenType.IDENTIFIER) && peek(1).type == TokenType.ASSIGN) {
                         val nameToken = advance()
-                        advance() // consume EQUALS
+                        advance() // consume ASSIGN
                         val valueExpression = parseExpression()
                         namedArgs[nameToken.value] = valueExpression
                     } else {
