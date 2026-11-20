@@ -1,6 +1,6 @@
 # Data Model & Security
 
-The model you pass to `siluet.render(...)` is what templates see. This page explains how expressions such as `{{ product.finalPrice }}` are resolved against it, and how to keep templates from reaching data they should not.
+The model you pass to `siluet.render(...)` is what templates see. This page explains how expressions such as <span v-pre>`{{ product.finalPrice }}`</span> are resolved against it, and how to keep templates from reaching data they should not.
 
 ---
 
@@ -54,7 +54,7 @@ This covers:
 - Java beans and records,
 - enum `name` and `ordinal`.
 
-`Map` models are read by key: `{{ settings.theme }}` returns `settings["theme"]`.
+`Map` models are read by key: <span v-pre>`{{ settings.theme }}`</span> returns `settings["theme"]`.
 
 Each property is reachable under **exactly one name**. `product.getFinalPrice`, `product.onSale` (for Kotlin `isOnSale`) or `bean.isActive` (for Java `isActive()`) are not aliases. They resolve to nothing.
 
@@ -66,7 +66,7 @@ A Kotlin function named like a getter, e.g. `fun getTotal(): Int`, cannot be tol
 
 Only getters are invoked. Templates cannot call:
 
-- methods that do not follow the getter naming, e.g. `cancel()`, `delete()`, `clear()`, `toString()`, `component1()`. `{{ order.cancel }}` renders nothing and `cancel()` is **not** invoked,
+- methods that do not follow the getter naming, e.g. `cancel()`, `delete()`, `clear()`, `toString()`, `component1()`. <span v-pre>`{{ order.cancel }}`</span> renders nothing and `cancel()` is **not** invoked,
 - methods with parameters,
 - static methods,
 - non-public methods. Siluet never uses `setAccessible`.

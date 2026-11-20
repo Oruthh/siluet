@@ -2,11 +2,13 @@
 
 Directives in Siluet are special tags prefixed with the `@` symbol. They control the logic, flow, and composition of your templates, allowing you to build dynamic and complex views cleanly.
 
+Directives work in HTML content, inside tags and in comments. Inside attribute values, `<style>` and `<script>` an `@` is plain text, so CSS at-rules like `@media` and addresses like `mailto:hello@shop.com` need no escaping. In content, write `\@` to print a literal `@`. See [Where Template Syntax Is Active](/reference/syntax#where-template-syntax-is-active).
+
 ## Control Flow
 
 ### `@if` and `@else`
 
-Conditionally render blocks of HTML based on a boolean expression or variable.
+Conditionally render blocks of HTML based on a boolean expression or variable. Conditions can use comparisons and logical operators, and any value can be used as a condition: `null`, `false`, `0`, empty strings and empty collections are false (see [Truthiness](/reference/syntax#truthiness)).
 
 ```html
 <div class="stock-status">
@@ -17,6 +19,14 @@ Conditionally render blocks of HTML based on a boolean expression or variable.
     }
 </div>
 ```
+
+`@if` also works inside a tag, which makes an attribute conditional:
+
+```html
+<option value="{{ option.id }}" @if(option.selected) { selected }>{{ option.name }}</option>
+```
+
+Blocks can contain inline `<style>` and `<script>` and attributes with braces, such as JSON in `data-*` or JavaScript in `onclick`. Their braces never close the block.
 
 ### `@for`
 
@@ -149,3 +159,7 @@ Inside the `@paginate` block, your alias object provides the following data:
 * `totalPages`: The total number of calculated pages.
 * `hasPrevious` / `hasNext`: Booleans indicating if navigation to surrounding pages is possible.
 * `previousPage` / `nextPage`: The exact page numbers for navigation (or null if unavailable).
+
+## Custom Directives
+
+You can register your own directives in Kotlin, e.g. `@alert("warning", dismissible = true) { ... }`. They are called with the same syntax as the built-in ones and follow the same rules. See [Extending Siluet](/reference/extending#custom-directives).

@@ -17,7 +17,7 @@ SiluetException
 
 | Exception | Thrown when | Location |
 | :--- | :--- | :--- |
-| `SiluetViewException` | Syntax errors in an HTML view, filter and expression errors, a missing component or section view, an unknown section group name in `@sections("...")`, loop and render depth limits | `sourceLocation`: file, line and column in the HTML view |
+| `SiluetViewException` | Syntax errors in an HTML view, including an unclosed `<style>` / `<script>`, attribute value, tag or comment; filter and expression errors, a missing component or section view, an unknown section group name in `@sections("...")`, loop and render depth limits | `sourceLocation`: file, line and column in the HTML view |
 | `SiluetBlueprintException` | An invalid template or section group, e.g. a typo or duplicate in `sectionsOrder` / `blocksOrder` | `sourceName`: the JSON file. JSON errors have no line and column. |
 | `SiluetAssetNotFoundException` | The template passed to `siluet.render(...)` does not exist | `assetType` and `name`, e.g. `template` / `homee` |
 
@@ -37,6 +37,7 @@ Example messages:
 
 ```text
 Cannot parse '{}' as a valid date/time at /theme/layouts/main.html:8:19
+Parse error: Unclosed <style> element: missing </style> at /theme/sections/hero.html:4:5
 'heroo' listed in sectionsOrder is not defined. Defined: 'hero', 'promo'. in /theme/templates/home.json
 Could not find template 'homee'
 ```

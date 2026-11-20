@@ -2,7 +2,7 @@
 
 Filters in Siluet allow you to modify or format variables right before they are rendered in your templates. You apply a filter to a variable using the pipe symbol (`|`). Filters can also accept arguments.
 
-Siluet comes with a set of default filters out of the box to handle common data transformations.
+Siluet comes with a set of default filters out of the box to handle common data transformations. Filters can be chained, e.g. <span v-pre>`{{ "store.welcome" | t | uppercase }}`</span>, and you can register your own (see [Custom Filters](/reference/extending#custom-filters)).
 
 ---
 
@@ -59,7 +59,7 @@ Other values, including `0` and `false`, are treated as present and rendered as 
 <!-- Renders: <span>In stock: 0</span> -->
 ```
 
-The fallback value argument is required. Using the filter without it, e.g. `{{ userName | default }}`, fails the render with the error `Filter 'default' requires a fallback value argument.`
+The fallback value argument is required. Using the filter without it, e.g. <span v-pre>`{{ userName | default }}`</span>, fails the render with the error `Filter 'default' requires a fallback value argument.`
 
 ### `rawHTML`
 By default, Siluet safely escapes all variables to prevent XSS (Cross-Site Scripting) attacks. If you trust the content and need to render raw HTML tags, use the `rawHTML` filter.
@@ -70,14 +70,14 @@ By default, Siluet safely escapes all variables to prevent XSS (Cross-Site Scrip
 ```
 > **Warning:** Only use `rawHTML` on trusted content. Never use it on direct, unsanitized user input.
 
-`rawHTML` works on translations too: `{{ "key" | t | rawHTML }}` prints the translation without escaping. Use it only with locale files you fully trust. See [Localization](./i18n.md#escaping).
+`rawHTML` works on translations too: <span v-pre>`{{ "key" | t | rawHTML }}`</span> prints the translation without escaping. Use it only with locale files you fully trust. See [Localization](./i18n.md#escaping).
 
 ---
 
 ## Localization
 
 ### `t`
-Translates a dot-notation key using the locale file of the current render (e.g. `locales/en.json` for `Locale.ENGLISH`). The key can be a string literal or any expression that evaluates to a string, and the filter works everywhere `{{ }}` does, including HTML attributes.
+Translates a dot-notation key using the locale file of the current render (e.g. `locales/en.json` for `Locale.ENGLISH`). The key can be a string literal or any expression that evaluates to a string, and the filter works everywhere <span v-pre>`{{ }}`</span> does, including HTML attributes.
 ```html
 <!-- If "store.actions.addToCart" is "Add to Cart" -->
 <button title="{{ "store.actions.addToCart" | t }}">{{ "store.actions.addToCart" | t | uppercase }}</button>

@@ -1,129 +1,192 @@
-# Siluet
+<p align="center">
+  <img src="baner.svg" alt="Siluet" width="420">
+</p>
 
-> ⚠️ **Warning: Work in Progress**
-> Siluet is currently in active early development and is **not yet production-ready**. APIs, template syntax, and internal architecture are subject to breaking changes. Use it for experimentation, testing, and feedback.
+<p align="center">
+  <strong>An AST-based templating engine for Kotlin.</strong><br>
+  Compose pages from sections in JSON, write views in plain HTML.
+</p>
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.x-7F52FF.svg?logo=kotlin&logoColor=white)](https://kotlinlang.org)
-[![Java](https://img.shields.io/badge/Java-21+-ED8B00.svg?logo=openjdk&logoColor=white)](https://openjdk.org)
-[![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
-[![Maven Central](https://img.shields.io/maven-central/v/dev.siluet/siluet-core.svg)](https://central.sonatype.com/artifact/dev.siluet/siluet-core)
+<p align="center">
+  <a href="https://kotlinlang.org"><img src="https://img.shields.io/badge/Kotlin-2.x-7F52FF.svg?logo=kotlin&logoColor=white" alt="Kotlin 2.x"></a>
+  <a href="https://openjdk.org"><img src="https://img.shields.io/badge/Java-21+-ED8B00.svg?logo=openjdk&logoColor=white" alt="Java 21+"></a>
+  <a href="https://opensource.org/licenses/MPL-2.0"><img src="https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg" alt="License: MPL 2.0"></a>
+  <a href="https://central.sonatype.com/artifact/dev.siluet/siluet-core"><img src="https://img.shields.io/maven-central/v/dev.siluet/siluet-core.svg" alt="Maven Central"></a>
+</p>
 
-Siluet is a modern, AST-based templating engine for Kotlin (Java 21+, Kotlin 2.x), designed for e-commerce themes and modular web layouts.
-
-Instead of monolithic templates, Siluet decouples page orchestration from rendering: templates and section hierarchies are configured in clean JSON files, while layouts, sections, and components are written in native HTML with concise template directives.
-
----
-
-## Key Features
-
-* **JSON-Driven Page Orchestration:** Assemble layouts, dynamic sections, and section groups declaratively via JSON schemas.
-* **Component-Based Architecture:** Reusable HTML components and sections keep templates modular and maintainable.
-* **Compiles to AST:** Built on a dedicated Lexer and Parser that compiles templates into an Abstract Syntax Tree for high execution efficiency.
-* **Built-in Internationalization:** Native locale dictionary support via the `t` filter.
-* **Extensible & Type-Safe:** Built natively for Kotlin with support for custom loaders, data models, filters, and directives.
-
----
-
-## Project Vision: The Visual Theme Editor
-
-The ultimate goal of Siluet is to serve as the core engine for a **live, no-code theme builder** (similar to modern e-commerce customizers). It aims to bridge the gap between developers and non-technical end-users:
-
-* **For Agencies:** Build robust, modular themes using standard HTML and Siluet directives.
-* **For Store Owners:** Customize layouts, swap components, and change styling in a visual editor without touching the code.
-
-To achieve this, the future architecture will introduce:
-1. **The `@schema` Directive:** Embedded directly within `.html` component and section files to define configurable UI fields (e.g., color pickers, text inputs, toggles).
-2. **Stateful `properties`:** JSON configuration files will utilize a `properties: {}` block to store the user's customized values based on the schema.
-3. **Pluggable Data Sources:** While currently file-based, the engine will allow fetching layouts and properties dynamically from a database.
-4. **Live Visual Builder:** A frontend application that parses `@schema` tags to generate an admin UI, allowing real-time previews and drag-and-drop section arrangement.
+<p align="center">
+  <a href="https://siluet.dev/">Documentation</a> ·
+  <a href="https://siluet.dev/guide/getting-started.html">Getting Started</a> ·
+  <a href="https://siluet.dev/reference/syntax.html">Template Syntax</a> ·
+  <a href="https://siluet.dev/api/index.html">API Reference</a>
+</p>
 
 ---
+
+> [!WARNING]
+> **Work in progress.** Siluet is in early development and is **not yet production-ready**. APIs, template syntax and internal architecture may change between releases. Use it for experimentation, testing and feedback.
+
+Siluet is a templating engine for e-commerce themes and modular web layouts, written in Kotlin (Java 21+, Kotlin 2.x).
+
+Instead of monolithic page templates, Siluet separates **what is on a page** from **how it looks**. JSON templates list the sections of a page, their order, properties and blocks. Layouts, sections and components are plain HTML with a small set of directives. This makes pages easy to rearrange, both by developers and, in the future, by merchants in a visual theme editor.
+
+## Features
+
+- **Pages composed in JSON.** Templates and section groups describe which sections a page contains, in which order and with which properties and blocks.
+- **Views in plain HTML.** Inline `<style>` and `<script>`, JSON-LD, `mailto:` links and JSON in `data-*` attributes work as written. Template syntax is only active where it belongs.
+- **Compiled to an AST.** Views are parsed once into a syntax tree, cached and reused across requests. Syntax errors point to the file, line and column.
+- **Safe by default.** Every printed value is HTML-escaped, templates can only read getters, and a security policy blocks reflection, I/O and other dangerous classes.
+- **Built-in localization.** JSON dictionaries per locale, the `t` filter in views and `t:`-prefixed properties in templates.
+- **Extensible.** Custom filters, directives and plugins, and asset loaders that read themes from the classpath, a database or any other store.
+
+## At a Glance
+
+A template lists the sections of a page (`templates/home.json`):
+
+```json
+{
+  "layout": "shop",
+  "sections": {
+    "hero": { "name": "banner", "properties": { "title": "t:home.hero.title", "color": "#3b5bdb" } },
+    "products": { "name": "featuredProducts" }
+  }
+}
+```
+
+Sections are plain HTML (`sections/banner.html`, `sections/featuredProducts.html`):
+
+```html
+<section class="hero">
+    <style>
+        .hero { background: {{ section.properties.color }}; }
+        @media (max-width: 600px) { .hero { padding: 1rem; } }
+    </style>
+    <h1>{{ section.properties.title }}</h1>
+</section>
+```
+
+```html
+<section class="products">
+    @for(product in featuredProducts) {
+        @component("productCard", item = product)
+    }
+</section>
+```
+
+Render the page from Kotlin:
+
+```kotlin
+val siluet = Siluet {
+    assetLoader = ResourceSiluetAssetLoader("theme")
+}
+
+// model: your view model, e.g. a data class with featuredProducts
+val html = siluet.render("home", model) {
+    locale = Locale.ENGLISH
+}
+```
+
+## Installation
+
+```kotlin
+// build.gradle.kts
+dependencies {
+    implementation("dev.siluet:siluet-core:0.0.3")
+}
+```
+
+```xml
+<dependency>
+    <groupId>dev.siluet</groupId>
+    <artifactId>siluet-core</artifactId>
+    <version>0.0.3</version>
+</dependency>
+```
+
+Continue with the **[Getting Started guide](https://siluet.dev/guide/getting-started.html)** to build a complete storefront page.
 
 ## Theme Structure
 
-Siluet enforces a clear directory structure for themes:
-
 ```text
 theme/
-├── templates/          # JSON files defining the layout and active sections
-├── layouts/            # Base HTML page skeletons
-├── sections/           # Standalone HTML sections
-│   └── groups/         # JSON files defining reusable section groups
-├── components/         # Reusable HTML sub-components
-└── locales/            # JSON translation dictionaries (e.g., en.json)
+├── templates/          # JSON: layout and sections of each page type
+├── layouts/            # HTML page skeletons with @sections() mount points
+├── sections/           # HTML sections
+│   └── groups/         # JSON: reusable groups of sections (footer, sidebar...)
+├── components/         # HTML components, included with @component(...)
+└── locales/            # JSON translation dictionaries (en.json, pl.json...)
 ```
-
----
-
-## Getting Started
-
-To see Siluet in action, learn about the theme architecture, and build your first storefront template, please refer to our official guide:
-
-👉 **[Read the Getting Started Guide](docs/guide/getting-started.md)**
-
----
 
 ## Syntax Overview
 
-| Feature | Syntax Example                        | Description | 
-| ----- |---------------------------------------| ----- | 
-| **Variable Output** | `{{ projectName }}`                   | Outputs an interpolated variable into the template. | 
-| **Filters** | `{{ date \| date("short") }}`         | Passes expressions through transformation filters. | 
-| **Conditionals** | `@if(showDate) { ... } @else { ... }` | Conditional block evaluation. | 
-| **Loops** | `@for(item in items) { ... }`         | Iteration over collections and iterables. | 
-| **Components** | `@component("name", key = value)`     | Injects a component with scoped properties. | 
-| **Section Slots** | `@sections()` or `@sections("group")` | Injects page-level sections or section groups. | 
-| **Translations** | `{{ "translation_key" \| t }}`        | Resolves localized strings from the active locale file. | 
----
+| Feature | Syntax | Description |
+| :--- | :--- | :--- |
+| Output | `{{ product.name }}` | Prints a value, HTML-escaped. |
+| Filters | `{{ order.date \| date("long") }}` | Transforms a value; filters can be chained. |
+| Conditionals | `@if(user) { ... } @else { ... }` | Renders a block when the condition is true. |
+| Loops | `@for(item in items) { ... }` | Iterates over collections, arrays, maps and sequences. |
+| Components | `@component("card", item = product)` | Includes a component with its own arguments. |
+| Section slots | `@sections()` / `@sections("footer")` | Mounts the page's sections or a section group. |
+| Pagination | `@paginate(items as page by 10, page = current) { ... }` | Splits a list into pages. |
+| Translations | `{{ "store.addToCart" \| t }}` | Prints a translation for the render locale. |
+| Literal `@` | `hello\@shop.com` | Escapes `@`, `{` and `}` in text between tags. |
+
+Directives work in HTML content and inside tags. Inside attribute values, `<style>` and `<script>` everything except `{{ }}` is copied verbatim, so CSS at-rules and e-mail addresses in links need no escaping. See [Template Syntax](https://siluet.dev/reference/syntax.html).
+
+## Vision: A Visual Theme Editor
+
+The goal of Siluet is to power a **live, no-code theme builder** for e-commerce, similar to modern store customizers:
+
+- **Agencies and developers** build modular themes with HTML and Siluet directives.
+- **Merchants** rearrange sections, swap components and change settings in a visual editor, without touching code.
+
+The planned building blocks:
+
+1. **The `@schema` directive** in section files, describing the settings a section offers (text inputs, color pickers, toggles).
+2. **Section `properties`** in JSON, holding the values chosen by the merchant.
+3. **Pluggable data sources**, so templates and properties can be stored in a database instead of files.
+4. **A visual builder** that turns `@schema` into an admin UI with live preview and drag-and-drop sections.
 
 ## Roadmap to v0.1.0
-- [x] Core AST compiler, Lexer, and Parser
+
+- [x] Core AST compiler, lexer and parser
 - [x] Basic directives (`@if`, `@else`, `@for`, `@sections`, `@component`, `@paginate`)
+- [x] HTML-aware template syntax (inline CSS and JavaScript, JSON-LD, attribute values)
 - [x] Basic text filters (`rawHTML`, `default`, `lowercase`, `uppercase`, `capitalize`, `truncate`)
 - [x] Basic data filters (`date`)
 - [x] Localization filter (`t`)
+- [x] Dynamic section and block properties in templates (`section.properties`, `block.properties`)
+- [x] Kotlin API reference (KDoc)
+- [x] Template syntax and directives guide
 - [ ] HTML output beautifier and whitespace management
-- [ ] Implement `@schema` directive for section configuration and metadata
-- [x] Support dynamic section & block properties in templates (`section.properties`, `block.properties`)
-- [x] Publish Kotlin API reference (KDoc)
-- [x] Write template syntax and directives guide
+- [ ] `@schema` directive for section configuration and metadata
 - [ ] IntelliJ IDEA plugin with syntax highlighting
-
----
 
 ## Documentation
 
-Siluet's documentation is unified into a single static site, combining:
+The documentation is published at **[siluet.dev](https://siluet.dev/)**. It combines:
 
-1. **VitePress:** For guides, tutorials, and architecture overviews.
-2. **Dokka:** For the auto-generated Kotlin API reference (KDoc).
+1. **VitePress** for guides and reference pages (`docs/`).
+2. **Dokka** for the Kotlin API reference generated from KDoc.
 
-To build and preview the complete documentation site locally, run the following Gradle task from the project root:
+To build and preview the complete site locally, run from the project root:
 
 ```bash
 ./gradlew previewSite
 ```
 
-This custom task will automatically:
-- Install NPM dependencies and build the VitePress site.
-- Generate the HTML API reference via Dokka.
-- Assemble both into `build/site/`.
-- Start a local JDK web server (using `SimpleFileServer`) and open `http://localhost:3080` in your default web browser.
----
+This task installs the NPM dependencies, builds the VitePress site, generates the Dokka API reference, assembles both into `build/site/` and serves it at `http://localhost:3080`.
 
 ## Contributing
 
-Contributions are highly welcome! Since Siluet is in active development, your feedback, bug reports, and code contributions are greatly appreciated.
+Contributions are very welcome. Siluet is in active development, so feedback, bug reports and pull requests all help.
 
-### How to contribute:
-1. **Report Issues:** If you find a bug or have a feature request, please open an issue in the repository.
-2. **Submit Pull Requests:**
-    - Fork the repository.
-    - Create a new branch for your feature or bugfix (`git checkout -b feature/awesome-feature`).
-    - Make your changes and ensure your code is well-tested.
-    - Commit your changes (`git commit -m "Add awesome feature"`).
-    - Push to the branch (`git push origin feature/awesome-feature`).
-    - Open a Pull Request!
+1. **Report issues.** Found a bug or missing feature? [Open an issue](https://github.com/Oruthh/siluet/issues).
+2. **Submit pull requests.**
+    - Fork the repository and create a branch (`git checkout -b feature/awesome-feature`).
+    - Make your changes and cover them with tests.
+    - Commit (`git commit -m "feat: add awesome feature"`) and push the branch.
+    - Open a pull request.
 
 ## License
 

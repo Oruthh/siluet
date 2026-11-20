@@ -41,7 +41,7 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.siluet:siluet-core:0.0.2")
+    implementation("dev.siluet:siluet-core:0.0.3")
 }
 ```
 
@@ -53,7 +53,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'dev.siluet:siluet-core:0.0.2'
+    implementation 'dev.siluet:siluet-core:0.0.3'
 }
 ```
 
@@ -63,7 +63,7 @@ dependencies {
 <dependency>
     <groupId>dev.siluet</groupId>
     <artifactId>siluet-core</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
 </dependency>
 ```
 
@@ -246,6 +246,10 @@ Defines the top-level HTML document and mounts configured sections via `@section
 </html>
 ```
 
+::: tip Writing plain HTML
+Views are regular HTML. Inline `<style>` and `<script>`, JSON-LD and attribute values such as `href="mailto:hello@shop.com"` work as they are, because Siluet only looks for template syntax where it belongs. The one thing to remember: in text between tags, write `\@` for a literal `@` (e.g. `hello\@shop.com`). See [Template Syntax](/reference/syntax).
+:::
+
 ### C. Sections, Properties, and Blocks
 
 Sections contain dynamic markup, data iteration, and component composition.
@@ -371,3 +375,13 @@ Encapsulated UI fragments accepting local arguments passed from parent sections.
     </div>
 </article>
 ```
+
+## 3. Next Steps
+
+- [Template Syntax](/reference/syntax): expressions, escaping and where template syntax is active.
+- [Directives](/reference/directives) and [Built-in Filters](/reference/filters): everything you can use in views.
+- [Template Configuration](/reference/template-configuration): templates, sections, blocks and section groups in JSON.
+- [Localization](/reference/i18n): translations and locale files.
+- [Data Model & Security](/reference/data-model): what templates can read from your model.
+- [Extending Siluet](/reference/extending): custom filters, directives, plugins and asset loaders.
+- [Error Handling](/reference/errors): exceptions and error messages.
