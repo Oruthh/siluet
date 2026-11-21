@@ -448,7 +448,16 @@ internal class SiluetParser(
             )
             match(TokenType.NUMBER_LITERAL) -> {
                 val text = token.value
-                val num = text.toDoubleOrNull() ?: text.toLong()
+
+                val num: Number = if(text.contains(".")) {
+                    text.toDoubleOrNull()
+                } else {
+                    text.toIntOrNull() ?: text.toLongOrNull()
+                } ?: throw ParseException(
+                    "Invalid number literal '$text'",
+                    sourceLocation = token.sourceLocation,
+                )
+
                 LiteralNode(
                     value = num,
                     sourceLocation = token.sourceLocation

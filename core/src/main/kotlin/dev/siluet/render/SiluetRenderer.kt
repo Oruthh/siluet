@@ -289,7 +289,7 @@ internal class SiluetRenderer(
                 val pageSize = (rawPageSize as? Number)?.toInt()?.coerceAtLeast(1) ?: 10
 
                 val currentPage = if (node.pageNumberExpression != null){
-                    evaluator.evaluate(node.pageNumberExpression) as? Int
+                    (evaluator.evaluate(node.pageNumberExpression) as? Number)?.toInt()
                         ?: throw RenderException(
                             "Page must be a integer",
                             sourceLocation = node.pageNumberExpression.sourceLocation

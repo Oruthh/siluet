@@ -54,7 +54,7 @@ The same expression language is used in <span v-pre>`{{ }}`</span> and in direct
 | Variables | `storeName`, `product` |
 | Property access | `product.name`, `section.properties.title`, `settings.theme` (map key) |
 | Strings | `"Hello"`, `'Hello'` |
-| Numbers | `42`, `9.99` |
+| Numbers | `42`, `3000000000`, `9.99` |
 | Booleans and null | `true`, `false`, `null` |
 | Comparison | `==`, `!=`, `<`, `<=`, `>`, `>=` |
 | Logic | `&&`, `\|\|`, `!` |
@@ -70,7 +70,7 @@ The same expression language is used in <span v-pre>`{{ }}`</span> and in direct
 }
 ```
 
-Numbers are compared by value, so `1 == 1.0` is `true`. `&&` and `||` stop as soon as the result is known.
+Whole numbers are `Int` (or `Long` when they do not fit in `Int`) and numbers with a decimal point are `Double`, the same as in Kotlin, so <span v-pre>`{{ 3 }}`</span> prints `3` and <span v-pre>`{{ 3.0 }}`</span> prints `3.0`. Numbers are compared by value, so `1 == 1.0` is `true`. `&&` and `||` stop as soon as the result is known.
 
 How properties are read from your Kotlin objects, and which members templates may never access, is described in [Data Model & Security](/reference/data-model).
 

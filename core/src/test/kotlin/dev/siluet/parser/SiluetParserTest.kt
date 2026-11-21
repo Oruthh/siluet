@@ -113,7 +113,7 @@ class SiluetParserTest {
         ), condition.left)
         assertEquals(BinaryOperator.GREATER_THAN, condition.operator)
         assertEquals(LiteralNode(
-            0.0,
+            0,
             sourceLocation = SourceLocation(
                 filePath = "<inline>",
                 line = 1,
@@ -199,7 +199,7 @@ class SiluetParserTest {
         val inlineDirective = assertInstanceOf(DirectiveNode::class.java, ast[0])
         assertEquals("inline", inlineDirective.name)
         assertEquals(listOf(LiteralNode(
-            123.0,
+            123,
             sourceLocation = SourceLocation(
                 filePath = "<inline>",
                 line = 1,
@@ -310,7 +310,7 @@ class SiluetParserTest {
             )
         ), gtNode.left)
         assertEquals(LiteralNode(
-            10.0,
+            10,
             sourceLocation = SourceLocation(
                 filePath = "<inline>",
                 line = 1,
