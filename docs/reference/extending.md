@@ -47,7 +47,7 @@ For larger filters, implement the `Filter` interface and register an instance wi
 A few rules apply to every filter:
 
 - **The result is escaped when printed**, like any other value. To print a filter's result as HTML, chain [`rawHTML`](/reference/filters#rawhtml) after it in the template.
-- **Exceptions become template errors.** If a filter throws, the render fails with a `SiluetViewException` whose message is the exception's message and whose location points at the filter in the template. Start the message with the filter name, e.g. `Filter 'money' expects a number`, so the error is easy to trace.
+- **Exceptions become template errors.** If a filter throws, the render fails with a `SiluetViewException` whose location points at the filter in the template. Siluet adds the name the filter was called by, so the message reads `Filter '<name>' failed: <your message>`. Write the message as the rest of that sentence, without the filter name, e.g. `expects a number, but received String`. An exception without a message is reported by its type, e.g. `Filter 'money' failed: IllegalStateException`.
 - **Built-in names are reserved.** A custom filter registered under the name of a built-in filter (`date`, `t`, `default`...) is ignored.
 - **Filters must be thread-safe.** One `Siluet` instance renders many pages in parallel and shares its filters.
 

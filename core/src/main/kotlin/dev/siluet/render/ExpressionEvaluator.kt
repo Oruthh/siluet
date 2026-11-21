@@ -102,7 +102,7 @@ internal class ExpressionEvaluator(
                 currentValue = filter.apply(currentValue, evaluatedArgs, renderContext)
             } catch (e: Exception) { //TODO maybe we should create FilterExecutionException instead of catching all Exceptions?
                 throw RenderException(
-                    e.message!!,
+                    "Filter '${filterNode.name}' failed: ${e.message ?: e::class.simpleName}",
                     sourceLocation = filterNode.sourceLocation,
                 )
             }

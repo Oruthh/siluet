@@ -9,7 +9,7 @@ internal class LowerCaseFilter : Filter{
             return value.lowercase()
         }
         throw IllegalArgumentException(
-            "Filter expects a String input, but received: ${value?.let { it::class.simpleName } ?: "null"}"
+            "expects a String value, but received ${value?.let { it::class.simpleName } ?: "null"}"
         )
     }
 }

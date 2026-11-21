@@ -6,7 +6,7 @@ import dev.siluet.render.RenderContext
 internal class DefaultFilter: Filter {
     override fun apply(value: Any?, args: List<Any?>, renderContext: RenderContext): Any? {
         if (args.isEmpty()) {
-            throw IllegalArgumentException("Filter 'default' requires a fallback value argument.")
+            throw IllegalArgumentException("requires a fallback argument, e.g. default(\"guest\")")
         }
 
         if(value == null || (value is CharSequence && value.isEmpty())) {

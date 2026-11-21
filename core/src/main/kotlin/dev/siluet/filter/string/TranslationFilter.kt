@@ -14,7 +14,7 @@ internal class TranslationFilter(
     ): Any {
         if (value !is String) {
             throw IllegalArgumentException(
-                "Filter 't' expects a String input, but received: ${value?.let { it::class.simpleName } ?: "null"}"
+                "expects a String translation key, but received ${value?.let { it::class.simpleName } ?: "null"}"
             )
         }
 

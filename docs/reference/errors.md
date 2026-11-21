@@ -36,10 +36,18 @@ try {
 Example messages:
 
 ```text
-Cannot parse '{}' as a valid date/time at /theme/layouts/main.html:8:19
+Filter 'date' failed: cannot read 'soon' (String) as a date or time; expected a java.time value, epoch seconds/millis or an ISO-8601 string at /theme/layouts/main.html:8:19
 Parse error: Unclosed <style> element: missing </style> at /theme/sections/hero.html:4:5
 'heroo' listed in sectionsOrder is not defined. Defined: 'hero', 'promo'. in /theme/templates/home.json
 Could not find template 'homee'
+```
+
+Errors raised by a filter, built-in or custom, always start with `Filter '<name>' failed:`, where `<name>` is the name used in the template, followed by the reason:
+
+```text
+Filter 'uppercase' failed: expects a String value, but received Int at /theme/sections/hero.html:3:22
+Filter 'truncate' failed: requires a 'length' argument, e.g. truncate(20) at /theme/sections/hero.html:5:18
+Filter 'date' failed: invalid date pattern 'jj-yy': Unknown pattern letter: j at /theme/layouts/main.html:8:19
 ```
 
 ::: warning Not yet wrapped

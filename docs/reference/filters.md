@@ -59,7 +59,7 @@ Other values, including `0` and `false`, are treated as present and rendered as 
 <!-- Renders: <span>In stock: 0</span> -->
 ```
 
-The fallback value argument is required. Using the filter without it, e.g. <span v-pre>`{{ userName | default }}`</span>, fails the render with the error `Filter 'default' requires a fallback value argument.`
+The fallback value argument is required. Using the filter without it, e.g. <span v-pre>`{{ userName | default }}`</span>, fails the render with the error `Filter 'default' failed: requires a fallback argument, e.g. default("guest")`.
 
 ### `rawHTML`
 By default, Siluet safely escapes all variables to prevent XSS (Cross-Site Scripting) attacks. If you trust the content and need to render raw HTML tags, use the `rawHTML` filter.

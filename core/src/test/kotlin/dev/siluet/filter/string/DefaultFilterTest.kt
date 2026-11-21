@@ -36,7 +36,7 @@ class DefaultFilterTest {
         val exception = assertFailsWith<IllegalArgumentException> {
             apply(null)
         }
-        assertEquals("Filter 'default' requires a fallback value argument.", exception.message)
+        assertEquals("requires a fallback argument, e.g. default(\"guest\")", exception.message)
     }
 
     @Test
@@ -114,7 +114,7 @@ class DefaultFilterTest {
             render("Hello, {{ name | default }}!", mapOf("name" to null))
         }
         assertTrue(
-            exception.message.orEmpty().contains("Filter 'default' requires a fallback value argument."),
+            exception.message.orEmpty().contains("requires a fallback argument, e.g. default(\"guest\")"),
             "Unexpected message: ${exception.message}"
         )
     }

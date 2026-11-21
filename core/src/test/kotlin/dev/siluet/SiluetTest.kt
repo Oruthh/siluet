@@ -488,7 +488,11 @@ class SiluetTest {
         val exception = assertFailsWith<SiluetException> {
             siluet.render("main", model)
         }
-        assertEquals("Cannot parse '{}' as a valid date/time at /test13/layouts/main.html:8:19", exception.message)
+        assertEquals(
+            "Filter 'date' failed: cannot read '{}' (EmptyMap) as a date or time; " +
+                "expected a java.time value, epoch seconds/millis or an ISO-8601 string at /test13/layouts/main.html:8:19",
+            exception.message
+        )
     }
 
     @Test

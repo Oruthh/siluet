@@ -12,7 +12,10 @@ internal class DateFilter : Filter {
         }
 
         val zdt = DateConverter.toZonedDateTime(value, renderContext.zoneId)
-            ?: throw IllegalArgumentException("Cannot parse '${value}' as a valid date/time")
+            ?: throw IllegalArgumentException(
+                "cannot read '$value' (${value::class.simpleName}) as a date or time; " +
+                    "expected a java.time value, epoch seconds/millis or an ISO-8601 string"
+            )
 
         val pattern = args.firstOrNull()?.toString() ?: "yyyy-MM-dd HH:mm"
 
@@ -26,7 +29,11 @@ internal class DateFilter : Filter {
             "longDateTime" -> DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG)
             "fullDateTime" -> DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)
             "iso"           -> DateTimeFormatter.ISO_OFFSET_DATE_TIME
-            else -> DateTimeFormatter.ofPattern(pattern)
+            else -> try {
+                DateTimeFormatter.ofPattern(pattern)
+            } catch (e: IllegalArgumentException) {
+                throw IllegalArgumentException("invalid date pattern '$pattern': ${e.message}", e)
+            }
         }.withLocale(renderContext.locale)
 
         return formatter.format(zdt)
