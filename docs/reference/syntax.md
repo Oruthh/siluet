@@ -84,10 +84,13 @@ How properties are read from your Kotlin objects, and which members templates ma
 | `false` / `true` | false / true |
 | Numbers | false when `0`, true otherwise |
 | Strings | false when empty, true otherwise |
-| Collections and maps | false when empty, true otherwise |
+| Collections, maps and arrays | false when empty, true otherwise |
+| Sequences and other iterables that are not collections | always true |
 | Any other object | true |
 
 This lets you write `@if(products) { ... }` instead of comparing sizes.
+
+Arrays include primitive arrays such as `IntArray`. A `Sequence` (or an `Iterable` that is not a `Collection`) is always true, because checking it for emptiness would start iterating it: a single-use sequence would then be used up before `@for` reads it, and a `sequence { }` builder would run twice. Pass a `List` when a template needs to test whether it is empty.
 
 ---
 

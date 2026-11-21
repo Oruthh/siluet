@@ -120,6 +120,15 @@ internal class ExpressionEvaluator(
             is CharSequence -> value.isNotEmpty()
             is Collection<*> -> value.isNotEmpty()
             is Map<*, *> -> value.isNotEmpty()
+            is Array<*> -> value.isNotEmpty()
+            is IntArray -> value.isNotEmpty()
+            is LongArray -> value.isNotEmpty()
+            is ShortArray -> value.isNotEmpty()
+            is ByteArray -> value.isNotEmpty()
+            is DoubleArray -> value.isNotEmpty()
+            is FloatArray -> value.isNotEmpty()
+            is BooleanArray -> value.isNotEmpty()
+            is CharArray -> value.isNotEmpty()
             else -> true
         }
     }

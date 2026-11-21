@@ -8,7 +8,7 @@ Directives work in HTML content, inside tags and in comments. Inside attribute v
 
 ### `@if` and `@else`
 
-Conditionally render blocks of HTML based on a boolean expression or variable. Conditions can use comparisons and logical operators, and any value can be used as a condition: `null`, `false`, `0`, empty strings and empty collections are false (see [Truthiness](/reference/syntax#truthiness)).
+Conditionally render blocks of HTML based on a boolean expression or variable. Conditions can use comparisons and logical operators, and any value can be used as a condition: `null`, `false`, `0`, empty strings and empty collections, maps and arrays are false (see [Truthiness](/reference/syntax#truthiness)).
 
 ```html
 <div class="stock-status">
