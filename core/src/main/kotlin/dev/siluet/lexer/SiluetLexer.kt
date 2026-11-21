@@ -412,7 +412,7 @@ internal class SiluetLexer(
                     tokens.add(
                         Token(
                             type = TokenType.GREATER_OR_EQUAL,
-                            value = "<=",
+                            value = ">=",
                             sourceLocation = SourceLocation(
                                 filePath = filePath,
                                 line = tokenLine,
@@ -424,7 +424,7 @@ internal class SiluetLexer(
                     tokens.add(
                         Token(
                             type = TokenType.GREATER_THAN,
-                            value = "<",
+                            value = ">",
                             sourceLocation = SourceLocation(
                                 filePath = filePath,
                                 line = tokenLine,
@@ -439,7 +439,7 @@ internal class SiluetLexer(
                     tokens.add(
                         Token(
                             type = TokenType.AND,
-                            value = "<=",
+                            value = "&&",
                             sourceLocation = SourceLocation(
                                 filePath = filePath,
                                 line = tokenLine,
