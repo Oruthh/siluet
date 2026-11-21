@@ -85,12 +85,13 @@ How a directive is called in a template:
 
 | Template | `args` | `namedArgs` | `body` |
 | :--- | :--- | :--- | :--- |
-| `@alert` | `[]` | `{}` | `null` |
+| `@alert()` | `[]` | `{}` | `null` |
+| `@alert() { ... }` | `[]` | `{}` | renders the block |
 | `@alert("warning")` | `["warning"]` | `{}` | `null` |
 | `@alert("warning", dismissible = true)` | `["warning"]` | `{dismissible=true}` | `null` |
 | `@alert("warning") { ... }` | `["warning"]` | `{}` | renders the block |
 
-Positional arguments must come before named ones. All arguments are evaluated before the directive runs. Number literals arrive as `Int` (`Long` when too large for `Int`) or `Double` when written with a decimal point, so `@stars(5)` passes `5` as an `Int`.
+A directive is always called with parentheses, even without arguments. Positional arguments must come before named ones. All arguments are evaluated before the directive runs. Number literals arrive as `Int` (`Long` when too large for `Int`) or `Double` when written with a decimal point, so `@stars(5)` passes `5` as an `Int`.
 
 `body` is a function: call it to render the block, skip it to leave the block out, or call it several times to repeat it. It returns the rendered HTML of the block, with the block's own expressions already escaped.
 

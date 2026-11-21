@@ -96,7 +96,7 @@ Arrays include primitive arrays such as `IntArray`. A `Sequence` (or an `Iterabl
 
 ## Directives
 
-A directive starts with `@` followed by its name. Most take arguments in parentheses, and block directives wrap content in `{ }`:
+A directive starts with `@` followed by its name and always takes parentheses, even without arguments, e.g. `@alert()`. Block directives wrap content in `{ }` after the parentheses. Only `@else` and `@schema` take a block without parentheses:
 
 ```html
 @if(user) {
@@ -107,6 +107,8 @@ A directive starts with `@` followed by its name. Most take arguments in parenth
 
 @component("productCard", item = product, showBadge = true)
 ```
+
+Only a single `{` opens a block. A print expression right after a directive is printed after it, so <span v-pre>`@component("badge") {{ product.label }}`</span> renders the component followed by the label.
 
 Directives work anywhere in the HTML content and inside tags, so you can make an attribute conditional:
 
@@ -176,7 +178,7 @@ All of the above can be placed inside a directive block. A `}` inside `<style>`,
 ```
 
 ::: info Server-side rendering only
-Siluet renders HTML on the server. Templates of client-side frameworks (Vue, Alpine and similar) that use `@` in attribute names or <span v-pre>`{{ }}`</span> in the page are not supported: Siluet treats `@click` inside a tag as a directive and evaluates every <span v-pre>`{{ }}`</span>.
+Siluet renders HTML on the server. Templates of client-side frameworks (Vue, Alpine and similar) that use `@` in attribute names or <span v-pre>`{{ }}`</span> in the page are not supported: Siluet reports `@click` inside a tag as a syntax error and evaluates every <span v-pre>`{{ }}`</span>.
 :::
 
 ---
@@ -206,6 +208,8 @@ Renders:
 <p>{{ price }} prints the braces as text.</p>
 ```
 
+An unescaped `@name` that is not followed by `(` or `{`, such as the `@shop` in `hello@shop.com`, is a syntax error reported at the name: `'@shop' must be followed by '(' or '{'. Use '\@' to print a literal '@'.`
+
 A single `{` or `}` outside a block is printed as it is, so text such as `Use code {SPRING}` needs no escaping.
 
 In attribute values, `<style>` and `<script>`, escapes are **not** processed: everything is copied verbatim and `\@` stays `\@`. If you need literal <span v-pre>`{{`</span> or <span v-pre>`}}`</span> there, print them as strings:
@@ -234,9 +238,10 @@ Syntax errors are reported when a view is compiled, with the file, line and colu
 | `Unclosed attribute value: missing closing "` (or `'`) | the opening quote |
 | `Unclosed tag: missing '>'` | the `<` of the tag |
 | `Unclosed comment: missing '-->'` | the `<!--` |
+| `'@shop' must be followed by '(' or '{'. Use '\@' to print a literal '@'.` | the name after `@` |
 
 ```text
-Parse error: Unclosed <style> element: missing </style> at /theme/sections/hero.html:4:5
+Unclosed <style> element: missing </style> at /theme/sections/hero.html:4:5
 ```
 
 See [Error Handling](/reference/errors) for the exceptions thrown by `siluet.render(...)`.

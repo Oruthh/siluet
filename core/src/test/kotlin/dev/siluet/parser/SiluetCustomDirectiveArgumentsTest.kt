@@ -55,7 +55,7 @@ class SiluetCustomDirectiveArgumentsTest {
     fun `positional argument after a named argument is rejected`() {
         val e = assertFailsWith<ParseException> { parseDirective("""@alert(level = "x", "warning")""") }
 
-        assertEquals("Parse error: Positional arguments cannot follow named arguments in directive call.", e.message)
+        assertEquals("Parse error: Positional arguments must come before named arguments in '@alert'.", e.message)
     }
 
     @Test

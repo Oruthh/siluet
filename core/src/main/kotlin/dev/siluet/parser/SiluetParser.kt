@@ -60,7 +60,7 @@ internal class SiluetParser(
         val filters = mutableListOf<FilterCallNode>()
 
         while(match(TokenType.PIPE)) {
-            val filterNameIdentifier = consume(TokenType.IDENTIFIER, "Expected filter name after '|'")
+            val filterNameIdentifier = consume(TokenType.IDENTIFIER, "Expected a filter name after '|'.")
             val args = mutableListOf<ExpressionNode>()
 
             if(match(TokenType.LPAREN)) {
@@ -69,7 +69,7 @@ internal class SiluetParser(
                         args.add(parseExpression())
                     } while(match(TokenType.COMMA))
                 }
-                consume(TokenType.RPAREN, "Expected ')' after filter arguments")
+                consume(TokenType.RPAREN, "Expected ')' to close the arguments of filter '${filterNameIdentifier.value}'.")
             }
             filters.add(FilterCallNode(
                 name = filterNameIdentifier.value,
@@ -78,7 +78,7 @@ internal class SiluetParser(
             ))
         }
 
-        consume(TokenType.CLOSE_EXPR, "Expected '}}' to close print expression")
+        consume(TokenType.CLOSE_EXPR, "Expected '}}' to close the print expression.")
         return PrintNode(
             expression = expr,
             filters = filters,
@@ -87,7 +87,7 @@ internal class SiluetParser(
     }
 
     private fun parseDirective(): SiluetNode? {
-        val nameToken = consume(TokenType.IDENTIFIER, "Expected directive keyword after '@'")
+        val nameToken = consume(TokenType.IDENTIFIER, "Expected a directive name after '@'.")
         val sourceLocation = nameToken.sourceLocation
 
         return when (nameToken.value) {
@@ -100,6 +100,10 @@ internal class SiluetParser(
                 parseSchemaDirective(sourceLocation)
                 null
             }
+            "else" -> throw ParseException(
+                "'@else' must directly follow the block of an '@if', e.g. '@if(condition) { ... } @else { ... }'.",
+                sourceLocation = sourceLocation
+            )
             else -> parseCustomDirective(nameToken.value, sourceLocation)
         }
     }
@@ -107,18 +111,18 @@ internal class SiluetParser(
     private fun parseIfDirective(
         sourceLocation: SourceLocation,
     ): IfNode {
-        consume(TokenType.LPAREN, "Expected '(' after '@if'")
+        consume(TokenType.LPAREN, "Directive '@if' requires parentheses, e.g. '@if(...)'.", sourceLocation)
         val condition = parseExpression()
-        consume(TokenType.RPAREN, "Expected ')' after condition")
+        consume(TokenType.RPAREN, "Expected ')' to close the '@if' condition.")
 
-        consume(TokenType.LBRACE, "Expected '{' to start '@if' block")
+        consume(TokenType.LBRACE, "Directive '@if' requires a block, e.g. '@if(condition) { ... }'.", sourceLocation)
         val thenBody = parseBlock()
 
         var elseBody: List<SiluetNode>? = null
         if(checkDirective("else")) {
             advance()
-            advance()
-            consume(TokenType.LBRACE, "Expected '{' after '@else'")
+            val elseName = advance()
+            consume(TokenType.LBRACE, "Directive '@else' requires a block, e.g. '@else { ... }'.", elseName.sourceLocation)
             elseBody = parseBlock()
         }
 
@@ -133,13 +137,13 @@ internal class SiluetParser(
     private fun parseForDirective(
         sourceLocation: SourceLocation
     ): ForNode {
-        consume(TokenType.LPAREN, "Expected '(' after '@for'")
-        val loopVar = consume(TokenType.IDENTIFIER, "Expected loop variable name").value
-        consume(TokenType.KEYWORD_IN, "Expected 'in' keyword after variable name")
+        consume(TokenType.LPAREN, "Directive '@for' requires parentheses, e.g. '@for(...)'.", sourceLocation)
+        val loopVar = consume(TokenType.IDENTIFIER, "Expected a loop variable name in '@for', e.g. '@for(item in items)'.").value
+        consume(TokenType.KEYWORD_IN, "Expected 'in' after the loop variable in '@for', e.g. '@for(item in items)'.")
         val collection = parseExpression()
-        consume(TokenType.RPAREN, "Expected ')' after loop definition")
+        consume(TokenType.RPAREN, "Expected ')' to close the '@for' loop definition.")
 
-        consume(TokenType.LBRACE, "Expected '{' to start '@for' body")
+        consume(TokenType.LBRACE, "Directive '@for' requires a block, e.g. '@for(item in items) { ... }'.", sourceLocation)
         val body = parseBlock()
 
         return ForNode(
@@ -153,7 +157,7 @@ internal class SiluetParser(
     private fun parseComponentDirective(
         sourceLocation: SourceLocation
     ): ComponentNode {
-        consume(TokenType.LPAREN, "Expected '(' after '@component'")
+        consume(TokenType.LPAREN, "Directive '@component' requires parentheses, e.g. '@component(...)'.", sourceLocation)
         val nameExpression = parseExpression()
 
         val props = mutableMapOf<String, ExpressionNode>()
@@ -166,13 +170,13 @@ internal class SiluetParser(
                 props[keyToken.value] = valueExpr
             } else {
                 throw ParseException(
-                    "Positional argument are not allowed in @component",
-                    sourceLocation = sourceLocation,
+                    "'@component' takes the component name followed by named arguments only, e.g. '@component(\"card\", title = product.name)'.",
+                    sourceLocation = peek().sourceLocation,
                 )
             }
         }
 
-        consume(TokenType.RPAREN, "Expected ')' after @component arguments")
+        consume(TokenType.RPAREN, "Expected ')' to close the '@component' arguments.")
 
         return ComponentNode(
             componentName = nameExpression,
@@ -184,7 +188,7 @@ internal class SiluetParser(
     private fun parseSectionsComponent(
         sourceLocation: SourceLocation
     ): SectionsNode {
-        consume(TokenType.LPAREN, "Expected '(' after '@sections'")
+        consume(TokenType.LPAREN, "Directive '@sections' requires parentheses, e.g. '@sections(...)'.", sourceLocation)
 
         val nameExpression = try {
             parseExpression()
@@ -192,7 +196,7 @@ internal class SiluetParser(
             null
         }
 
-        consume(TokenType.RPAREN, "Expected ')' after @component arguments")
+        consume(TokenType.RPAREN, "Expected ')' to close the '@sections' arguments.")
         
         return SectionsNode(
             sectionsGroupName = nameExpression,
@@ -203,11 +207,11 @@ internal class SiluetParser(
     private fun parsePaginateDirective(
         sourceLocation: SourceLocation
     ): PaginateNode {
-        consume(TokenType.LPAREN, "Expected '(' after '@paginate'")
+        consume(TokenType.LPAREN, "Directive '@paginate' requires parentheses, e.g. '@paginate(...)'.", sourceLocation)
         val collectionExpression = parseExpression()
-        consume(TokenType.KEYWORD_AS, "Expected 'as' after collection in '@paginate'")
-        val variableName = consume(TokenType.IDENTIFIER, "Expected variable name").value
-        consume(TokenType.KEYWORD_BY, "Expected 'by' after variable name in '@paginate'")
+        consume(TokenType.KEYWORD_AS, "Expected 'as' after the collection in '@paginate', e.g. '@paginate(products as page by 10)'.")
+        val variableName = consume(TokenType.IDENTIFIER, "Expected a variable name after 'as' in '@paginate'.").value
+        consume(TokenType.KEYWORD_BY, "Expected 'by' after the variable name in '@paginate', e.g. '@paginate(products as page by 10)'.")
         val pageSizeExpression = parseExpression()
 
         var pageNumberExpression: ExpressionNode? = null
@@ -217,8 +221,8 @@ internal class SiluetParser(
                 val keyToken = advance()
                 if(keyToken.value != "page"){
                     throw ParseException(
-                        "Unknown '${keyToken.value}' argument in '@paginate'",
-                        sourceLocation = sourceLocation
+                        "Unknown argument '${keyToken.value}' in '@paginate'. The only named argument is 'page'.",
+                        sourceLocation = keyToken.sourceLocation
                     )
                 }
                 advance() // Consume ASSIGN
@@ -226,14 +230,14 @@ internal class SiluetParser(
             } else {
                 val currentToken = peek()
                 throw ParseException(
-                    "Positional argument are not allowed in '@paginate'",
-                    sourceLocation = sourceLocation
+                    "'@paginate' accepts only the named argument 'page' after 'by', e.g. '@paginate(products as page by 10, page = currentPage)'.",
+                    sourceLocation = currentToken.sourceLocation
                 )
             }
         }
 
-        consume(TokenType.RPAREN, "Expected ')' after arguments in '@paginate'")
-        consume(TokenType.LBRACE, "Expected '{' to start '@paginate' body")
+        consume(TokenType.RPAREN, "Expected ')' to close the '@paginate' arguments.")
+        consume(TokenType.LBRACE, "Directive '@paginate' requires a block, e.g. '@paginate(products as page by 10) { ... }'.", sourceLocation)
         val block = parseBlock()
 
         return PaginateNode(
@@ -249,7 +253,7 @@ internal class SiluetParser(
     private fun parseSchemaDirective(
         sourceLocation: SourceLocation
     ) {
-        consume(TokenType.LBRACE, "Expected '{' after '@schema'")
+        consume(TokenType.LBRACE, "Directive '@schema' requires a block, e.g. '@schema { ... }'.", sourceLocation)
         var bracesDepth = 1
         val builder = StringBuilder()
         builder.append('{')
@@ -260,7 +264,7 @@ internal class SiluetParser(
                 TokenType.LBRACE -> bracesDepth++
                 TokenType.RBRACE -> bracesDepth--
                 TokenType.EOF -> throw ParseException(
-                    "Expected '}' before EOF to close '@schema'",
+                    "Unclosed '@schema' block: missing '}'.",
                     sourceLocation = currentToken.sourceLocation
                 )
                 else -> {}
@@ -282,28 +286,29 @@ internal class SiluetParser(
     ): DirectiveNode {
         val args = mutableListOf<ExpressionNode>()
         val namedArgs = mutableMapOf<String, ExpressionNode>()
-        if(match(TokenType.LPAREN)) {
-            if(!check(TokenType.RPAREN)) {
-                do {
-                    if(check(TokenType.IDENTIFIER) && peek(1).type == TokenType.ASSIGN) {
-                        val nameToken = advance()
-                        advance() // consume ASSIGN
-                        val valueExpression = parseExpression()
-                        namedArgs[nameToken.value] = valueExpression
-                    } else {
-                        if (namedArgs.isNotEmpty()) {
-                            val currentToken = peek()
-                            throw ParseException(
-                                "Positional arguments cannot follow named arguments in directive call.",
-                                sourceLocation = currentToken.sourceLocation
-                            )
-                        }
-                        args.add(parseExpression())
+
+        consume(TokenType.LPAREN, "Directive '@$name' requires parentheses, e.g. '@$name(...)'.", sourceLocation)
+
+        if(!check(TokenType.RPAREN)) {
+            do {
+                if(check(TokenType.IDENTIFIER) && peek(1).type == TokenType.ASSIGN) {
+                    val nameToken = advance()
+                    advance() // consume ASSIGN
+                    val valueExpression = parseExpression()
+                    namedArgs[nameToken.value] = valueExpression
+                } else {
+                    if (namedArgs.isNotEmpty()) {
+                        val currentToken = peek()
+                        throw ParseException(
+                            "Positional arguments must come before named arguments in '@$name'.",
+                            sourceLocation = currentToken.sourceLocation
+                        )
                     }
-                } while (match(TokenType.COMMA))
-            }
-            consume(TokenType.RPAREN, "Expected ')' after directive arguments")
+                    args.add(parseExpression())
+                }
+            } while (match(TokenType.COMMA))
         }
+        consume(TokenType.RPAREN, "Expected ')' to close the arguments of '@$name'.")
 
         val body = if(match(TokenType.LBRACE)) {
             parseBlock()
@@ -327,7 +332,7 @@ internal class SiluetParser(
                 body.add(it)
             }
         }
-        consume(TokenType.RBRACE, "Expected ')' to close block")
+        consume(TokenType.RBRACE, "Unclosed block: missing '}'.")
         return body
     }
 
@@ -423,7 +428,7 @@ internal class SiluetParser(
         var expr = parsePrimary()
 
         while(match(TokenType.DOT)) {
-            val propToken = consume(TokenType.IDENTIFIER, "Expected property name after '.'")
+            val propToken = consume(TokenType.IDENTIFIER, "Expected a property name after '.'.")
             expr = PropertyAccessNode(
                 receiver = expr,
                 propertyName = propToken.value,
@@ -454,7 +459,7 @@ internal class SiluetParser(
                 } else {
                     text.toIntOrNull() ?: text.toLongOrNull()
                 } ?: throw ParseException(
-                    "Invalid number literal '$text'",
+                    "Invalid number literal '$text'.",
                     sourceLocation = token.sourceLocation,
                 )
 
@@ -473,11 +478,11 @@ internal class SiluetParser(
             )
             match(TokenType.LPAREN) -> {
                 val expr = parseExpression()
-                consume(TokenType.RPAREN, "Expected ')' after grouped expression")
+                consume(TokenType.RPAREN, "Expected ')' to close the grouped expression.")
                 expr
             }
             else -> throw ParseException(
-                "Unexpected token '${peek().value}'",
+                "Unexpected ${describe(peek())} in expression.",
                 sourceLocation = token.sourceLocation
             )
         }
@@ -537,14 +542,20 @@ internal class SiluetParser(
         return tokens[current - 1]
     }
 
-    private fun consume(type: TokenType, errorMessage: String): Token {
+    private fun describe(token: Token): String = when (token.type) {
+        TokenType.EOF -> "end of file"
+        TokenType.TEXT -> "text '${token.value.trim().take(20)}'"
+        else -> "'${token.value}'"
+    }
+
+    private fun consume(type: TokenType, errorMessage: String, sourceLocation: SourceLocation? = null): Token {
         if(check(type)){
             return advance()
         }
         val currentToken = peek()
         throw ParseException(
-            "$errorMessage. Found '${currentToken.value}'.",
-            sourceLocation = currentToken.sourceLocation
+            "$errorMessage Found ${describe(currentToken)}.",
+            sourceLocation = sourceLocation ?: currentToken.sourceLocation
         )
     }
 }

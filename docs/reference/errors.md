@@ -37,7 +37,7 @@ Example messages:
 
 ```text
 Filter 'date' failed: cannot read 'soon' (String) as a date or time; expected a java.time value, epoch seconds/millis or an ISO-8601 string at /theme/layouts/main.html:8:19
-Parse error: Unclosed <style> element: missing </style> at /theme/sections/hero.html:4:5
+Unclosed <style> element: missing </style> at /theme/sections/hero.html:4:5
 'heroo' listed in sectionsOrder is not defined. Defined: 'hero', 'promo'. in /theme/templates/home.json
 Could not find template 'homee'
 ```

@@ -195,7 +195,7 @@ class SiluetRendererTest {
             }
         )
 
-        val template = "@quote { Important announcement: {{ message }} }"
+        val template = "@quote() { Important announcement: {{ message }} }"
         val result = render(template, mapOf("message" to "Maintenance at midnight"), directives = directives)
 
         assertEquals("> Important announcement: Maintenance at midnight", result)

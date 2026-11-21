@@ -15,11 +15,16 @@ internal class SiluetLexer(
 
     private enum class Mode {
         TEXT,
-        EXPRESSION
+        EXPRESSION,
+        DIRECTIVE
     }
     private var mode: Mode = Mode.TEXT
     private var braceDepth: Int = 0
+    private var bracketDepth: Int = 0
     private var isExpressionOpen: Boolean = false
+
+    private var directiveStartLine: Int = -1;
+    private var directiveStartColumn: Int = -1;
 
     fun tokenize(): List<Token> {
         val tokens = mutableListOf<Token>()
@@ -28,7 +33,20 @@ internal class SiluetLexer(
             when (mode) {
                 Mode.TEXT -> scanText(tokens)
                 Mode.EXPRESSION -> scanExpression(tokens)
+                Mode.DIRECTIVE -> scanDirective(tokens)
             }
+        }
+
+        if(mode == Mode.DIRECTIVE) {
+            val lastToken = tokens.last()
+            throw LexerException(
+                "'@${lastToken.value}' must be followed by '(' or '{'. Use '\\@' to print a literal '@'.",
+                sourceLocation = SourceLocation(
+                    filePath = filePath,
+                    line = directiveStartLine,
+                    column = directiveStartColumn + 1
+                )
+            )
         }
 
         val unclosedHtml = htmlContextTracker.unclosed()
@@ -150,7 +168,9 @@ internal class SiluetLexer(
                         )
                     )
                 )
-                mode = Mode.EXPRESSION
+                mode = Mode.DIRECTIVE
+                directiveStartLine = atLine
+                directiveStartColumn = atColumn
                 return
             }
 
@@ -239,6 +259,7 @@ internal class SiluetLexer(
                 mode = Mode.TEXT
             }
             '(' -> {
+                bracketDepth++
                 tokens.add(
                     Token(
                         type = TokenType.LPAREN,
@@ -252,6 +273,7 @@ internal class SiluetLexer(
                 )
             }
             ')' -> {
+                bracketDepth--
                 tokens.add(
                     Token(
                         type = TokenType.RPAREN,
@@ -264,12 +286,14 @@ internal class SiluetLexer(
                     )
                 )
 
-                peekNonWhitespace()?.let { nextChar ->
-                    if(nextChar != '{') {
+                if(!isExpressionOpen && bracketDepth <= 0){
+                    peekNonWhitespace()?.let { (nextChar, nextCharOffset) ->
+                        if(nextChar != '{' || peek(nextCharOffset + 1) == '{') {
+                            mode = Mode.TEXT
+                        }
+                    } ?: run {
                         mode = Mode.TEXT
                     }
-                } ?: run {
-                    mode = Mode.TEXT
                 }
             }
             '|' -> {
@@ -484,6 +508,81 @@ internal class SiluetLexer(
         }
     }
 
+    private fun scanDirective(tokens: MutableList<Token>) {
+        skipWhitespaces()
+        if(isAtEnd()) {
+            return
+        }
+
+        val tokenLine = line
+        val tokenColumn = column
+        val currentToken = tokens.last()
+        val c = advance()
+
+        when(c) {
+            '{' -> {
+                if(peek() == '{'){
+                    throw LexerException(
+                        "'@${currentToken.value}' must be followed by '(' or '{'. Use '\\@' to print a literal '@'.",
+                        sourceLocation = SourceLocation(
+                            filePath = filePath,
+                            line = directiveStartLine,
+                            column = directiveStartColumn + 1
+                        )
+                    )
+                }
+                braceDepth++
+                tokens.add(
+                    Token(
+                        type = TokenType.LBRACE,
+                        value = "{",
+                        sourceLocation = SourceLocation(
+                            filePath = filePath,
+                            line = tokenLine,
+                            column = tokenColumn
+                        )
+                    )
+                )
+                mode = Mode.TEXT
+            }
+            '(' -> {
+                bracketDepth++
+                tokens.add(
+                    Token(
+                        type = TokenType.LPAREN,
+                        value = "(",
+                        sourceLocation = SourceLocation(
+                            filePath = filePath,
+                            line = tokenLine,
+                            column = tokenColumn
+                        )
+                    )
+                )
+                mode = Mode.EXPRESSION
+            }
+            else -> {
+                when {
+                    c.isDigit() && currentToken.type == TokenType.AT -> {
+                        scanNumberLiteral(c, tokenLine, tokenColumn, tokens)
+                    }
+                    c.isLetter() && currentToken.type == TokenType.AT -> {
+                        scanIdentifierOrKeyword(c, tokenLine, tokenColumn, tokens)
+                    }
+                    else -> {
+                        throw LexerException(
+                            "'@${currentToken.value}' must be followed by '(' or '{'. Use '\\@' to print a literal '@'.",
+                            sourceLocation = SourceLocation(
+                                filePath = filePath,
+                                line = directiveStartLine,
+                                column = directiveStartColumn + 1
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     private fun scanStringLiteral(quote: Char, tokenLine: Int, tokenColumn: Int, tokens: MutableList<Token>){
         val buffer = StringBuilder()
         while(!isAtEnd() && peek() != quote) {
@@ -584,12 +683,12 @@ internal class SiluetLexer(
             source[target]
         }
     }
-    private fun peekNonWhitespace(offset: Int = 0): Char? {
-        var offset = 0
+    private fun peekNonWhitespace(offset: Int = 0): Pair<Char, Int>? {
+        var offset = offset
         while (cursor + offset < source.length) {
             val char = source[cursor + offset]
             if(!char.isWhitespace()) {
-                return char
+                return char to offset
             }
             offset++
         }
