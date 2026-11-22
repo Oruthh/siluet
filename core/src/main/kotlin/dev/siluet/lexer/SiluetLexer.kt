@@ -74,7 +74,7 @@ internal class SiluetLexer(
     private fun scanText(tokens: MutableList<Token>) {
         val startLine = line
         val startColumn = column
-        val buffer = StringBuffer()
+        val buffer = StringBuilder()
 
         while (!isAtEnd()) {
             val c = peek()
@@ -181,7 +181,7 @@ internal class SiluetLexer(
     }
 
     private fun flushTextToken(
-        buffer: StringBuffer,
+        buffer: StringBuilder,
         startLine: Int,
         startColumn: Int,
         tokens: MutableList<Token>
@@ -567,6 +567,10 @@ internal class SiluetLexer(
                     }
                     c.isLetter() && currentToken.type == TokenType.AT -> {
                         scanIdentifierOrKeyword(c, tokenLine, tokenColumn, tokens)
+                        if(tokens.last().value == "schema"){
+                            scanSchema(tokens)
+                            mode = Mode.TEXT
+                        }
                     }
                     else -> {
                         throw LexerException(
@@ -581,6 +585,91 @@ internal class SiluetLexer(
                 }
             }
         }
+    }
+
+    private fun scanSchema(tokens: MutableList<Token>) {
+        skipWhitespaces()
+        if(isAtEnd()) {
+            return
+        }
+
+        var depth = 0
+
+        val startLine = line
+        val startColumn = column
+
+        val buffer = StringBuilder()
+
+        var inQuotes = false
+
+        while(!isAtEnd()) {
+            val tokenLine = line
+            val tokenColumn = column
+
+            val c = advance()
+
+            when(c) {
+                '{' -> {
+                    if(inQuotes) {
+                        buffer.append(c)
+                        continue
+                    }
+                    if(depth == 0) {
+                        flushTextToken(buffer, startLine, startColumn, tokens)
+                        tokens.add(Token(
+                            type = TokenType.LBRACE,
+                            value = "{",
+                            sourceLocation = SourceLocation(
+                                filePath = filePath,
+                                line = tokenLine,
+                                column = tokenColumn
+                            )
+                        ))
+                    } else {
+                        buffer.append(c)
+                    }
+                    depth++
+                }
+                '}' -> {
+                    if(inQuotes) {
+                        buffer.append(c)
+                        continue
+                    }
+                    depth--
+                    if(depth == 0) {
+                        flushTextToken(buffer, startLine, startColumn, tokens)
+                        tokens.add(Token(
+                            type = TokenType.RBRACE,
+                            value = "}",
+                            sourceLocation = SourceLocation(
+                                filePath = filePath,
+                                line = tokenLine,
+                                column = tokenColumn
+                            )
+                        ))
+                        break
+                    } else {
+                        buffer.append(c)
+                    }
+                }
+                '\\' -> {
+                    buffer.append(c)
+                    if(!isAtEnd()) {
+                        val nextChar = advance()
+                        buffer.append(nextChar)
+                    }
+                }
+                '"' -> {
+                    inQuotes = !inQuotes
+                    buffer.append(c)
+                }
+                else -> {
+                    buffer.append(c)
+                }
+            }
+        }
+
+        flushTextToken(buffer, startLine, startColumn, tokens)
     }
 
     private fun scanStringLiteral(quote: Char, tokenLine: Int, tokenColumn: Int, tokens: MutableList<Token>){
@@ -683,6 +772,7 @@ internal class SiluetLexer(
             source[target]
         }
     }
+
     private fun peekNonWhitespace(offset: Int = 0): Pair<Char, Int>? {
         var offset = offset
         while (cursor + offset < source.length) {

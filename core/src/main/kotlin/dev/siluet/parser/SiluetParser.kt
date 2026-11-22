@@ -258,15 +258,12 @@ internal class SiluetParser(
         val builder = StringBuilder()
         builder.append('{')
 
-        while(true){
+        while(!isAtEnd()){
             val currentToken = advance()
             when(currentToken.type) {
                 TokenType.LBRACE -> bracesDepth++
                 TokenType.RBRACE -> bracesDepth--
-                TokenType.EOF -> throw ParseException(
-                    "Unclosed '@schema' block: missing '}'.",
-                    sourceLocation = currentToken.sourceLocation
-                )
+                TokenType.EOF -> break
                 else -> {}
             }
 
@@ -275,6 +272,13 @@ internal class SiluetParser(
             if(bracesDepth == 0){
                 break
             }
+        }
+
+        if(bracesDepth > 0) {
+            throw ParseException(
+                "Unclosed block of '@schema': missing '}'.",
+                sourceLocation = sourceLocation
+            )
         }
 
         sectionSchema = Json.decodeFromString<SectionSchema>(builder.toString()) //TODO proper errors

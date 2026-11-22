@@ -213,8 +213,8 @@ class SiluetLexerDirectiveBoundaryTest {
     @Test
     fun `guard - schema block without parentheses`() {
         assertStream(
-            """@schema { "name": "Hero" }""",
-            at, ident("schema"), lbrace, text(""" "name": "Hero" """), rbrace, eof
+            """@test { "name": "Hero" }""",
+            at, ident("test"), lbrace, text(""" "name": "Hero" """), rbrace, eof
         )
     }
 
