@@ -116,14 +116,14 @@ internal class SiluetParser(
         consume(TokenType.RPAREN, "Expected ')' to close the '@if' condition.")
 
         consume(TokenType.LBRACE, "Directive '@if' requires a block, e.g. '@if(condition) { ... }'.", sourceLocation)
-        val thenBody = parseBlock()
+        val thenBody = parseBlock("if", sourceLocation)
 
         var elseBody: List<SiluetNode>? = null
         if(checkDirective("else")) {
             advance()
             val elseName = advance()
             consume(TokenType.LBRACE, "Directive '@else' requires a block, e.g. '@else { ... }'.", elseName.sourceLocation)
-            elseBody = parseBlock()
+            elseBody = parseBlock("else", elseName.sourceLocation)
         }
 
         return IfNode(
@@ -144,7 +144,7 @@ internal class SiluetParser(
         consume(TokenType.RPAREN, "Expected ')' to close the '@for' loop definition.")
 
         consume(TokenType.LBRACE, "Directive '@for' requires a block, e.g. '@for(item in items) { ... }'.", sourceLocation)
-        val body = parseBlock()
+        val body = parseBlock("for", sourceLocation)
 
         return ForNode(
             variableName = loopVar,
@@ -238,7 +238,7 @@ internal class SiluetParser(
 
         consume(TokenType.RPAREN, "Expected ')' to close the '@paginate' arguments.")
         consume(TokenType.LBRACE, "Directive '@paginate' requires a block, e.g. '@paginate(products as page by 10) { ... }'.", sourceLocation)
-        val block = parseBlock()
+        val block = parseBlock("paginate", sourceLocation)
 
         return PaginateNode(
             collectionExpression = collectionExpression,
@@ -311,7 +311,7 @@ internal class SiluetParser(
         consume(TokenType.RPAREN, "Expected ')' to close the arguments of '@$name'.")
 
         val body = if(match(TokenType.LBRACE)) {
-            parseBlock()
+            parseBlock(name, sourceLocation)
         } else {
             null
         }
@@ -325,14 +325,17 @@ internal class SiluetParser(
         )
     }
 
-    private fun parseBlock(): List<SiluetNode> {
+    private fun parseBlock(
+        directiveName: String,
+        directiveLocation: SourceLocation
+    ): List<SiluetNode> {
         val body = mutableListOf<SiluetNode>()
         while(!check(TokenType.RBRACE) && !isAtEnd()) {
             parseNode()?.let {
                 body.add(it)
             }
         }
-        consume(TokenType.RBRACE, "Unclosed block: missing '}'.")
+        consume(TokenType.RBRACE, "Unclosed block of '@$directiveName': missing '}'.", directiveLocation)
         return body
     }
 

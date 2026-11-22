@@ -239,6 +239,7 @@ Syntax errors are reported when a view is compiled, with the file, line and colu
 | `Unclosed tag: missing '>'` | the `<` of the tag |
 | `Unclosed comment: missing '-->'` | the `<!--` |
 | `'@shop' must be followed by '(' or '{'. Use '\@' to print a literal '@'.` | the name after `@` |
+| `Unclosed block of '@if': missing '}'.` (any directive with a block) | the name of the directive that opened the block; with nested blocks, the innermost unclosed one |
 
 ```text
 Unclosed <style> element: missing </style> at /theme/sections/hero.html:4:5
