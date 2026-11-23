@@ -19,10 +19,16 @@ interface PropertyAccessor {
      * Depending on the underlying implementation, this may inspect fields, invoke getter methods,
      * query map keys, or evaluate computed properties.
      *
+     * Implementations must tell a property that does not exist apart from one that holds `null`:
+     * return [PropertyLookup.Missing] when [target] has no such property (no matching getter, no such
+     * key in a [Map]), and [PropertyLookup.Found] with a `null` value when the property exists but its
+     * value is `null`.
+     *
      * @param target The receiver object instance from which to read the property.
      * @param propertyName The identifier of the property, field, or key to resolve.
-     * @return The resolved property value, or `null` if the property value is `null` or cannot be found.
+     * @return [PropertyLookup.Found] with the property value, or [PropertyLookup.Missing] if the property
+     *         does not exist on [target].
      * @throws dev.siluet.exception.SiluetSecurityException If reading this property violates the active security policy.
      */
-    fun getProperty(target: Any, propertyName: String): Any?
+    fun getProperty(target: Any, propertyName: String): PropertyLookup
 }

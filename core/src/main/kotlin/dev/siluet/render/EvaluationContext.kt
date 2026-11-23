@@ -7,6 +7,7 @@ import dev.siluet.directive.Directive
 import dev.siluet.filter.Filter
 import dev.siluet.locale.LocaleRegistry
 import dev.siluet.reflect.PropertyAccessor
+import dev.siluet.reflect.PropertyLookup
 import java.util.Locale
 
 internal class EvaluationContext(
@@ -46,15 +47,22 @@ internal class EvaluationContext(
     }
 
     fun resolveProperty(target: Any, propertyName: String): Any? {
-        val result = accessor.getProperty(target, propertyName)
-
-        if(result is PropertyValue<*>){ //TODO: I'm not sure if I should leave this here, but I don't have any other ideas right now.
-            if(result is TranslationPropertyValue){
-                return localeRegistry.getTranslation(locale, result.value)
+        val lookupValue = when(val lookupResult = accessor.getProperty(target, propertyName)) {
+            is PropertyLookup.Found -> {
+                lookupResult.value
             }
-            return result.value
+            PropertyLookup.Missing -> {
+                null
+            }
         }
 
-        return result
+        if(lookupValue is PropertyValue<*>){ //TODO: I'm not sure if I should leave this here, but I don't have any other ideas right now.
+            if(lookupValue is TranslationPropertyValue){
+                return localeRegistry.getTranslation(locale, lookupValue.value)
+            }
+            return lookupValue.value
+        }
+
+        return lookupValue
     }
 }

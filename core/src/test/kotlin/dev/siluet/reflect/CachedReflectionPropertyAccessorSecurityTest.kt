@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertNull
+import kotlin.test.fail
 
 /**
  * Security guarantees of [CachedReflectionPropertyAccessor] after switching from field-based
@@ -29,7 +29,15 @@ class CachedReflectionPropertyAccessorSecurityTest {
 
     private val accessor = CachedReflectionPropertyAccessor()
 
-    private fun read(target: Any, property: String): Any? = accessor.getProperty(target, property)
+    private fun read(target: Any, property: String): Any? =
+        when (val lookup = accessor.getProperty(target, property)) {
+            is PropertyLookup.Found -> lookup.value
+            PropertyLookup.Missing -> fail("Property '$property' should be found on ${target::class.java.name}")
+        }
+
+    private fun assertMissing(target: Any, property: String) {
+        assertEquals(PropertyLookup.Missing, accessor.getProperty(target, property))
+    }
 
     private fun accessorBlocking(vararg members: String) =
         CachedReflectionPropertyAccessor(DefaultSecurityPolicy(blockedMembers = members.toSet()))
@@ -115,7 +123,7 @@ class CachedReflectionPropertyAccessorSecurityTest {
     fun `Java non-getter method with side effects is never invoked`() {
         val bean = JavaBean()
 
-        assertNull(read(bean, "cancel"))
+        assertMissing(bean, "cancel")
 
         assertEquals(0, bean.cancelCalls(), "cancel() must not be invoked by property access")
     }
@@ -124,7 +132,7 @@ class CachedReflectionPropertyAccessorSecurityTest {
     fun `Kotlin function with side effects is never invoked`() {
         val account = Account("john", "s3cret")
 
-        assertNull(read(account, "delete"))
+        assertMissing(account, "delete")
 
         assertEquals(0, account.deleteCalls, "delete() must not be invoked by property access")
     }
@@ -133,52 +141,52 @@ class CachedReflectionPropertyAccessorSecurityTest {
     fun `fluent looking method without a same-named field is never invoked`() {
         val bean = FluentBean()
 
-        assertNull(read(bean, "reset"))
+        assertMissing(bean, "reset")
 
         assertEquals(0, bean.resetCalls(), "reset() must not be invoked by property access")
     }
 
     @Test
     fun `Object methods are not exposed`() {
-        assertNull(read(Product(100, 0), "toString"))
-        assertNull(read(Product(100, 0), "hashCode"))
+        assertMissing(Product(100, 0), "toString")
+        assertMissing(Product(100, 0), "hashCode")
     }
 
     @Test
     fun `data class generated methods are not exposed`() {
-        assertNull(read(Product(100, 0), "component1"))
-        assertNull(read(Product(100, 0), "copy"))
+        assertMissing(Product(100, 0), "component1")
+        assertMissing(Product(100, 0), "copy")
     }
 
     @Test
     fun `record methods other than components are not exposed`() {
-        assertNull(read(JavaRecord("Mug", 3), "summary"))
+        assertMissing(JavaRecord("Mug", 3), "summary")
     }
 
     @Test
     fun `static getters are not exposed`() {
-        assertNull(read(JavaBean(), "instanceCount"))
-        assertNull(read(Account("john", "s3cret"), "instanceCount"))
+        assertMissing(JavaBean(), "instanceCount")
+        assertMissing(Account("john", "s3cret"), "instanceCount")
     }
 
     // --- One name per property ------------------------------------------------------------------
 
     @Test
     fun `raw getter method names are not exposed`() {
-        assertNull(read(Product(100, 20), "getFinalPrice"))
-        assertNull(read(JavaBean(), "getComputed"))
-        assertNull(read(JavaBean(), "isActive"))
+        assertMissing(Product(100, 20), "getFinalPrice")
+        assertMissing(JavaBean(), "getComputed")
+        assertMissing(JavaBean(), "isActive")
     }
 
     @Test
     fun `Kotlin is property is not exposed without the prefix`() {
-        assertNull(read(Product(100, 20), "onSale"))
-        assertNull(read(Account("john", "s3cret"), "admin"))
+        assertMissing(Product(100, 20), "onSale")
+        assertMissing(Account("john", "s3cret"), "admin")
     }
 
     @Test
     fun `badly named Java bean is not exposed under a second name`() {
-        assertNull(read(LegacyBean(), "enabled"))
+        assertMissing(LegacyBean(), "enabled")
     }
 
     // --- blockedMembers cannot be bypassed ------------------------------------------------------
@@ -189,7 +197,7 @@ class CachedReflectionPropertyAccessorSecurityTest {
         val account = Account("john", "s3cret")
 
         assertFailsWith<SiluetSecurityException> { blocking.getProperty(account, "passwordHash") }
-        assertNull(blocking.getProperty(account, "getPasswordHash"))
+        assertEquals(PropertyLookup.Missing, blocking.getProperty(account, "getPasswordHash"))
     }
 
     @Test
@@ -197,7 +205,7 @@ class CachedReflectionPropertyAccessorSecurityTest {
         val blocking = accessorBlocking("passwordHash")
 
         assertFailsWith<SiluetSecurityException> { blocking.getProperty(JavaBean(), "passwordHash") }
-        assertNull(blocking.getProperty(JavaBean(), "getPasswordHash"))
+        assertEquals(PropertyLookup.Missing, blocking.getProperty(JavaBean(), "getPasswordHash"))
     }
 
     @Test
@@ -206,7 +214,7 @@ class CachedReflectionPropertyAccessorSecurityTest {
         val account = Account("john", "s3cret")
 
         assertFailsWith<SiluetSecurityException> { blocking.getProperty(account, "isAdmin") }
-        assertNull(blocking.getProperty(account, "admin"))
+        assertEquals(PropertyLookup.Missing, blocking.getProperty(account, "admin"))
     }
 
     @Test
@@ -214,7 +222,7 @@ class CachedReflectionPropertyAccessorSecurityTest {
         val blocking = accessorBlocking("active")
 
         assertFailsWith<SiluetSecurityException> { blocking.getProperty(JavaBean(), "active") }
-        assertNull(blocking.getProperty(JavaBean(), "isActive"))
+        assertEquals(PropertyLookup.Missing, blocking.getProperty(JavaBean(), "isActive"))
     }
 
     @Test
@@ -222,7 +230,7 @@ class CachedReflectionPropertyAccessorSecurityTest {
         val blocking = accessorBlocking("isEnabled")
 
         assertFailsWith<SiluetSecurityException> { blocking.getProperty(LegacyBean(), "isEnabled") }
-        assertNull(blocking.getProperty(LegacyBean(), "enabled"))
+        assertEquals(PropertyLookup.Missing, blocking.getProperty(LegacyBean(), "enabled"))
     }
 
     @Test

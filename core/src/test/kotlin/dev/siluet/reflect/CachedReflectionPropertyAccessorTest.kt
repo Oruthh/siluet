@@ -11,6 +11,7 @@ import dev.siluet.reflect.fixtures.LabeledItem
 import dev.siluet.reflect.fixtures.LegacyBean
 import dev.siluet.reflect.fixtures.OverridingItem
 import dev.siluet.reflect.fixtures.Product
+import dev.siluet.reflect.fixtures.Profile
 import dev.siluet.reflect.fixtures.Status
 import dev.siluet.reflect.fixtures.anonymousLabeled
 import dev.siluet.reflect.fixtures.hiddenLabeled
@@ -19,8 +20,8 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 /**
  * Property resolution of [CachedReflectionPropertyAccessor] (issue #7).
@@ -35,7 +36,15 @@ class CachedReflectionPropertyAccessorTest {
 
     private val accessor = CachedReflectionPropertyAccessor()
 
-    private fun read(target: Any, property: String): Any? = accessor.getProperty(target, property)
+    private fun read(target: Any, property: String): Any? =
+        when (val lookup = accessor.getProperty(target, property)) {
+            is PropertyLookup.Found -> lookup.value
+            PropertyLookup.Missing -> fail("Property '$property' should be found on ${target::class.java.name}")
+        }
+
+    private fun assertMissing(target: Any, property: String) {
+        assertEquals(PropertyLookup.Missing, accessor.getProperty(target, property))
+    }
 
     // --- Kotlin ---------------------------------------------------------------------------------
 
@@ -128,13 +137,13 @@ class CachedReflectionPropertyAccessorTest {
     @Test
     fun `getter name with two leading capitals keeps them`() {
         assertEquals("https://siluet.dev", read(JavaBean(), "URL"))
-        assertNull(read(JavaBean(), "uRL"))
+        assertMissing(JavaBean(), "uRL")
     }
 
     @Test
     fun `Java is prefix on non boolean method is not a getter`() {
-        assertNull(read(JavaBean(), "notBoolean"))
-        assertNull(read(JavaBean(), "isNotBoolean"))
+        assertMissing(JavaBean(), "notBoolean")
+        assertMissing(JavaBean(), "isNotBoolean")
     }
 
     @Test
@@ -170,19 +179,29 @@ class CachedReflectionPropertyAccessorTest {
     @Test
     fun `map keys are read directly`() {
         assertEquals("value", read(mapOf("key" to "value"), "key"))
-        assertNull(read(mapOf("key" to "value"), "missing"))
+        assertMissing(mapOf("key" to "value"), "missing")
+    }
+
+    @Test
+    fun `map key holding null is found with a null value`() {
+        assertEquals(PropertyLookup.Found(null), accessor.getProperty(mapOf("key" to null), "key"))
     }
 
     // --- Missing properties ---------------------------------------------------------------------
 
     @Test
-    fun `unknown property returns null`() {
-        assertNull(read(Product(100, 0), "doesNotExist"))
+    fun `unknown property is missing`() {
+        assertMissing(Product(100, 0), "doesNotExist")
     }
 
     @Test
-    fun `private property without public getter returns null`() {
-        assertNull(read(Account("john", "s3cret"), "secret"))
+    fun `private property without public getter is missing`() {
+        assertMissing(Account("john", "s3cret"), "secret")
+    }
+
+    @Test
+    fun `property holding null is found with a null value`() {
+        assertEquals(PropertyLookup.Found(null), accessor.getProperty(Profile(null), "nickname"))
     }
 
     // --- Failures -------------------------------------------------------------------------------

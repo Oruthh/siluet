@@ -51,6 +51,8 @@ fun unreachable(): Any = Unreachable()
 
 enum class Status { ACTIVE, ARCHIVED }
 
+class Profile(val nickname: String?)
+
 class Account(val login: String, private val secret: String) {
     val isAdmin: Boolean get() = true
     val passwordHash: String get() = "secret-hash"

@@ -11,9 +11,12 @@ internal class CachedReflectionPropertyAccessor(
 ) : PropertyAccessor {
     private val propertyCache = ConcurrentHashMap<Class<*>, Map<String, Method>>()
 
-    override fun getProperty(target: Any, propertyName: String): Any? {
+    override fun getProperty(target: Any, propertyName: String): PropertyLookup {
         if(target is Map<*, *>) {
-            return target[propertyName]
+            if(!target.containsKey(propertyName)) {
+                return PropertyLookup.Missing
+            }
+            return PropertyLookup.Found(target[propertyName])
         }
 
         val targetClass = target::class.java
@@ -21,11 +24,11 @@ internal class CachedReflectionPropertyAccessor(
         securityPolicy.checkAccess(targetClass, propertyName)
 
         val getter = propertyCache.computeIfAbsent(targetClass, ::inspectProperties)[propertyName]
-            ?: return null
+            ?: return PropertyLookup.Missing
 
         securityPolicy.checkAccess(targetClass, getter.name)
 
-        return invokeGetter(getter, target, propertyName)
+        return PropertyLookup.Found(invokeGetter(getter, target, propertyName))
     }
 
     private fun inspectProperties(clazz: Class<*>): Map<String, Method> {
