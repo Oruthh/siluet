@@ -1,6 +1,32 @@
 package dev.siluet.html
 
-internal object HTMLEscape {
+/**
+ * HTML escaping used by Siluet when printing values, available to custom filters and directives.
+ *
+ * Directives write to their output as it is, so any value that comes from arguments or from the
+ * model must be escaped with [escape] before it is written. Filters can use it to escape the
+ * untrusted part of a value before marking the result as [SafeHTML].
+ */
+object HTMLEscape {
+    /**
+     * Returns [input] as text that is safe to put into HTML content and attribute values.
+     *
+     * - `null` gives an empty string.
+     * - [SafeHTML] is returned as it is, without escaping, the same way it is printed in a template.
+     * - Any other value is converted with `toString()`, and `&`, `<`, `>`, `"` and `'` are replaced
+     *   with `&amp;`, `&lt;`, `&gt;`, `&quot;` and `&#39;`.
+     *
+     * Text that is already escaped is escaped again, so escape a value exactly once.
+     *
+     * ### Example:
+     * ```kotlin
+     * directive("badge") { args, _, _, _, out ->
+     *     out.append("<span class=\"badge\">")
+     *     out.append(HTMLEscape.escape(args.firstOrNull()))
+     *     out.append("</span>")
+     * }
+     * ```
+     */
     fun escape(input: Any?): String {
         if(input == null){
             return ""

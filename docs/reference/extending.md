@@ -44,9 +44,32 @@ filter("money") { value, args, context ->
 
 For larger filters, implement the `Filter` interface and register an instance with `filter("name", MyFilter())`.
 
+### Returning HTML
+
+A filter that produces markup, such as rendered Markdown or an inline SVG icon, returns it as `SafeHTML` with `asSafeHTML()` from `dev.siluet.html`. `SafeHTML` is printed without escaping, so escape every untrusted part with `HTMLEscape.escape(...)` before combining it into the result:
+
+```kotlin
+import dev.siluet.html.HTMLEscape
+import dev.siluet.html.asSafeHTML
+
+filter("icon") { value, _, _ ->
+    """<svg class="icon"><use href="#icon-${HTMLEscape.escape(value)}"/></svg>""".asSafeHTML()
+}
+```
+
+```html
+<button>{{ "cart" | icon }} Add to cart</button>
+```
+
+::: danger Only wrap trusted content
+`asSafeHTML()` turns off escaping for the whole value. Never call it on user input or other untrusted text that has not been escaped, or the page becomes open to cross-site scripting (XSS).
+:::
+
+`SafeHTML` passes through filters that do not change it, such as `default`, but built-in text filters (`uppercase`, `truncate`...) reject it with `expects a String value, but received SafeHTML`, because changing HTML as plain text would break it. Put such filters before the one that returns HTML.
+
 A few rules apply to every filter:
 
-- **The result is escaped when printed**, like any other value. To print a filter's result as HTML, chain [`rawHTML`](/reference/filters#rawhtml) after it in the template.
+- **The result is escaped when printed**, like any other value. To output markup, return it as `SafeHTML` (see [Returning HTML](#returning-html) below).
 - **Exceptions become template errors.** If a filter throws, the render fails with a `SiluetViewException` whose location points at the filter in the template. Siluet adds the name the filter was called by, so the message reads `Filter '<name>' failed: <your message>`. Write the message as the rest of that sentence, without the filter name, e.g. `expects a number, but received String`. An exception without a message is reported by its type, e.g. `Filter 'money' failed: IllegalStateException`.
 - **Names are unique.** Registering a filter under the name of a built-in filter (`date`, `t`, `default`...) throws an `IllegalArgumentException`, and so does registering the same name twice, whether by the application or by a [plugin](#plugins). The error is raised by the `filter(...)` call itself and names whoever registered the name first.
 - **Filters must be thread-safe.** One `Siluet` instance renders many pages in parallel and shares its filters.
@@ -65,7 +88,7 @@ val siluet = Siluet {
         val level = args.firstOrNull()?.toString() ?: "info"
         val dismissible = namedArgs["dismissible"] == true
 
-        out.append("""<div class="alert alert-${escapeHtml(level)}">""")
+        out.append("""<div class="alert alert-${HTMLEscape.escape(level)}">""")
         out.append(body?.invoke() ?: "")
         if (dismissible) {
             out.append("""<button class="alert-close" aria-label="Close">×</button>""")
@@ -96,23 +119,8 @@ A directive is always called with parentheses, even without arguments. Positiona
 `body` is a function: call it to render the block, skip it to leave the block out, or call it several times to repeat it. It returns the rendered HTML of the block, with the block's own expressions already escaped.
 
 ::: warning Directive output is not escaped
-Everything a directive writes to `out` goes to the page as it is. Escape any value that comes from arguments or from the model before writing it, as `escapeHtml(level)` does in the example above. Only the result of `body()` is safe to write directly.
+Everything a directive writes to `out` goes to the page as it is. Escape any value that comes from arguments or from the model with `HTMLEscape.escape(...)` from `dev.siluet.html` before writing it, as the example above does with `level`. Only the result of `body()` is safe to write directly. `HTMLEscape.escape` returns an empty string for `null` and writes `SafeHTML` as it is.
 :::
-
-A minimal escaping helper:
-
-```kotlin
-fun escapeHtml(value: String): String = buildString(value.length) {
-    for (c in value) when (c) {
-        '&' -> append("&amp;")
-        '<' -> append("&lt;")
-        '>' -> append("&gt;")
-        '"' -> append("&quot;")
-        '\'' -> append("&#39;")
-        else -> append(c)
-    }
-}
-```
 
 Directives follow the same [syntax rules](/reference/syntax#where-template-syntax-is-active) as the built-in ones: they work in HTML content, inside tags and in comments, but not inside attribute values, `<style>` or `<script>`. The names of built-in directives (`if`, `else`, `for`, `component`, `sections`, `paginate`, `schema`) are reserved, and as with filters, registering a reserved name or the same name twice throws an `IllegalArgumentException`. A filter and a directive may share a name. As with filters, directives must be thread-safe.
 

@@ -27,7 +27,7 @@ Siluet views (layouts, sections and components) are plain HTML files with two ad
 <p>{{ product.name }} costs {{ product.price }}</p>
 ```
 
-Every printed value is **HTML-escaped**: `<`, `>`, `&`, `"` and `'` are rendered as text. A value can therefore never inject markup into the page, and it is safe to print inside attributes. To print trusted HTML, use the [`rawHTML`](/reference/filters#rawhtml) filter.
+Every printed value is **HTML-escaped**: `<`, `>`, `&`, `"` and `'` are rendered as text. A value can therefore never inject markup into the page, and it is safe to print inside attributes. To print trusted HTML, use the [`rawHTML`](/reference/filters#rawhtml) filter, or a custom filter that returns [`SafeHTML`](/reference/extending#returning-html).
 
 A `null` value prints nothing. To show a fallback instead, use the [`default`](/reference/filters#default) filter.
 

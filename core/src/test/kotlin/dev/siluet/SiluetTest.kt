@@ -1,6 +1,7 @@
 package dev.siluet
 
 import dev.siluet.exception.SiluetException
+import dev.siluet.html.asSafeHTML
 import dev.siluet.loader.ResourceSiluetAssetLoader
 import dev.siluet.pagination.PaginationContext
 import dev.siluet.pagination.PaginationSource
@@ -492,6 +493,22 @@ class SiluetTest {
             "Filter 'date' failed: cannot read '{}' (EmptyMap) as a date or time; " +
                 "expected a java.time value, epoch seconds/millis or an ISO-8601 string at /test13/layouts/main.html:8:19",
             exception.message
+        )
+    }
+
+    @Test
+    fun `custom filter returning safe html renders unescaped`() {
+        val siluet = Siluet {
+            assetLoader = ResourceSiluetAssetLoader("test22")
+            filter("icon") { value, _, _ -> "<svg class=\"icon\">$value</svg>".asSafeHTML() }
+            filter("plain") { value, _, _ -> "<svg class=\"icon\">$value</svg>" }
+        }
+
+        val result = siluet.render("main", mapOf("name" to "star"))
+
+        assertEquals(
+            "<p><svg class=\"icon\">star</svg></p>\n<p>&lt;svg class=&quot;icon&quot;&gt;star&lt;/svg&gt;</p>",
+            result.trim()
         )
     }
 
