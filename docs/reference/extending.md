@@ -116,6 +116,8 @@ fun escapeHtml(value: String): String = buildString(value.length) {
 
 Directives follow the same [syntax rules](/reference/syntax#where-template-syntax-is-active) as the built-in ones: they work in HTML content, inside tags and in comments, but not inside attribute values, `<style>` or `<script>`. The names of built-in directives (`if`, `else`, `for`, `component`, `sections`, `paginate`, `schema`) are reserved. As with filters, directives must be thread-safe.
 
+If a directive throws, the render fails with a `SiluetViewException` that points at the directive in the template, with the message `Directive '<name>' failed: <your message>` (or the exception type when there is no message). As with filters, write the message without the directive name. Errors raised while rendering the block you get from `body`, such as a failing filter or another directive inside it, are reported as they are, with their own message and location, not as an error of your directive.
+
 ---
 
 ## Plugins

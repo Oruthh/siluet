@@ -345,19 +345,38 @@ internal class SiluetRenderer(
 
                 val args = node.arguments.map { evaluator.evaluate(it) }
                 val namedArgs = node.namedArguments.mapValues { evaluator.evaluate(it.value) }
+
+                var blockFailure: Throwable? = null
+
                 val bodySupplier: (() -> String)? = node.body?.let { bodyNodes -> {
-                    val bodyBuffer = StringBuffer()
-                    renderNodes(
-                        nodes = bodyNodes,
-                        renderContext = renderContext,
-                        evaluationContext = evaluationContext,
-                        evaluator = evaluator,
-                        renderStack = renderStack,
-                        buffer = bodyBuffer)
-                    bodyBuffer.toString()
+                    try{
+                        val bodyBuffer = StringBuffer()
+                        renderNodes(
+                            nodes = bodyNodes,
+                            renderContext = renderContext,
+                            evaluationContext = evaluationContext,
+                            evaluator = evaluator,
+                            renderStack = renderStack,
+                            buffer = bodyBuffer)
+                        bodyBuffer.toString()
+                    } catch (e: Throwable) {
+                        blockFailure = e
+                        throw e
+                    }
                 }}
 
-                directive.execute(args, namedArgs, bodySupplier, renderContext, buffer)
+                try{
+                    directive.execute(args, namedArgs, bodySupplier, renderContext, buffer)
+                } catch (e: Exception) {
+                    if(e === blockFailure) {
+                        throw e
+                    }
+
+                    throw RenderException(
+                        "Directive '${node.name}' failed: ${e.message ?: e::class.simpleName}",
+                        sourceLocation = node.sourceLocation,
+                    )
+                }
             }
         }
     }

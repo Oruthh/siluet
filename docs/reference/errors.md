@@ -50,6 +50,12 @@ Filter 'truncate' failed: requires a 'length' argument, e.g. truncate(20) at /th
 Filter 'date' failed: invalid date pattern 'jj-yy': Unknown pattern letter: j at /theme/layouts/main.html:8:19
 ```
 
+Errors raised by a custom directive start with `Directive '<name>' failed:` in the same way. An error inside the directive's block is reported where it happened, not as an error of the directive:
+
+```text
+Directive 'alert' failed: theme has no alert styles at /theme/sections/hero.html:12:4
+```
+
 ::: warning Not yet wrapped
 A few failures are currently thrown without being wrapped in a `SiluetException`:
 
