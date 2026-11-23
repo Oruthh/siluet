@@ -75,7 +75,7 @@ Injects a reusable, self-contained HTML component. You can pass local arguments 
 @component("heroTitle", section = section, siteName = siteName)
 ```
 
-Argument values are evaluated where the component is used, so they can read the caller's variables (`item = product`, `title = product.name`). Variables defined inside the component, such as its loop variables, do not leak back to the caller.
+Argument values are evaluated where the component is used, so they can read the caller's variables (`item = product`, `title = product.name`). Variables defined inside the component, such as its loop variables, do not leak back to the caller. With [`strictMode`](/guide/getting-started#strict-mode) enabled, using a name that was not passed to the component fails the render, so pass optional arguments explicitly (`showBadge = false`).
 
 A component can render other components, including itself. This makes recursive structures such as a category tree possible:
 

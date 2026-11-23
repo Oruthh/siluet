@@ -32,6 +32,7 @@ import dev.siluet.render.stack.RenderStack
 internal class SiluetRenderer(
     private val maxLoopIterations: Int,
     private val maxRenderDepth: Int,
+    private val strictMode: Boolean,
     private val accessor: PropertyAccessor = CachedReflectionPropertyAccessor(),
     private val filters: Map<String, Filter> = emptyMap(),
     private val directives: Map<String, Directive> = emptyMap(),
@@ -54,7 +55,10 @@ internal class SiluetRenderer(
             localeRegistry = localeRegistry,
             locale = renderContext.locale
         )
-        val evaluator = ExpressionEvaluator(evaluationContext)
+        val evaluator = ExpressionEvaluator(
+            context = evaluationContext,
+            strictMode = strictMode
+        )
 
         val renderStack = RenderStack(maxRenderDepth)
 
@@ -205,7 +209,10 @@ internal class SiluetRenderer(
                     locale = renderContext.locale
                 )
 
-                val componentEvaluator = ExpressionEvaluator(componentEvaluationContext)
+                val componentEvaluator = ExpressionEvaluator(
+                    context = componentEvaluationContext,
+                    strictMode = strictMode
+                )
 
                 renderStack.withFrame(
                     sourceName = componentView.sourceName,
@@ -299,8 +306,8 @@ internal class SiluetRenderer(
                         )
                 } else {
                     //TODO are we sure that we want to left this?
-                    (evaluationContext.resolveVariable("currentPage") as? Number)?.toInt()
-                        ?: (evaluationContext.resolveVariable("pageNumber") as? Number)?.toInt()
+                    (evaluationContext.variableOrNull("currentPage") as? Number)?.toInt()
+                        ?: (evaluationContext.variableOrNull("pageNumber") as? Number)?.toInt()
                         ?: 1
                 }
 

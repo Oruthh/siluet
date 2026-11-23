@@ -41,6 +41,7 @@ class SiluetLoopLimitTest {
         val renderer = SiluetRenderer(
             maxLoopIterations = maxLoopIterations,
             maxRenderDepth = 32,
+            strictMode = false,
             viewsLoader = SiluetViewsLoader(
                 cache = InMemorySiluetCache(),
                 assetLoader = ResourceSiluetAssetLoader(),
@@ -52,6 +53,7 @@ class SiluetLoopLimitTest {
             ),
             localeRegistry = LocaleRegistry(
                 assetLoader = ResourceSiluetAssetLoader(),
+                strictMode = false
             ),
         )
         return renderer.render(ast, mapOf("items" to items), Template(layout = "", sections = emptyList()))

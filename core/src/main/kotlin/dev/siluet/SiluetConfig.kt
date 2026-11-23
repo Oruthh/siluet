@@ -122,6 +122,28 @@ class SiluetConfig {
      */
     var maxRenderDepth: Int = 32
 
+    /**
+     * Fails the render on template expressions that point at data that is not there.
+     *
+     * When enabled, rendering is aborted with a [dev.siluet.exception.SiluetViewException] that points
+     * at the expression in the view when a template:
+     * - uses a variable that does not exist (`{{ prodcut }}`),
+     * - reads a property or map key that does not exist (`{{ product.prise }}`),
+     * - reads a property of `null` (`{{ user.address.city }}` while `user.address` is `null`),
+     * - uses a translation key that is missing in the locale file, through the `t` filter or a
+     *   `t:` property in a JSON blueprint.
+     *
+     * A variable or property that exists but holds `null` is allowed: it prints nothing, the
+     * `default` filter replaces it and `@if` treats it as false, so optional data can be guarded with
+     * `@if(user.address) { ... }`. The `default` filter does not hide a variable that does not exist.
+     *
+     * When disabled, such expressions resolve to `null` and a missing translation prints its key.
+     * Useful in development and tests to catch typos and missing data early.
+     *
+     * Defaults to `false`.
+     */
+    var strictMode: Boolean = false
+
     private val registeredFilters = mutableMapOf<String, Registration<Filter>>()
 
     /**

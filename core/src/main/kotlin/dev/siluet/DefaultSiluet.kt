@@ -31,7 +31,7 @@ class DefaultSiluet(
     private val viewsLoader: SiluetViewsLoader
     private val sectionsGroupsLoader: SiluetSectionsGroupLoader
     private val templateLoader: SiluetTemplateLoader
-    private val localeRegistry = LocaleRegistry(assetLoader)
+    private val localeRegistry = LocaleRegistry(assetLoader, config.strictMode)
 
     private val renderer: SiluetRenderer
 
@@ -62,6 +62,7 @@ class DefaultSiluet(
         renderer = SiluetRenderer(
             maxLoopIterations = config.maxLoopIterations,
             maxRenderDepth = config.maxRenderDepth,
+            strictMode = config.strictMode,
             accessor = propertyAccessor,
             filters = config.filters + defaultFilters,
             directives = config.directives,

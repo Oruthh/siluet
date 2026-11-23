@@ -1,11 +1,13 @@
 package dev.siluet.locale
 
+import dev.siluet.exception.internal.MissingTranslationException
 import dev.siluet.loader.SiluetAssetLoader
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 
 internal class LocaleRegistry(
-    private val assetLoader: SiluetAssetLoader
+    private val assetLoader: SiluetAssetLoader,
+    private val strictMode: Boolean,
 ) {
     private val translationCache = ConcurrentHashMap<Locale, Map<String, String>>()
 
@@ -18,6 +20,10 @@ internal class LocaleRegistry(
             LocaleParser.parse(asset.content)
         }
 
-        return translations[translationId] ?: translationId //TODO implement something better
+        return translations[translationId] ?: if(strictMode){
+            throw MissingTranslationException(translationId, locale)
+        } else {
+            translationId
+        }
     }
 }

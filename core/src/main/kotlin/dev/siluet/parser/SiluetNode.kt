@@ -115,3 +115,11 @@ internal enum class BinaryOperator {
 internal enum class UnaryOperator {
     NOT
 }
+
+
+internal val ExpressionNode.accessPath: String?
+    get() = when(this){
+        is VariableNode -> name
+        is PropertyAccessNode -> receiver.accessPath?.let { "$it.${propertyName}" }
+        else -> null
+    }

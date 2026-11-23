@@ -1,5 +1,6 @@
 package dev.siluet.filter.string
 
+import dev.siluet.exception.internal.MissingTranslationException
 import dev.siluet.filter.Filter
 import dev.siluet.locale.LocaleRegistry
 import dev.siluet.render.RenderContext
@@ -18,6 +19,12 @@ internal class TranslationFilter(
             )
         }
 
-        return localeRegistry.getTranslation(renderContext.locale, value)
+        return try{
+            localeRegistry.getTranslation(renderContext.locale, value)
+        } catch (e: MissingTranslationException) {
+            throw IllegalArgumentException(
+                "missing translation '${e.key}' for locale '${e.locale.toLanguageTag()}'"
+            )
+        }
     }
 }

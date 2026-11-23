@@ -22,12 +22,14 @@ internal fun renderInline(
     model: Any? = Unit,
     filters: Map<String, Filter> = emptyMap(),
     directives: Map<String, Directive> = emptyMap(),
+    strictMode: Boolean = false,
 ): String {
     val tokens = SiluetLexer(template, "views/inline.html").tokenize()
     val ast = SiluetParser(tokens).parseAsNodeList()
     val renderer = SiluetRenderer(
         maxLoopIterations = 100,
         maxRenderDepth = 32,
+        strictMode = strictMode,
         filters = filters,
         directives = directives,
         viewsLoader = SiluetViewsLoader(
@@ -41,6 +43,7 @@ internal fun renderInline(
         ),
         localeRegistry = LocaleRegistry(
             assetLoader = ResourceSiluetAssetLoader(),
+            strictMode = false
         ),
     )
     return renderer.render(ast, model, Template(layout = "", sections = emptyList()))

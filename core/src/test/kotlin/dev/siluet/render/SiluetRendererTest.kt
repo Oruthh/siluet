@@ -42,6 +42,7 @@ class SiluetRendererTest {
         val renderer = SiluetRenderer(
             maxLoopIterations = 100,
             maxRenderDepth = 32,
+            strictMode = false,
             filters = filters,
             directives = directives,
             viewsLoader = SiluetViewsLoader(
@@ -55,6 +56,7 @@ class SiluetRendererTest {
             ),
             localeRegistry = LocaleRegistry(
                 assetLoader = ResourceSiluetAssetLoader(),
+                strictMode = false
             ),
         )
         return renderer.render(ast, model, Template(

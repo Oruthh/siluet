@@ -91,6 +91,7 @@ class DefaultFilterTest {
         val renderer = SiluetRenderer(
             maxLoopIterations = 100,
             maxRenderDepth = 32,
+            strictMode = false,
             filters = mapOf("default" to DefaultFilter()),
             viewsLoader = SiluetViewsLoader(
                 cache = InMemorySiluetCache(),
@@ -103,6 +104,7 @@ class DefaultFilterTest {
             ),
             localeRegistry = LocaleRegistry(
                 assetLoader = ResourceSiluetAssetLoader(),
+                strictMode = false
             ),
         )
         return renderer.render(ast, model, Template(layout = "", sections = emptyList()))

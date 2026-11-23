@@ -153,6 +153,9 @@ val siluet = Siluet {
     // Maximum nesting depth of components and sections, guards against infinite recursion (default: 32)
     maxRenderDepth = 64
 
+    // Fail on undefined variables, properties and translation keys instead of printing nothing (default: false)
+    strictMode = true
+
     // Capacity of the internal caches; least frequently used entries are evicted first
     cache {
         maxViews = 2_000          // compiled layouts, sections and components (default: 1000)
@@ -166,6 +169,27 @@ val siluet = Siluet {
     )
 }
 ```
+
+#### Strict Mode
+
+By default, an expression that points at data that is not there renders as empty, and a missing translation prints its key. A typo such as <span v-pre>`{{ prodcut.name }}`</span> then silently leaves a gap in the page. With `strictMode = true`, the render fails instead, with a `SiluetViewException` that points at the expression:
+
+```text
+Undefined variable 'prodcut' at /theme/sections/hero.html:3:12
+Undefined property 'prise' of 'product' at /theme/components/productCard.html:4:22
+Cannot read property 'city' of null 'user.address' at /theme/sections/account.html:7:30
+Filter 't' failed: missing translation 'store.actions.addToCrat' for locale 'en' at /theme/components/productCard.html:9:47
+```
+
+A variable or property that exists but holds `null` is allowed: it prints nothing and the `default` filter replaces it. Reading a property **of** `null` is an error, so guard optional data with `@if`, which treats `null` as false:
+
+```html
+@if(user.address) {
+    <p>{{ user.address.city }}</p>
+}
+```
+
+The `default` filter does not hide a variable that does not exist, because that is usually a typo. Components see only the arguments passed to them, so in strict mode every argument a component uses must be passed, e.g. `@component("productCard", item = product, showBadge = false)`.
 
 A `Siluet` instance is thread-safe. Create it once (e.g., at application startup) and share it across requests, so that compiled templates are reused from the cache.
 

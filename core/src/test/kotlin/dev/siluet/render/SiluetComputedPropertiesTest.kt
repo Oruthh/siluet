@@ -36,6 +36,7 @@ class SiluetComputedPropertiesTest {
         val renderer = SiluetRenderer(
             maxLoopIterations = 100,
             maxRenderDepth = 32,
+            strictMode = false,
             viewsLoader = SiluetViewsLoader(
                 cache = InMemorySiluetCache(),
                 assetLoader = ResourceSiluetAssetLoader(),
@@ -47,6 +48,7 @@ class SiluetComputedPropertiesTest {
             ),
             localeRegistry = LocaleRegistry(
                 assetLoader = ResourceSiluetAssetLoader(),
+                strictMode = false
             ),
         )
         return renderer.render(ast, model, Template(layout = "", sections = emptyList()))

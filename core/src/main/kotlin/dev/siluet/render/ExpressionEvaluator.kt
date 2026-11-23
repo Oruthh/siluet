@@ -1,5 +1,6 @@
 package dev.siluet.render
 
+import dev.siluet.exception.internal.MissingTranslationException
 import dev.siluet.exception.internal.PropertyAccessException
 import dev.siluet.exception.internal.RenderException
 import dev.siluet.parser.BinaryOpNode
@@ -11,30 +12,85 @@ import dev.siluet.parser.PropertyAccessNode
 import dev.siluet.parser.UnaryOpNode
 import dev.siluet.parser.UnaryOperator
 import dev.siluet.parser.VariableNode
+import dev.siluet.parser.accessPath
+import dev.siluet.reflect.PropertyLookup
 
 internal class ExpressionEvaluator(
-    private val context: EvaluationContext
+    private val context: EvaluationContext,
+    private val strictMode: Boolean,
 ) {
     fun evaluate(node: ExpressionNode): Any? {
         return when (node) {
             is LiteralNode -> node.value
-            is VariableNode -> withPropertyErrorLocation(node) { context.resolveVariable(node.name) }
+            is VariableNode -> evaluateVariable(node)
             is PropertyAccessNode -> evaluatePropertyAccess(node)
             is BinaryOpNode -> evaluateBinary(node)
             is UnaryOpNode -> evaluateUnary(node)
         }
     }
 
+    private fun evaluateVariable(node: VariableNode): Any? {
+        val lookupResult = withPropertyErrorLocation(node) { context.resolveVariable(node.name) }
+        return when (lookupResult) {
+            is PropertyLookup.Found -> {
+                lookupResult.value
+            }
+            PropertyLookup.Missing -> {
+                if(strictMode) {
+                    throw RenderException(
+                        "Undefined variable '${node.name}'",
+                        sourceLocation = node.sourceLocation
+                    )
+                } else {
+                    null
+                }
+            }
+        }
+    }
+
     private fun evaluatePropertyAccess(node: PropertyAccessNode): Any? {
-        val receiver = evaluate(node.receiver) ?: return null
-        return withPropertyErrorLocation(node) { context.resolveProperty(receiver, node.propertyName) }
+        val receiver = evaluate(node.receiver) ?: if (strictMode) {
+            val path = node.receiver.accessPath
+
+            throw RenderException(
+                "Cannot read property '${node.propertyName}' of null" + (path?.let { " '$it'" } ?: ""),
+                sourceLocation = node.sourceLocation
+            )
+        } else {
+            return null
+        }
+        val lookupResult = withPropertyErrorLocation(node) { context.resolveProperty(receiver, node.propertyName) }
+        return when (lookupResult) {
+            is PropertyLookup.Found -> {
+                lookupResult.value
+            }
+            PropertyLookup.Missing -> {
+                if(strictMode) {
+                    val path = node.receiver.accessPath
+                    throw RenderException(
+                        "Undefined property '${node.propertyName}'" + (path?.let { " of '$it'" } ?: ""),
+                        sourceLocation = node.sourceLocation
+                    )
+                } else {
+                    null
+                }
+            }
+        }
     }
 
     private inline fun <T> withPropertyErrorLocation(node: ExpressionNode, block: () -> T): T {
         return try {
             block()
         } catch (e: PropertyAccessException) {
-            throw RenderException(e.message!!, node.sourceLocation)
+            throw RenderException(
+                e.message!!,
+                sourceLocation = node.sourceLocation
+            )
+        } catch (e: MissingTranslationException) {
+            throw RenderException(
+                e.message!!,
+                sourceLocation = node.sourceLocation
+            )
         }
     }
 
@@ -100,7 +156,7 @@ internal class ExpressionEvaluator(
             }
             try {
                 currentValue = filter.apply(currentValue, evaluatedArgs, renderContext)
-            } catch (e: Exception) { //TODO maybe we should create FilterExecutionException instead of catching all Exceptions?
+            } catch (e: Exception) {
                 throw RenderException(
                     "Filter '${filterNode.name}' failed: ${e.message ?: e::class.simpleName}",
                     sourceLocation = filterNode.sourceLocation,

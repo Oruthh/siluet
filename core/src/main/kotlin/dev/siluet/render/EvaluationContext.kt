@@ -35,34 +35,37 @@ internal class EvaluationContext(
         currentScope[name] = value
     }
 
-    fun resolveVariable(name: String): Any? {
+    fun resolveVariable(name: String): PropertyLookup {
         for(scope in scopeStack.reversed()) {
             if(scope.containsKey(name)){
-                return scope[name]
+                return PropertyLookup.Found(scope[name])
             }
         }
 
-        val rootObject = root ?: return null
+        val rootObject = root ?: return PropertyLookup.Missing
         return resolveProperty(rootObject, name)
     }
 
-    fun resolveProperty(target: Any, propertyName: String): Any? {
-        val lookupValue = when(val lookupResult = accessor.getProperty(target, propertyName)) {
-            is PropertyLookup.Found -> {
-                lookupResult.value
-            }
-            PropertyLookup.Missing -> {
-                null
-            }
+    fun resolveProperty(target: Any, propertyName: String): PropertyLookup {
+        val lookup = accessor.getProperty(target, propertyName)
+        if(lookup !is PropertyLookup.Found){
+            return lookup
         }
 
-        if(lookupValue is PropertyValue<*>){ //TODO: I'm not sure if I should leave this here, but I don't have any other ideas right now.
-            if(lookupValue is TranslationPropertyValue){
-                return localeRegistry.getTranslation(locale, lookupValue.value)
+        return when (val value = lookup.value){
+            is TranslationPropertyValue -> {
+                PropertyLookup.Found(localeRegistry.getTranslation(locale, value.value))
             }
-            return lookupValue.value
+            is PropertyValue<*> -> PropertyLookup.Found(value.value)
+            else -> lookup
+        }
+    }
+
+    fun variableOrNull(name: String): Any? {
+        return when(val lookup = resolveVariable(name)){
+            is PropertyLookup.Found -> lookup.value
+            PropertyLookup.Missing -> null
         }
 
-        return lookupValue
     }
 }
