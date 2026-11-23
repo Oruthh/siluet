@@ -1,9 +1,11 @@
 package dev.siluet
 
 import dev.siluet.cache.CacheConfig
+import dev.siluet.directive.BuiltInDirective
 import dev.siluet.loader.SiluetAssetLoader
 import dev.siluet.reflect.SecurityPolicy
-import dev.siluet.render.Directive
+import dev.siluet.directive.Directive
+import dev.siluet.filter.BuiltInFilter
 import dev.siluet.filter.Filter
 import dev.siluet.plugin.SiluetPlugin
 import dev.siluet.render.RenderContext
@@ -31,6 +33,15 @@ import dev.siluet.render.RenderContext
  * ```
  */
 class SiluetConfig {
+    private class Registration<T>(
+        val value: T,
+        val plugin: Class<SiluetPlugin<*>>?
+    )
+
+    private val installedPlugins = mutableSetOf<Class<SiluetPlugin<*>>>()
+
+    private var installingPlugin: SiluetPlugin<*>? = null
+
     /**
      * Configuration defining capacity limits for internal engine caches.
      *
@@ -111,15 +122,25 @@ class SiluetConfig {
      */
     var maxRenderDepth: Int = 32
 
-    /**
-     * Mutable map of registered template filters, keyed by their filter identifier.
-     */
-    val filters: MutableMap<String, Filter> = mutableMapOf()
+    private val registeredFilters = mutableMapOf<String, Registration<Filter>>()
 
     /**
-     * Mutable map of registered custom directives, keyed by their directive name.
+     * Read-only view of the custom filters registered so far, keyed by filter name.
+     *
+     * Register filters with [filter]; built-in filters are not included.
      */
-    val directives: MutableMap<String, Directive> = mutableMapOf()
+    val filters: Map<String, Filter>
+        get() = registeredFilters.mapValues { it.value.value }
+
+    private val registeredDirectives = mutableMapOf<String, Registration<Directive>>()
+
+    /**
+     * Read-only view of the custom directives registered so far, keyed by directive name.
+     *
+     * Register directives with [directive].
+     */
+    val directives: Map<String, Directive>
+        get() = registeredDirectives.mapValues { it.value.value }
 
     /**
      * Registers a custom [Filter] instance under the specified [name].
@@ -127,11 +148,24 @@ class SiluetConfig {
      * Registered filters can be applied in templates using the pipe operator:
      * `{{ value | name(args) }}`.
      *
+     * Each name can be registered only once, by the application or by one [SiluetPlugin].
+     *
      * @param name The filter name used within template expressions.
      * @param filter The filter implementation instance.
+     * @throws IllegalArgumentException if [name] is the name of a built-in filter (such as `date`
+     * or `t`), or if a filter with this name is already registered. The message names who
+     * registered it first, e.g. `Filter 'money' is already registered by MoneyPlugin.`
      */
     fun filter(name: String, filter: Filter) {
-        filters[name] = filter
+        if(BuiltInFilter.names.contains(name)) {
+            throw IllegalArgumentException("Filter '$name' is built in and cannot be replaced.")
+        }
+        if(registeredFilters.containsKey(name)){
+            val registeredFilter = registeredFilters[name]
+            val registrationOwner = registeredFilter?.plugin?.simpleName?.ifEmpty { "an anonymous plugin" } ?: "the application"
+            throw IllegalArgumentException("Filter '$name' is already registered by $registrationOwner.")
+        }
+        registeredFilters[name] = Registration(filter, installingPlugin?.javaClass)
     }
 
     /**
@@ -147,9 +181,11 @@ class SiluetConfig {
      *
      * @param name The filter name used within template expressions.
      * @param filterFn Lambda receiving the piped value, argument list args, and current [RenderContext].
+     * @throws IllegalArgumentException if [name] is a built-in filter name or is already registered;
+     * see the [Filter] overload of this function.
      */
     fun filter(name: String, filterFn: (value: Any?, args: List<Any?>, renderContext: RenderContext) -> Any?) {
-        filters[name] = Filter { value, args, renderContext -> filterFn(value, args, renderContext) }
+        filter(name, Filter { value, args, renderContext -> filterFn(value, args, renderContext) })
     }
 
     /**
@@ -158,17 +194,33 @@ class SiluetConfig {
      * Custom directives can be invoked within templates via the `@` prefix:
      * `@name(args) { ... }`.
      *
+     * Each name can be registered only once, by the application or by one [SiluetPlugin].
+     * A filter and a directive may share a name.
+     *
      * @param name The directive name without the leading `@`.
      * @param directive The directive implementation instance.
+     * @throws IllegalArgumentException if [name] is the name of a built-in directive (`if`, `else`,
+     * `for`, `component`, `sections`, `paginate`, `schema`), or if a directive with this name is
+     * already registered. The message names who registered it first.
      */
     fun directive(name: String, directive: Directive) {
-        directives[name] = directive
+        if(BuiltInDirective.keywords.contains(name)) {
+            throw IllegalArgumentException("Directive '$name' is built in and cannot be replaced.")
+        }
+        if(registeredDirectives.containsKey(name)){
+            val registeredDirective = registeredDirectives[name]
+            val registrationOwner = registeredDirective?.plugin?.simpleName?.ifEmpty { "an anonymous plugin" } ?: "the application"
+            throw IllegalArgumentException("Directive '$name' is already registered by $registrationOwner.")
+        }
+        registeredDirectives[name] = Registration(directive, installingPlugin?.javaClass)
     }
 
     /**
      * Installs and configures a [SiluetPlugin].
      *
-     * Plugins encapsulate bundles of filters, directives
+     * Plugins encapsulate bundles of filters and directives. Filters and directives registered
+     * while the plugin is installed belong to that plugin, which is named in the error when
+     * another registration uses the same name. A plugin may install other plugins.
      *
      * ### Example:
      * ```kotlin
@@ -181,11 +233,25 @@ class SiluetConfig {
      * @param plugin The plugin to install into this configuration.
      * @param configure Optional configuration lambda applied to the plugin's config object.
      * @return This [SiluetConfig] instance for method chaining.
+     * @throws IllegalArgumentException if a plugin of the same class is already installed, or if
+     * the plugin registers a built-in or already registered filter or directive name.
      */
     fun <TConfig : Any> install(
         plugin: SiluetPlugin<TConfig>,
         configure: TConfig.() -> Unit = {}
     ): SiluetConfig = apply {
-        plugin.install(this, configure)
+        if(installedPlugins.contains(plugin.javaClass)){
+            throw IllegalArgumentException("${plugin.javaClass.simpleName.ifEmpty { "An anonymous plugin" }} is already installed.")
+        }
+        val previous = installingPlugin
+        installingPlugin = plugin
+
+        installedPlugins.add(plugin.javaClass)
+
+        try {
+            plugin.install(this, configure)
+        } finally {
+            installingPlugin = previous
+        }
     }
 }

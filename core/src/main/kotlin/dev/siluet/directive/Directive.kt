@@ -1,4 +1,6 @@
-package dev.siluet.render
+package dev.siluet.directive
+
+import dev.siluet.render.RenderContext
 
 /**
  * Functional interface representing a custom block or statement directive in Siluet templates.

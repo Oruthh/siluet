@@ -1,5 +1,6 @@
 package dev.siluet.parser
 
+import dev.siluet.directive.BuiltInDirective
 import dev.siluet.SourceLocation
 import dev.siluet.exception.internal.ParseException
 import dev.siluet.lexer.Token
@@ -90,17 +91,17 @@ internal class SiluetParser(
         val nameToken = consume(TokenType.IDENTIFIER, "Expected a directive name after '@'.")
         val sourceLocation = nameToken.sourceLocation
 
-        return when (nameToken.value) {
-            "if" -> parseIfDirective(sourceLocation)
-            "for" -> parseForDirective(sourceLocation)
-            "component" -> parseComponentDirective(sourceLocation)
-            "sections" -> parseSectionsComponent(sourceLocation)
-            "paginate" -> parsePaginateDirective(sourceLocation)
-            "schema" -> {
+        return when (BuiltInDirective.of(nameToken.value)) {
+            BuiltInDirective.IF -> parseIfDirective(sourceLocation)
+            BuiltInDirective.FOR -> parseForDirective(sourceLocation)
+            BuiltInDirective.COMPONENT -> parseComponentDirective(sourceLocation)
+            BuiltInDirective.SECTIONS -> parseSectionsComponent(sourceLocation)
+            BuiltInDirective.PAGINATE -> parsePaginateDirective(sourceLocation)
+            BuiltInDirective.SCHEMA -> {
                 parseSchemaDirective(sourceLocation)
                 null
             }
-            "else" -> throw ParseException(
+            BuiltInDirective.ELSE -> throw ParseException(
                 "'@else' must directly follow the block of an '@if', e.g. '@if(condition) { ... } @else { ... }'.",
                 sourceLocation = sourceLocation
             )

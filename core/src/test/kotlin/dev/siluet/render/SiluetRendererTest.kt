@@ -2,6 +2,7 @@ package dev.siluet.render
 
 import dev.siluet.blueprint.Template
 import dev.siluet.cache.InMemorySiluetCache
+import dev.siluet.directive.Directive
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import dev.siluet.loader.SiluetViewsLoader

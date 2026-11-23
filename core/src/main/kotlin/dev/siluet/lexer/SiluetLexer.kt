@@ -1,6 +1,7 @@
 package dev.siluet.lexer
 
 import dev.siluet.SourceLocation
+import dev.siluet.directive.BuiltInDirective
 import dev.siluet.exception.internal.LexerException
 
 internal class SiluetLexer(
@@ -567,7 +568,7 @@ internal class SiluetLexer(
                     }
                     c.isLetter() && currentToken.type == TokenType.AT -> {
                         scanIdentifierOrKeyword(c, tokenLine, tokenColumn, tokens)
-                        if(tokens.last().value == "schema"){
+                        if(tokens.last().value == BuiltInDirective.SCHEMA.keyword){
                             scanSchema(tokens)
                             mode = Mode.TEXT
                         }

@@ -1,5 +1,6 @@
 package dev.siluet.render
 
+import dev.siluet.directive.Directive
 import dev.siluet.exception.SiluetBlueprintException
 import dev.siluet.exception.SiluetSecurityException
 import dev.siluet.exception.internal.LexerException

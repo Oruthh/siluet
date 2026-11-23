@@ -1,5 +1,6 @@
 package dev.siluet.render
 
+import dev.siluet.directive.Directive
 import dev.siluet.support.renderInline
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals

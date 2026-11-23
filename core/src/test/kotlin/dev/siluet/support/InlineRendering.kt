@@ -9,7 +9,7 @@ import dev.siluet.loader.SiluetSectionsGroupLoader
 import dev.siluet.loader.SiluetViewsLoader
 import dev.siluet.locale.LocaleRegistry
 import dev.siluet.parser.SiluetParser
-import dev.siluet.render.Directive
+import dev.siluet.directive.Directive
 import dev.siluet.render.SiluetRenderer
 import kotlinx.serialization.json.Json
 

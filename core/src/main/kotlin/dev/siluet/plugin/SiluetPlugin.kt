@@ -8,6 +8,10 @@ import dev.siluet.SiluetConfig
  * Plugins bundle cohesive sets of template filters, custom directives, specialized
  * asset loaders, or runtime security policies into reusable modules.
  *
+ * A plugin can be installed only once per configuration, and the filter and directive names it
+ * registers must not clash with built-in names, with the application's own registrations or
+ * with other plugins; a clash throws an [IllegalArgumentException] naming both sides.
+ *
  * ### Example Implementation:
  * ```kotlin
  * class MoneyConfig {

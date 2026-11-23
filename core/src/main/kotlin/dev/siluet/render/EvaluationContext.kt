@@ -3,6 +3,7 @@ package dev.siluet.render
 import dev.siluet.blueprint.Template
 import dev.siluet.blueprint.property.PropertyValue
 import dev.siluet.blueprint.property.TranslationPropertyValue
+import dev.siluet.directive.Directive
 import dev.siluet.filter.Filter
 import dev.siluet.locale.LocaleRegistry
 import dev.siluet.reflect.PropertyAccessor

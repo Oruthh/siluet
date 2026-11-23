@@ -3,6 +3,7 @@ package dev.siluet.render
 import dev.siluet.exception.internal.ComponentViewNotFoundException
 import dev.siluet.exception.internal.SectionsGroupNotFoundException
 import dev.siluet.blueprint.Template
+import dev.siluet.directive.Directive
 import dev.siluet.exception.SiluetBlueprintException
 import dev.siluet.exception.internal.LoopLimitExceededException
 import dev.siluet.exception.internal.RenderException

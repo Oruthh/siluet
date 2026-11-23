@@ -4,18 +4,11 @@ import dev.siluet.cache.InMemorySiluetCache
 import kotlinx.serialization.json.Json
 import dev.siluet.loader.SiluetViewsLoader
 import dev.siluet.render.SiluetRenderer
-import dev.siluet.filter.string.CapitalizeFilter
-import dev.siluet.filter.string.DefaultFilter
-import dev.siluet.filter.string.LowerCaseFilter
-import dev.siluet.filter.string.RawHTMLFilter
-import dev.siluet.filter.string.TruncateFilter
-import dev.siluet.filter.string.UpperCaseFilter
 import dev.siluet.exception.internal.LexerException
 import dev.siluet.loader.SiluetAssetLoader
 import dev.siluet.loader.SiluetSectionsGroupLoader
 import dev.siluet.loader.SiluetTemplateLoader
 import dev.siluet.exception.internal.ParseException
-import dev.siluet.filter.date.DateFilter
 import dev.siluet.render.RenderContext
 import dev.siluet.exception.internal.RenderException
 import dev.siluet.exception.SiluetAssetNotFoundException
@@ -23,7 +16,7 @@ import dev.siluet.exception.SiluetBlueprintException
 import dev.siluet.exception.SiluetViewException
 import dev.siluet.exception.internal.TemplateLoadingException
 import dev.siluet.exception.internal.TemplateNotFoundException
-import dev.siluet.filter.string.TranslationFilter
+import dev.siluet.filter.BuiltInFilter
 import dev.siluet.locale.LocaleRegistry
 import dev.siluet.reflect.CachedReflectionPropertyAccessor
 
@@ -43,17 +36,7 @@ class DefaultSiluet(
     private val renderer: SiluetRenderer
 
     init {
-        val defaultFilters = mapOf(
-            "rawHTML" to RawHTMLFilter(),
-            "default" to DefaultFilter(),
-            "lowercase" to LowerCaseFilter(),
-            "uppercase" to UpperCaseFilter(),
-            "capitalize" to CapitalizeFilter(),
-            "truncate" to TruncateFilter(),
-            "t" to TranslationFilter(localeRegistry),
-
-            "date" to DateFilter(),
-        )
+        val defaultFilters = BuiltInFilter.createAll(localeRegistry)
 
         viewsLoader = SiluetViewsLoader(
             cache = InMemorySiluetCache(config.cacheConfig.maxViews),
@@ -80,8 +63,8 @@ class DefaultSiluet(
             maxLoopIterations = config.maxLoopIterations,
             maxRenderDepth = config.maxRenderDepth,
             accessor = propertyAccessor,
-            filters = config.filters.toMap() + defaultFilters,
-            directives = config.directives.toMap(),
+            filters = config.filters + defaultFilters,
+            directives = config.directives,
             viewsLoader = viewsLoader,
             sectionsGroupsLoader = sectionsGroupsLoader,
             localeRegistry = localeRegistry

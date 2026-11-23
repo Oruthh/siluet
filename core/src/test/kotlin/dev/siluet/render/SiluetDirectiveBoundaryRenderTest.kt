@@ -1,5 +1,6 @@
 package dev.siluet.render
 
+import dev.siluet.directive.Directive
 import dev.siluet.exception.internal.LexerException
 import dev.siluet.filter.Filter
 import dev.siluet.filter.string.DefaultFilter
