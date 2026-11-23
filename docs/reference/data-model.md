@@ -1,6 +1,6 @@
 # Data Model & Security
 
-The model you pass to `siluet.render(...)` is what templates see. This page explains how expressions such as <span v-pre>`{{ product.finalPrice }}`</span> are resolved against it, and how to keep templates from reaching data they should not.
+The model you pass to `siluet.render(...)` is what layouts and sections see. Components see only the arguments passed to them (see [`@component`](/reference/directives#component)). This page explains how expressions such as <span v-pre>`{{ product.finalPrice }}`</span> are resolved against it, and how to keep templates from reaching data they should not.
 
 ---
 

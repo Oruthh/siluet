@@ -182,41 +182,43 @@ internal class SiluetRenderer(
                         sourceLocation = node.sourceLocation
                     )
 
-                val properties = node.properties.mapValues {
-                   evaluator.evaluate(it.value)
+                val componentView = try {
+                    viewsLoader.getOrCompileComponentView(componentName)
+                } catch (e: ComponentViewNotFoundException) {
+                    throw RenderException(
+                        e.message!!,
+                        sourceLocation = node.sourceLocation
+                    )
                 }
 
-                evaluationContext.pushScope()
-                try {
-                    for ((key, value) in properties) {
-                        evaluationContext.setLocal(key, value)
-                    }
+                val properties = node.properties.mapValues {
+                    evaluator.evaluate(it.value)
+                }
 
-                    val componentView = try {
-                        viewsLoader.getOrCompileComponentView(componentName)
-                    } catch (e: ComponentViewNotFoundException) {
-                        throw RenderException(
-                            e.message!!,
-                            sourceLocation = node.sourceLocation
-                        )
-                    }
+                val componentEvaluationContext = EvaluationContext(
+                    root = properties,
+                    accessor = accessor,
+                    filters = filters,
+                    directives = directives,
+                    template = evaluationContext.template,
+                    localeRegistry = localeRegistry,
+                    locale = renderContext.locale
+                )
 
-                    renderStack.withFrame(
-                        sourceName = componentView.sourceName,
-                        callSite = node.sourceLocation
-                    ){
-                        renderNodes(
-                            nodes = componentView.ast,
-                            renderContext = renderContext,
-                            evaluationContext = evaluationContext,
-                            evaluator = evaluator,
-                            renderStack = renderStack,
-                            buffer = buffer
-                        )
-                    }
+                val componentEvaluator = ExpressionEvaluator(componentEvaluationContext)
 
-                } finally {
-                    evaluationContext.popScope()
+                renderStack.withFrame(
+                    sourceName = componentView.sourceName,
+                    callSite = node.sourceLocation
+                ){
+                    renderNodes(
+                        nodes = componentView.ast,
+                        renderContext = renderContext,
+                        evaluationContext = componentEvaluationContext,
+                        evaluator = componentEvaluator,
+                        renderStack = renderStack,
+                        buffer = buffer
+                    )
                 }
             }
 

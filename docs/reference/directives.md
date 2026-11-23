@@ -68,6 +68,15 @@ Injects a reusable, self-contained HTML component. You can pass local arguments 
 </div>
 ```
 
+**Scope:** a component sees only the arguments passed to it. The root model, loop variables, pagination, the `section` variable and the arguments of an outer component are not visible inside it, so everything a component uses is listed in the call. Pass whatever it needs explicitly:
+
+```html
+<!-- sections/hero.html -->
+@component("heroTitle", section = section, siteName = siteName)
+```
+
+Argument values are evaluated where the component is used, so they can read the caller's variables (`item = product`, `title = product.name`). Variables defined inside the component, such as its loop variables, do not leak back to the caller.
+
 A component can render other components, including itself. This makes recursive structures such as a category tree possible:
 
 ```html

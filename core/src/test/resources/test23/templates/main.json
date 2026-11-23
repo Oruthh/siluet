@@ -1,0 +1,11 @@
+{
+  "layout": "main",
+  "sections": {
+    "hero": {
+      "name": "hero",
+      "properties": {
+        "title": "Summer sale"
+      }
+    }
+  }
+}
