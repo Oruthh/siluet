@@ -41,7 +41,7 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.siluet:siluet-core:0.0.3")
+    implementation("dev.siluet:siluet-core:0.0.4")
 }
 ```
 
@@ -53,7 +53,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'dev.siluet:siluet-core:0.0.3'
+    implementation 'dev.siluet:siluet-core:0.0.4'
 }
 ```
 
@@ -63,7 +63,7 @@ dependencies {
 <dependency>
     <groupId>dev.siluet</groupId>
     <artifactId>siluet-core</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
 </dependency>
 ```
 
