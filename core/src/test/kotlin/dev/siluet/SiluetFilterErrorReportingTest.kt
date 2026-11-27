@@ -13,20 +13,21 @@ import kotlin.test.assertFailsWith
  */
 class SiluetFilterErrorReportingTest {
 
-    private fun siluet(layout: String, configure: SiluetConfig.() -> Unit = {}) = Siluet {
+    private fun siluetTheme(layout: String, configure: SiluetConfig.() -> Unit = {}) = Siluet {
+        configure()
+    } . theme {
         assetLoader = InMemorySiluetAssetLoader(
             mapOf(
                 "templates/home.json" to """{ "layout": "main" }""",
                 "layouts/main.html" to layout,
             )
         )
-        configure()
     }
 
     @Test
     fun `built-in filter error names the filter and the view location`() {
         val exception = assertFailsWith<SiluetViewException> {
-            siluet("<p>{{ count | uppercase }}</p>").render("home", mapOf("count" to 3))
+            siluetTheme("<p>{{ count | uppercase }}</p>").render("home", mapOf("count" to 3))
         }
 
         assertEquals(
@@ -38,12 +39,12 @@ class SiluetFilterErrorReportingTest {
 
     @Test
     fun `custom filter exception without a message does not break error reporting`() {
-        val engine = siluet("<p>{{ price | broken }}</p>") {
+        val siluetTheme = siluetTheme("<p>{{ price | broken }}</p>") {
             filter("broken") { _, _, _ -> throw IllegalStateException() }
         }
 
         val exception = assertFailsWith<SiluetViewException> {
-            engine.render("home", mapOf("price" to 10))
+            siluetTheme.render("home", mapOf("price" to 10))
         }
 
         assertEquals(

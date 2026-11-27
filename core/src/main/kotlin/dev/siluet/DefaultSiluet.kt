@@ -1,59 +1,35 @@
 package dev.siluet
 
-import dev.siluet.cache.InMemorySiluetCache
+import dev.siluet.cache.CacheBudget
+import dev.siluet.cache.ThemeCache
 import kotlinx.serialization.json.Json
 import dev.siluet.loader.SiluetViewsLoader
 import dev.siluet.render.SiluetRenderer
-import dev.siluet.exception.internal.LexerException
 import dev.siluet.loader.SiluetAssetLoader
 import dev.siluet.loader.SiluetSectionsGroupLoader
 import dev.siluet.loader.SiluetTemplateLoader
-import dev.siluet.exception.internal.ParseException
-import dev.siluet.render.RenderContext
-import dev.siluet.exception.internal.RenderException
-import dev.siluet.exception.SiluetAssetNotFoundException
-import dev.siluet.exception.SiluetBlueprintException
-import dev.siluet.exception.SiluetViewException
-import dev.siluet.exception.internal.TemplateLoadingException
-import dev.siluet.exception.internal.TemplateNotFoundException
 import dev.siluet.filter.BuiltInFilter
 import dev.siluet.locale.LocaleRegistry
 import dev.siluet.reflect.CachedReflectionPropertyAccessor
+import dev.siluet.theme.SiluetTheme
+import dev.siluet.theme.SiluetThemeConfig
+import kotlin.time.TimeSource
 
 class DefaultSiluet(
-    config: SiluetConfig
+    private val config: SiluetConfig
 ) : Siluet {
-    private val assetLoader: SiluetAssetLoader = config.assetLoader
-        ?: throw IllegalStateException("SiluetAssetLoader must be configured in SiluetConfig.")
-
     private val json = Json { ignoreUnknownKeys = true }
 
-    private val viewsLoader: SiluetViewsLoader
-    private val sectionsGroupsLoader: SiluetSectionsGroupLoader
-    private val templateLoader: SiluetTemplateLoader
-    private val localeRegistry = LocaleRegistry(assetLoader, config.strictMode)
+    private val timeSource: TimeSource.WithComparableMarks = config.timeSource
 
     private val renderer: SiluetRenderer
 
+    private val cacheBudget: CacheBudget
+
     init {
-        val defaultFilters = BuiltInFilter.createAll(localeRegistry)
+        config.cacheConfig.validate()
 
-        viewsLoader = SiluetViewsLoader(
-            cache = InMemorySiluetCache(config.cacheConfig.maxViews),
-            assetLoader = assetLoader,
-        )
-
-        sectionsGroupsLoader = SiluetSectionsGroupLoader(
-            assetLoader = assetLoader,
-            json = json,
-            cache = InMemorySiluetCache(config.cacheConfig.maxSectionsGroups),
-        )
-
-        templateLoader = SiluetTemplateLoader(
-            assetLoader = assetLoader,
-            json = json,
-            cache = InMemorySiluetCache(config.cacheConfig.maxTemplates),
-        )
+        val defaultFilters = BuiltInFilter.createAll()
 
         val propertyAccessor = CachedReflectionPropertyAccessor(
             securityPolicy = config.securityPolicy,
@@ -65,28 +41,64 @@ class DefaultSiluet(
             strictMode = config.strictMode,
             accessor = propertyAccessor,
             filters = config.filters + defaultFilters,
-            directives = config.directives,
-            viewsLoader = viewsLoader,
-            sectionsGroupsLoader = sectionsGroupsLoader,
-            localeRegistry = localeRegistry
+            directives = config.directives
+        )
+        
+        cacheBudget = CacheBudget(
+            maxTotalEntries = config.cacheConfig.maxTotalEntries,
+            evictIdleAfter = config.cacheConfig.evictIdleThemesAfter,
+            timeSource = timeSource,
         )
     }
 
-    override fun render(templateName: String, model: Any, contextBuilder: RenderContext.Builder.() -> Unit): String {
-        return try{
-            val template = templateLoader.getOrCompileTemplate(templateName)
-            val layoutView = viewsLoader.getOrCompileLayoutView(template.layout)
-            renderer.render(layoutView.ast, model, template, contextBuilder)
-        } catch (e: RenderException) {
-            throw SiluetViewException(e.message!!, e.sourceLocation)
-        } catch (e: ParseException) {
-            throw SiluetViewException(e.message!!, e.sourceLocation)
-        } catch (e: LexerException) {
-            throw SiluetViewException(e.message!!, e.sourceLocation)
-        } catch (e: TemplateLoadingException) {
-            throw SiluetBlueprintException(e.message!!, e.sourceName)
-        } catch (_: TemplateNotFoundException) {
-            throw SiluetAssetNotFoundException("template", templateName)
-        }
+    override fun theme(themeConfig: SiluetThemeConfig.() -> Unit): SiluetTheme {
+        val themeConfig = SiluetThemeConfig().apply(themeConfig)
+
+        val assetLoader: SiluetAssetLoader = themeConfig.assetLoader
+            ?: throw IllegalArgumentException("SiluetAssetLoader must be configured in SiluetThemeConfig.")
+
+        val maxEntries = themeConfig.maxCacheEntries
+            ?.also { limit ->
+                require(limit > 0) { "maxCacheEntries must be greater than 0" }
+                require(limit <= config.cacheConfig.maxTotalEntries) {
+                    "maxCacheEntries ($limit) must not exceed maxTotalEntries (${config.cacheConfig.maxTotalEntries})"
+                }
+            }
+            ?: config.cacheConfig.maxEntriesPerTheme
+
+        val themeCache = ThemeCache(
+            maxSize = maxEntries,
+            sizeListener = cacheBudget,
+            createdAt = timeSource.markNow()
+        )
+
+        val theme = SiluetTheme(
+            viewsLoader = SiluetViewsLoader(
+                cache = themeCache,
+                assetLoader = assetLoader,
+            ),
+            sectionsGroupsLoader = SiluetSectionsGroupLoader(
+                assetLoader = assetLoader,
+                json = json,
+                cache = themeCache,
+            ),
+            templateLoader = SiluetTemplateLoader(
+                assetLoader = assetLoader,
+                json = json,
+                cache = themeCache,
+            ),
+            translations = LocaleRegistry(
+                assetLoader = assetLoader,
+                strictMode = config.strictMode,
+                cache = themeCache
+            ),
+            renderer = renderer,
+            cache = themeCache,
+            cacheBudget = cacheBudget
+        )
+
+        cacheBudget.register(theme, themeCache)
+
+        return theme
     }
 }

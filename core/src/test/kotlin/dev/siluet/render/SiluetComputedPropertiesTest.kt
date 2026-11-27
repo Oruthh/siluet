@@ -2,14 +2,9 @@ package dev.siluet.render
 
 import dev.siluet.SourceLocation
 import dev.siluet.blueprint.Template
-import dev.siluet.cache.InMemorySiluetCache
 import dev.siluet.exception.internal.RenderException
 import dev.siluet.exception.SiluetSecurityException
 import dev.siluet.lexer.SiluetLexer
-import dev.siluet.loader.ResourceSiluetAssetLoader
-import dev.siluet.loader.SiluetSectionsGroupLoader
-import dev.siluet.loader.SiluetViewsLoader
-import dev.siluet.locale.LocaleRegistry
 import dev.siluet.parser.SiluetParser
 import dev.siluet.reflect.fixtures.Account
 import dev.siluet.reflect.fixtures.JavaBean
@@ -18,7 +13,7 @@ import dev.siluet.reflect.fixtures.LabeledItem
 import dev.siluet.reflect.fixtures.Product
 import dev.siluet.reflect.fixtures.ThreadHolder
 import dev.siluet.reflect.fixtures.hiddenLabeled
-import kotlinx.serialization.json.Json
+import dev.siluet.support.testTheme
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -37,21 +32,11 @@ class SiluetComputedPropertiesTest {
             maxLoopIterations = 100,
             maxRenderDepth = 32,
             strictMode = false,
-            viewsLoader = SiluetViewsLoader(
-                cache = InMemorySiluetCache(),
-                assetLoader = ResourceSiluetAssetLoader(),
-            ),
-            sectionsGroupsLoader = SiluetSectionsGroupLoader(
-                assetLoader = ResourceSiluetAssetLoader(),
-                json = Json,
-                cache = InMemorySiluetCache(),
-            ),
-            localeRegistry = LocaleRegistry(
-                assetLoader = ResourceSiluetAssetLoader(),
-                strictMode = false
-            ),
         )
-        return renderer.render(ast, model, Template(layout = "", sections = emptyList()))
+
+        val theme = testTheme(renderer)
+
+        return renderer.render(ast, model, Template(layout = "", sections = emptyList()), theme)
     }
 
     // --- Reproduction from the issue ------------------------------------------------------------

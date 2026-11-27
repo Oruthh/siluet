@@ -1,6 +1,6 @@
 # Extending Siluet
 
-Siluet can be extended from your Kotlin code with custom filters, custom directives, reusable plugins and asset loaders that read themes from anywhere. Everything is registered once, in the `Siluet { }` block.
+Siluet can be extended from your Kotlin code with custom filters, custom directives, reusable plugins and asset loaders that read themes from anywhere. Filters, directives and plugins are registered once, in the `Siluet { }` block, and are available in every theme. Asset loaders are set per theme, in `siluet.theme { }`.
 
 ---
 
@@ -10,8 +10,6 @@ A filter receives the value on the left of `|`, the arguments in parentheses and
 
 ```kotlin
 val siluet = Siluet {
-    assetLoader = ResourceSiluetAssetLoader("theme")
-
     filter("initials") { value, _, _ ->
         value?.toString()
             ?.split(" ")
@@ -82,8 +80,6 @@ A directive receives its positional arguments, named arguments, an optional body
 
 ```kotlin
 val siluet = Siluet {
-    assetLoader = ResourceSiluetAssetLoader("theme")
-
     directive("alert") { args, namedArgs, body, _, out ->
         val level = args.firstOrNull()?.toString() ?: "info"
         val dismissible = namedArgs["dismissible"] == true
@@ -154,7 +150,6 @@ object MoneyPlugin : SiluetPlugin<MoneyConfig> {
 
 ```kotlin
 val siluet = Siluet {
-    assetLoader = ResourceSiluetAssetLoader("theme")
     install(MoneyPlugin) {
         defaultCurrency = "PLN"
     }
@@ -197,4 +192,12 @@ class DatabaseAssetLoader(private val themes: ThemeRepository, private val theme
 
 The `sourceName` appears in error messages and must be unique per asset. See [Source Names](/reference/errors#source-names).
 
-Compiled views and parsed templates are cached by name for the lifetime of the `Siluet` instance (see `cache { }` in [Getting Started](/guide/getting-started#step-4-optional-tune-the-engine)). If your loader returns content that changes at runtime, create a new `Siluet` instance to pick up the changes.
+Give each theme its own loader instance and pass it in `siluet.theme { }`:
+
+```kotlin
+val theme = siluet.theme {
+    assetLoader = DatabaseAssetLoader(repository, themeId)
+}
+```
+
+Compiled views, parsed templates and translations are cached per theme. If your loader returns content that changes at runtime, call `theme.invalidate(...)` for the changed asset or `theme.clearCache()` to pick up the changes; see [Picking Up Changes](/guide/themes#picking-up-changes).

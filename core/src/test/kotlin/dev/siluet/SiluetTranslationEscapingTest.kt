@@ -26,10 +26,10 @@ class SiluetTranslationEscapingTest {
     }
 
     private val rendered: String by lazy {
-        val siluet = Siluet {
+        val theme = Siluet{}.theme {
             assetLoader = ResourceSiluetAssetLoader("test18")
         }
-        siluet.render("main") {
+        theme.render("main") {
             locale = Locale.ENGLISH
         }
     }

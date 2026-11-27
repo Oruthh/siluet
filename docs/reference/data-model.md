@@ -1,6 +1,6 @@
 # Data Model & Security
 
-The model you pass to `siluet.render(...)` is what layouts and sections see. Components see only the arguments passed to them (see [`@component`](/reference/directives#component)). This page explains how expressions such as <span v-pre>`{{ product.finalPrice }}`</span> are resolved against it, and how to keep templates from reaching data they should not.
+The model you pass to `theme.render(...)` is what layouts and sections see. Components see only the arguments passed to them (see [`@component`](/reference/directives#component)). This page explains how expressions such as <span v-pre>`{{ product.finalPrice }}`</span> are resolved against it, and how to keep templates from reaching data they should not.
 
 ---
 
@@ -19,7 +19,7 @@ data class ProductView(
 }
 
 val model = mapOf("product" to ProductView(entity.name, entity.price, entity.discount))
-siluet.render("product", model)
+theme.render("product", model)
 ```
 
 Templates can read **every public getter** of the objects in the model. Passing a view model instead of your domain objects means:
@@ -102,7 +102,6 @@ A violation fails the render with `SiluetSecurityException` (see [Error Handling
 
 ```kotlin
 val siluet = Siluet {
-    assetLoader = ResourceSiluetAssetLoader("theme")
     securityPolicy = DefaultSecurityPolicy(
         blockedMembers = setOf("passwordHash", "apiKey"),
         blockedPackages = setOf("com.example.internal"),

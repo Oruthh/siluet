@@ -1,17 +1,11 @@
 package dev.siluet.support
 
 import dev.siluet.blueprint.Template
-import dev.siluet.cache.InMemorySiluetCache
 import dev.siluet.filter.Filter
 import dev.siluet.lexer.SiluetLexer
-import dev.siluet.loader.ResourceSiluetAssetLoader
-import dev.siluet.loader.SiluetSectionsGroupLoader
-import dev.siluet.loader.SiluetViewsLoader
-import dev.siluet.locale.LocaleRegistry
 import dev.siluet.parser.SiluetParser
 import dev.siluet.directive.Directive
 import dev.siluet.render.SiluetRenderer
-import kotlinx.serialization.json.Json
 
 /**
  * Runs a template string through lexer → parser → renderer without a theme.
@@ -32,19 +26,9 @@ internal fun renderInline(
         strictMode = strictMode,
         filters = filters,
         directives = directives,
-        viewsLoader = SiluetViewsLoader(
-            cache = InMemorySiluetCache(),
-            assetLoader = ResourceSiluetAssetLoader(),
-        ),
-        sectionsGroupsLoader = SiluetSectionsGroupLoader(
-            assetLoader = ResourceSiluetAssetLoader(),
-            json = Json { ignoreUnknownKeys = true },
-            cache = InMemorySiluetCache(),
-        ),
-        localeRegistry = LocaleRegistry(
-            assetLoader = ResourceSiluetAssetLoader(),
-            strictMode = false
-        ),
     )
-    return renderer.render(ast, model, Template(layout = "", sections = emptyList()))
+
+    val theme = testTheme(renderer)
+
+    return renderer.render(ast, model, Template(layout = "", sections = emptyList()), theme)
 }

@@ -1,18 +1,13 @@
 package dev.siluet.render
 
 import dev.siluet.blueprint.Template
-import dev.siluet.cache.InMemorySiluetCache
 import dev.siluet.directive.Directive
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import dev.siluet.loader.SiluetViewsLoader
 import dev.siluet.filter.Filter
 import dev.siluet.lexer.SiluetLexer
-import dev.siluet.loader.ResourceSiluetAssetLoader
-import dev.siluet.loader.SiluetSectionsGroupLoader
-import dev.siluet.locale.LocaleRegistry
 import dev.siluet.parser.SiluetParser
-import kotlinx.serialization.json.Json
+import dev.siluet.support.testTheme
 import java.util.Locale
 
 class SiluetRendererTest {
@@ -29,8 +24,6 @@ class SiluetRendererTest {
         val discount: Double? = null
     )
 
-    private val json = Json { ignoreUnknownKeys = true }
-
     private fun render(
         template: String,
         model: Any = Unit,
@@ -39,30 +32,21 @@ class SiluetRendererTest {
     ): String {
         val tokens = SiluetLexer(template).tokenize()
         val ast = SiluetParser(tokens).parseAsNodeList()
+
         val renderer = SiluetRenderer(
             maxLoopIterations = 100,
             maxRenderDepth = 32,
             strictMode = false,
             filters = filters,
             directives = directives,
-            viewsLoader = SiluetViewsLoader(
-                cache = InMemorySiluetCache(),
-                assetLoader = ResourceSiluetAssetLoader(),
-            ),
-            sectionsGroupsLoader = SiluetSectionsGroupLoader(
-                assetLoader = ResourceSiluetAssetLoader(),
-                json = json,
-                cache = InMemorySiluetCache(),
-            ),
-            localeRegistry = LocaleRegistry(
-                assetLoader = ResourceSiluetAssetLoader(),
-                strictMode = false
-            ),
         )
+
+        val theme = testTheme(renderer)
+
         return renderer.render(ast, model, Template(
             layout = "",
             sections = emptyList()
-        ))
+        ), theme)
     }
 
     @Test

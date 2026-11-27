@@ -1,6 +1,6 @@
 # Error Handling
 
-When a page cannot be rendered, `siluet.render(...)` throws an exception and returns no partial HTML. This page lists the exceptions, what each one tells you, and how asset loaders decide the file names shown in error messages.
+When a page cannot be rendered, `theme.render(...)` throws an exception and returns no partial HTML. This page lists the exceptions, what each one tells you, and how asset loaders decide the file names shown in error messages.
 
 ---
 
@@ -19,11 +19,11 @@ SiluetException
 | :--- | :--- | :--- |
 | `SiluetViewException` | Syntax errors in an HTML view, including an unclosed `<style>` / `<script>`, attribute value, tag or comment; filter and expression errors, a missing component or section view, undefined variables, properties and translation keys in [strict mode](/guide/getting-started#strict-mode), an unknown section group name in `@sections("...")`, loop and render depth limits | `sourceLocation`: file, line and column in the HTML view |
 | `SiluetBlueprintException` | An invalid template or section group, e.g. a typo or duplicate in `sectionsOrder` / `blocksOrder` | `sourceName`: the JSON file. JSON errors have no line and column. |
-| `SiluetAssetNotFoundException` | The template passed to `siluet.render(...)` does not exist | `assetType` and `name`, e.g. `template` / `homee` |
+| `SiluetAssetNotFoundException` | The template passed to `theme.render(...)` does not exist | `assetType` and `name`, e.g. `template` / `homee` |
 
 ```kotlin
 try {
-    siluet.render("product", model)
+    theme.render("product", model)
 } catch (e: SiluetViewException) {
     log.error("Template error at ${e.sourceLocation}: ${e.message}")
 } catch (e: SiluetBlueprintException) {

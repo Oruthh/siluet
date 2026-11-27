@@ -1,17 +1,13 @@
 package dev.siluet.filter.string
 
 import dev.siluet.blueprint.Template
-import dev.siluet.cache.InMemorySiluetCache
 import dev.siluet.exception.internal.RenderException
+import dev.siluet.filter.BuiltInFilter
 import dev.siluet.lexer.SiluetLexer
-import dev.siluet.loader.ResourceSiluetAssetLoader
-import dev.siluet.loader.SiluetSectionsGroupLoader
-import dev.siluet.loader.SiluetViewsLoader
-import dev.siluet.locale.LocaleRegistry
 import dev.siluet.parser.SiluetParser
 import dev.siluet.render.RenderContext
 import dev.siluet.render.SiluetRenderer
-import kotlinx.serialization.json.Json
+import dev.siluet.support.testTheme
 import org.junit.jupiter.api.Test
 import java.time.ZoneOffset
 import java.util.Locale
@@ -83,31 +79,20 @@ class DefaultFilterTest {
 
     // --- Through the renderer ------------------------------------------------------------------
 
-    private val json = Json { ignoreUnknownKeys = true }
-
     private fun render(template: String, model: Map<String, Any?>): String {
         val tokens = SiluetLexer(template).tokenize()
         val ast = SiluetParser(tokens).parseAsNodeList()
+
         val renderer = SiluetRenderer(
             maxLoopIterations = 100,
             maxRenderDepth = 32,
             strictMode = false,
-            filters = mapOf("default" to DefaultFilter()),
-            viewsLoader = SiluetViewsLoader(
-                cache = InMemorySiluetCache(),
-                assetLoader = ResourceSiluetAssetLoader(),
-            ),
-            sectionsGroupsLoader = SiluetSectionsGroupLoader(
-                assetLoader = ResourceSiluetAssetLoader(),
-                json = json,
-                cache = InMemorySiluetCache(),
-            ),
-            localeRegistry = LocaleRegistry(
-                assetLoader = ResourceSiluetAssetLoader(),
-                strictMode = false
-            ),
+            filters = BuiltInFilter.createAll(),
         )
-        return renderer.render(ast, model, Template(layout = "", sections = emptyList()))
+
+        val theme = testTheme(renderer)
+
+        return renderer.render(ast, model, Template(layout = "", sections = emptyList()), theme)
     }
 
     @Test

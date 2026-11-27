@@ -9,11 +9,11 @@ class SiluetBlockTest {
 
     @Test
     fun `rendering layout with section properties and blocks`() {
-        val siluet = Siluet.invoke {
-            assetLoader = ResourceSiluetAssetLoader("test14")
-        }
+        val siluet = Siluet { }
 
-        val rendered = siluet.render("main"){
+        val rendered = siluet.theme {
+            assetLoader = ResourceSiluetAssetLoader("test14")
+        }.render("main"){
             locale = Locale.ENGLISH
         }
         assertEquals("<!DOCTYPE html>\n" +
@@ -45,11 +45,11 @@ class SiluetBlockTest {
 
     @Test
     fun `rendering layout with blocks custom ordering`() {
-        val siluet = Siluet.invoke {
-            assetLoader = ResourceSiluetAssetLoader("test15")
-        }
+        val siluet = Siluet {}
 
-        val rendered = siluet.render("main"){
+        val rendered = siluet.theme {
+            assetLoader = ResourceSiluetAssetLoader("test15")
+        }.render("main"){
             locale = Locale.ENGLISH
         }
         assertEquals(

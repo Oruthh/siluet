@@ -2,6 +2,7 @@ package dev.siluet
 
 import dev.siluet.exception.SiluetException
 import dev.siluet.loader.ResourceSiluetAssetLoader
+import dev.siluet.theme.SiluetTheme
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -19,9 +20,10 @@ class SiluetRenderDepthConfigTest {
             CategoryNode("c$i", listOfNotNull(child))
         }!!
 
-    private fun engine(maxDepth: Int): Siluet = Siluet {
-        assetLoader = ResourceSiluetAssetLoader("test19")
+    private fun theme(maxDepth: Int): SiluetTheme = Siluet {
         maxRenderDepth = maxDepth
+    }.theme {
+        assetLoader = ResourceSiluetAssetLoader("test19")
     }
 
     @Test
@@ -31,7 +33,7 @@ class SiluetRenderDepthConfigTest {
 
     @Test
     fun `custom limit allows nesting up to the configured depth`() {
-        val output = engine(maxDepth = 3).render("tree", mapOf("root" to chain(3))).trim()
+        val output = theme(maxDepth = 3).render("tree", mapOf("root" to chain(3))).trim()
 
         assertEquals("<ul><li>c1<ul><li>c2<ul><li>c3</li></ul></li></ul></li></ul>", output)
     }
@@ -39,7 +41,7 @@ class SiluetRenderDepthConfigTest {
     @Test
     fun `custom limit is enforced and reported`() {
         val exception = assertFailsWith<SiluetException> {
-            engine(maxDepth = 3).render("tree", mapOf("root" to chain(4)))
+            theme(maxDepth = 3).render("tree", mapOf("root" to chain(4)))
         }
 
         assertTrue(
@@ -51,7 +53,7 @@ class SiluetRenderDepthConfigTest {
     @Test
     fun `custom limit also stops infinite recursion`() {
         val exception = assertFailsWith<SiluetException> {
-            engine(maxDepth = 5).render("loop")
+            theme(maxDepth = 5).render("loop")
         }
 
         assertTrue(

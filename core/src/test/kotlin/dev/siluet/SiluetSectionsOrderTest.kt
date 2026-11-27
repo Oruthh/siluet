@@ -21,14 +21,14 @@ import kotlin.test.assertTrue
  */
 class SiluetSectionsOrderTest {
 
-    private val siluet = Siluet {
+    private val siluetTheme = Siluet { }.theme {
         assetLoader = ResourceSiluetAssetLoader("test21")
     }
 
-    private fun render(template: String) = siluet.render(template).trim()
+    private fun render(template: String) = siluetTheme.render(template).trim()
 
     private fun blueprintFailure(template: String): SiluetBlueprintException =
-        assertFailsWith<SiluetBlueprintException> { siluet.render(template) }
+        assertFailsWith<SiluetBlueprintException> { siluetTheme.render(template) }
 
     private fun assertMessageContains(exception: Exception, expected: String) {
         val message = exception.message.orEmpty()
@@ -129,14 +129,14 @@ class SiluetSectionsOrderTest {
 
     @Test
     fun `blueprint errors can be caught as SiluetException`() {
-        val exception = assertFailsWith<SiluetException> { siluet.render("typoSection") }
+        val exception = assertFailsWith<SiluetException> { siluetTheme.render("typoSection") }
 
         assertIs<SiluetBlueprintException>(exception)
     }
 
     @Test
     fun `missing template fails with SiluetAssetNotFoundException`() {
-        val exception = assertFailsWith<SiluetAssetNotFoundException> { siluet.render("doesNotExist") }
+        val exception = assertFailsWith<SiluetAssetNotFoundException> { siluetTheme.render("doesNotExist") }
 
         assertEquals("template", exception.assetType)
         assertEquals("doesNotExist", exception.name)
@@ -168,9 +168,9 @@ class SiluetSectionsOrderTest {
                 "sections/marker.html" to marker,
             )
         )
-        val siluet = Siluet { assetLoader = loader }
+        val siluetTheme = Siluet {  }.theme { assetLoader = loader }
 
-        val exception = assertFailsWith<SiluetBlueprintException> { siluet.render("home") }
+        val exception = assertFailsWith<SiluetBlueprintException> { siluetTheme.render("home") }
 
         assertEquals("memory:templates/home.json", exception.sourceName)
     }
@@ -184,14 +184,16 @@ class SiluetSectionsOrderTest {
                 "sections/marker.html" to marker,
             )
         )
-        val siluet = Siluet { assetLoader = loader }
+        val siluetTheme = Siluet { }.theme {
+            assetLoader = loader
+        }
 
-        assertFailsWith<SiluetBlueprintException> { siluet.render("home") }
-        assertFailsWith<SiluetBlueprintException> { siluet.render("home") }
+        assertFailsWith<SiluetBlueprintException> { siluetTheme.render("home") }
+        assertFailsWith<SiluetBlueprintException> { siluetTheme.render("home") }
 
         loader["templates/home.json"] = template("""["promo"]""")
 
-        assertEquals("<s>P</s><s>H</s>", siluet.render("home").trim())
+        assertEquals("<s>P</s><s>H</s>", siluetTheme.render("home").trim())
     }
 
     @Test
@@ -205,14 +207,16 @@ class SiluetSectionsOrderTest {
                     """{ "sections": { "logo": { "name": "marker", "properties": { "label": "L" } } }, "sectionsOrder": ["logoo"] }""",
             )
         )
-        val siluet = Siluet { assetLoader = loader }
+        val siluetTheme = Siluet { }.theme {
+            assetLoader = loader
+        }
 
-        val exception = assertFailsWith<SiluetBlueprintException> { siluet.render("home") }
+        val exception = assertFailsWith<SiluetBlueprintException> { siluetTheme.render("home") }
         assertEquals("memory:sections/groups/header.json", exception.sourceName)
 
         loader["sections/groups/header.json"] =
             """{ "sections": { "logo": { "name": "marker", "properties": { "label": "L" } } }, "sectionsOrder": ["logo"] }"""
 
-        assertEquals("<s>L</s>", siluet.render("home").trim())
+        assertEquals("<s>L</s>", siluetTheme.render("home").trim())
     }
 }

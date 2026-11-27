@@ -98,7 +98,7 @@ Pass a dedicated view model like this one rather than your domain or database en
 
 ### Step 3: Configure the Engine & Render
 
-Initialize `Siluet` with an asset loader, populate your model with real data, and render the target template:
+Create the `Siluet` engine, create a theme with an asset loader, populate your model with real data, and render the target template:
 
 ```kotlin
 package dev.siluet.quickstart
@@ -110,13 +110,19 @@ import java.time.ZoneId
 import java.util.Locale
 
 fun main() {
-    // 1. Initialize the engine pointing to the resources directory
-    // (You can replace this with your own custom asset loader implementation)
-    val siluet = Siluet {
+    // 1. Create the engine. Everything shared by all themes is configured here:
+    //    filters, directives, plugins, the security policy and render limits.
+    val siluet = Siluet {}
+
+    // 2. Create a theme pointing to the resources directory.
+    //    A theme owns its templates, views and translations together with their caches,
+    //    so create it once and reuse it for every render.
+    //    (You can replace the loader with your own implementation, e.g. a database-backed one.)
+    val theme = siluet.theme {
         assetLoader = ResourceSiluetAssetLoader("theme")
     }
 
-    // 2. Prepare the model data
+    // 3. Prepare the model data
     val model = StorefrontModel(
         storeName = "Siluet Tech Store",
         activeUser = "Jane Doe",
@@ -128,9 +134,9 @@ fun main() {
         )
     )
 
-    // 3. Render the "home" template configuration
+    // 4. Render the "home" template configuration
     // The locale determines which translation file (e.g., en.json) is loaded.
-    val rendered = siluet.render("home", model) {
+    val rendered = theme.render("home", model) {
         locale = Locale.ENGLISH
         zoneId = ZoneId.of("Europe/London")
     }
@@ -141,12 +147,10 @@ fun main() {
 
 ### Step 4 (Optional): Tune the Engine
 
-The `Siluet { }` block accepts additional settings. All of them have sensible defaults:
+The `Siluet { }` block accepts additional settings. All of them have sensible defaults and apply to every theme created from the engine:
 
 ```kotlin
 val siluet = Siluet {
-    assetLoader = ResourceSiluetAssetLoader("theme")
-
     // Maximum number of iterations allowed in a single @for loop (default: 1000)
     maxLoopIterations = 5_000
 
@@ -156,11 +160,11 @@ val siluet = Siluet {
     // Fail on undefined variables, properties and translation keys instead of printing nothing (default: false)
     strictMode = true
 
-    // Capacity of the internal caches; least frequently used entries are evicted first
+    // Limits of the theme caches; least recently used entries are evicted first
     cache {
-        maxViews = 2_000          // compiled layouts, sections and components (default: 1000)
-        maxTemplates = 100        // parsed templates/*.json (default: 50)
-        maxSectionsGroups = 100   // parsed sections/groups/*.json (default: 50)
+        maxEntriesPerTheme = 1_000        // compiled views, templates, section groups and translations per theme (default: 500)
+        maxTotalEntries = 100_000         // entries across all themes (default: 50_000)
+        evictIdleThemesAfter = 1.hours    // release the cache of a theme that has not rendered (default: 30 minutes)
     }
 
     // Extra members and packages that templates must never read (added on top of the defaults)
@@ -191,7 +195,7 @@ A variable or property that exists but holds `null` is allowed: it prints nothin
 
 The `default` filter does not hide a variable that does not exist, because that is usually a typo. Components see only the arguments passed to them, so in strict mode every argument a component uses must be passed, e.g. `@component("productCard", item = product, showBadge = false)`.
 
-A `Siluet` instance is thread-safe. Create it once (e.g., at application startup) and share it across requests, so that compiled templates are reused from the cache.
+A `Siluet` instance and its themes are thread-safe. Create them once (e.g., at application startup) and share them across requests, so that compiled templates are reused from the cache. See [Themes & Caching](/guide/themes) for serving several themes from one engine and for picking up changed files at runtime.
 
 ## 2. Template Architecture
 
@@ -402,6 +406,7 @@ Encapsulated UI fragments accepting local arguments passed from parent sections.
 
 ## 3. Next Steps
 
+- [Themes & Caching](/guide/themes): one engine for many themes, cache limits and reloading changed assets.
 - [Template Syntax](/reference/syntax): expressions, escaping and where template syntax is active.
 - [Directives](/reference/directives) and [Built-in Filters](/reference/filters): everything you can use in views.
 - [Template Configuration](/reference/template-configuration): templates, sections, blocks and section groups in JSON.

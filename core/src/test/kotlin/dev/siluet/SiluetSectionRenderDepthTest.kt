@@ -24,7 +24,7 @@ class SiluetSectionRenderDepthTest {
         const val MAX_DEPTH = 32
     }
 
-    private val siluet = Siluet {
+    private val siluetTheme = Siluet { }.theme {
         assetLoader = ResourceSiluetAssetLoader("test20")
     }
 
@@ -43,7 +43,7 @@ class SiluetSectionRenderDepthTest {
     @Test
     fun `section mounting itself fails with a clear error`() {
         val exception = assertFailsWith<SiluetViewException> {
-            siluet.render("sectionLoop")
+            siluetTheme.render("sectionLoop")
         }
 
         assertMessageContains(exception, "Maximum render depth ($MAX_DEPTH) exceeded")
@@ -59,7 +59,7 @@ class SiluetSectionRenderDepthTest {
     @Test
     fun `section mounting its own group fails with a clear error`() {
         val exception = assertFailsWith<SiluetViewException> {
-            siluet.render("groupLoop")
+            siluetTheme.render("groupLoop")
         }
 
         assertMessageContains(
@@ -74,7 +74,7 @@ class SiluetSectionRenderDepthTest {
     @Test
     fun `section and its components share the depth limit`() {
         // The section is level 1, so 31 nested components still fit.
-        val output = siluet.render("treeInSection", mapOf("root" to chain(MAX_DEPTH - 1))).trim()
+        val output = siluetTheme.render("treeInSection", mapOf("root" to chain(MAX_DEPTH - 1))).trim()
 
         assertTrue(output.startsWith("<ul><li>c1"), "Unexpected output: $output")
         assertTrue(output.contains("<li>c${MAX_DEPTH - 1}</li>"), "Deepest node should be rendered")
@@ -84,7 +84,7 @@ class SiluetSectionRenderDepthTest {
     fun `components nested in a section over the limit fail`() {
         // Section (level 1) + 32 components = 33 levels.
         val exception = assertFailsWith<SiluetException> {
-            siluet.render("treeInSection", mapOf("root" to chain(MAX_DEPTH)))
+            siluetTheme.render("treeInSection", mapOf("root" to chain(MAX_DEPTH)))
         }
 
         assertMessageContains(exception, "Maximum render depth ($MAX_DEPTH) exceeded")

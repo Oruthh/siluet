@@ -1,6 +1,7 @@
 package dev.siluet
 
 import dev.siluet.loader.ResourceSiluetAssetLoader
+import dev.siluet.theme.SiluetTheme
 import org.junit.jupiter.api.Test
 import java.time.ZoneOffset
 import java.util.Locale
@@ -27,7 +28,7 @@ data class ConcurrencyTestStore(
 )
 
 /**
- * Verifies that a single shared [Siluet] instance can be used safely from many threads:
+ * Verifies that a single shared [SiluetTheme] instance can be used safely from many threads:
  * caches (views, templates, sections groups), locale registry and reflection accessor
  * are populated and read concurrently, and every render must produce exactly the same
  * output as a single-threaded reference render.
@@ -74,12 +75,13 @@ class SiluetConcurrencyTest {
             cases.associateWith { referenceEngine.renderCase(it) }
         }
 
-        fun newEngine(configure: SiluetConfig.() -> Unit = {}): Siluet = Siluet {
-            assetLoader = ResourceSiluetAssetLoader(ASSETS_PREFIX)
+        fun newEngine(configure: SiluetConfig.() -> Unit = {}): SiluetTheme = Siluet {
             configure()
+        }.theme {
+            assetLoader = ResourceSiluetAssetLoader(ASSETS_PREFIX)
         }
 
-        fun Siluet.renderCase(case: RenderCase): String = render(case.templateName, model) {
+        fun SiluetTheme.renderCase(case: RenderCase): String = render(case.templateName, model) {
             locale = case.locale
             zoneId = ZoneOffset.UTC
         }
@@ -140,9 +142,7 @@ class SiluetConcurrencyTest {
     fun `concurrent rendering with minimal cache sizes forcing constant eviction`() {
         val engine = newEngine {
             cache {
-                maxViews = 2
-                maxTemplates = 1
-                maxSectionsGroups = 1
+                maxEntriesPerTheme = 2
             }
         }
 
@@ -157,7 +157,7 @@ class SiluetConcurrencyTest {
      * no exception occurred and every output equals the reference output.
      */
     private fun runConcurrently(
-        engine: Siluet,
+        engine: SiluetTheme,
         pickCase: (thread: Int, iteration: Int) -> RenderCase,
     ) {
         val expected = expectedOutputs

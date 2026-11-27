@@ -14,11 +14,11 @@ import kotlin.test.assertFailsWith
 class SiluetTest {
     @Test
     fun `rendering layout with layout only`() {
-        val siluet = Siluet.invoke {
+        val theme = Siluet.invoke {}.theme {
             assetLoader = ResourceSiluetAssetLoader("test1")
         }
 
-        val rendered = siluet.render("main")
+        val rendered = theme.render("main")
         assertEquals("<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -33,11 +33,11 @@ class SiluetTest {
 
     @Test
     fun `rendering layout with main sections`() {
-        val siluet = Siluet.invoke {
+        val theme = Siluet{}.theme {
             assetLoader = ResourceSiluetAssetLoader("test2")
         }
 
-        val rendered = siluet.render("main")
+        val rendered = theme.render("main")
         assertEquals("<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -52,11 +52,11 @@ class SiluetTest {
 
     @Test
     fun `rendering layout with multiple main section`() {
-        val siluet = Siluet.invoke {
+        val theme = Siluet { }.theme {
             assetLoader = ResourceSiluetAssetLoader("test3")
         }
 
-        val rendered = siluet.render("main")
+        val rendered = theme.render("main")
         assertEquals("<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -71,11 +71,11 @@ class SiluetTest {
 
     @Test
     fun `rendering layout with multiple main section with ordering`() {
-        val siluet = Siluet.invoke {
+        val theme = Siluet {}.theme {
             assetLoader = ResourceSiluetAssetLoader("test4")
         }
 
-        val rendered = siluet.render("main")
+        val rendered = theme.render("main")
         assertEquals("<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -90,11 +90,11 @@ class SiluetTest {
 
     @Test
     fun `rendering layout with multiple main section and sections grouping`() {
-        val siluet = Siluet.invoke {
+        val theme = Siluet {}.theme {
             assetLoader = ResourceSiluetAssetLoader("test5")
         }
 
-        val rendered = siluet.render("main")
+        val rendered = theme.render("main")
         assertEquals("<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -112,11 +112,11 @@ class SiluetTest {
 
     @Test
     fun `rendering layout with component`() {
-        val siluet = Siluet.invoke {
+        val theme = Siluet{ }.theme {
             assetLoader = ResourceSiluetAssetLoader("test6")
         }
 
-        val rendered = siluet.render("main")
+        val rendered = theme.render("main")
         assertEquals("<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -131,11 +131,11 @@ class SiluetTest {
 
     @Test
     fun `rendering layout with component with arguments`() {
-        val siluet = Siluet.invoke {
+        val theme = Siluet{}.theme {
             assetLoader = ResourceSiluetAssetLoader("test7")
         }
 
-        val rendered = siluet.render("main")
+        val rendered = theme.render("main")
         assertEquals("<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -150,7 +150,7 @@ class SiluetTest {
 
     @Test
     fun `rendering layout with for loop`() {
-        val siluet = Siluet.invoke {
+        val theme = Siluet{}.theme {
             assetLoader = ResourceSiluetAssetLoader("test8")
         }
 
@@ -159,7 +159,7 @@ class SiluetTest {
             val list = list
         }
 
-        val rendered = siluet.render("main", model)
+        val rendered = theme.render("main", model)
         assertEquals("<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -180,7 +180,7 @@ class SiluetTest {
 
     @Test
     fun `rendering layout with if`() {
-        val siluet = Siluet.invoke {
+        val theme = Siluet{}.theme {
             assetLoader = ResourceSiluetAssetLoader("test9")
         }
 
@@ -191,7 +191,7 @@ class SiluetTest {
             val arg4 = "arg4"
         }
 
-        val rendered = siluet.render("main", model)
+        val rendered = theme.render("main", model)
         assertEquals("<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -226,7 +226,7 @@ class SiluetTest {
 
     @Test
     fun `rendering layout using lazy property`() {
-        val siluet = Siluet.invoke {
+        val theme = Siluet{}.theme {
             assetLoader = ResourceSiluetAssetLoader("test10")
         }
 
@@ -236,7 +236,7 @@ class SiluetTest {
             }
         }
 
-        val rendered = siluet.render("main", model)
+        val rendered = theme.render("main", model)
         assertEquals("<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -257,7 +257,7 @@ class SiluetTest {
 
     @Test
     fun `rendering layout with list pagination`() {
-        val siluet = Siluet.invoke {
+        val theme = Siluet{}.theme {
             assetLoader = ResourceSiluetAssetLoader("test11")
         }
 
@@ -266,7 +266,7 @@ class SiluetTest {
             val pageNumber = 1
         }
 
-        val rendered = siluet.render("main", model)
+        val rendered = theme.render("main", model)
         assertEquals("<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -304,7 +304,7 @@ class SiluetTest {
             val list = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14")
             val pageNumber = 2
         }
-        val rendered2 = siluet.render("main", model2)
+        val rendered2 = theme.render("main", model2)
         assertEquals("<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -329,7 +329,7 @@ class SiluetTest {
 
     @Test
     fun `layout rendering with paginationSource pagination`() {
-        val siluet = Siluet.invoke {
+        val theme = Siluet{}.theme {
             assetLoader = ResourceSiluetAssetLoader("test11")
         }
 
@@ -354,7 +354,7 @@ class SiluetTest {
             val list = paginationSource
             val pageNumber = 1
         }
-        val rendered = siluet.render("main", model)
+        val rendered = theme.render("main", model)
         assertEquals("<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -392,7 +392,7 @@ class SiluetTest {
             val list = paginationSource
             val pageNumber = 2
         }
-        val rendered2 = siluet.render("main", model2)
+        val rendered2 = theme.render("main", model2)
         assertEquals("<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -417,11 +417,11 @@ class SiluetTest {
 
     @Test
     fun `layout rendering with translation`() {
-        val siluet = Siluet.invoke {
+        val theme = Siluet{}.theme {
             assetLoader = ResourceSiluetAssetLoader("test12")
         }
 
-        val rendered = siluet.render("main")
+        val rendered = theme.render("main")
         assertEquals("<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -433,7 +433,7 @@ class SiluetTest {
                 "</body>\n" +
                 "</html>", rendered)
 
-        val rendered2 = siluet.render("main") {
+        val rendered2 = theme.render("main") {
             locale = Locale.ENGLISH
         }
         assertEquals("<!DOCTYPE html>\n" +
@@ -450,7 +450,7 @@ class SiluetTest {
 
     @Test
     fun `layout rendering with date`() {
-        val siluet = Siluet.invoke {
+        val theme = Siluet{}.theme {
             assetLoader = ResourceSiluetAssetLoader("test13")
         }
 
@@ -460,7 +460,7 @@ class SiluetTest {
             val testDate = now
         }
 
-        val rendered = siluet.render("main", model)
+        val rendered = theme.render("main", model)
         assertEquals("<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -476,7 +476,7 @@ class SiluetTest {
 
     @Test
     fun `layout rendering with wrong date`() {
-        val siluet = Siluet.invoke {
+        val theme = Siluet{}.theme {
             assetLoader = ResourceSiluetAssetLoader("test13")
         }
 
@@ -487,7 +487,7 @@ class SiluetTest {
         }
 
         val exception = assertFailsWith<SiluetException> {
-            siluet.render("main", model)
+            theme.render("main", model)
         }
         assertEquals(
             "Filter 'date' failed: cannot read '{}' (EmptyMap) as a date or time; " +
@@ -498,23 +498,18 @@ class SiluetTest {
 
     @Test
     fun `custom filter returning safe html renders unescaped`() {
-        val siluet = Siluet {
-            assetLoader = ResourceSiluetAssetLoader("test22")
+        val theme = Siluet {
             filter("icon") { value, _, _ -> "<svg class=\"icon\">$value</svg>".asSafeHTML() }
             filter("plain") { value, _, _ -> "<svg class=\"icon\">$value</svg>" }
+        }.theme {
+            assetLoader = ResourceSiluetAssetLoader("test22")
         }
 
-        val result = siluet.render("main", mapOf("name" to "star"))
+        val result = theme.render("main", mapOf("name" to "star"))
 
         assertEquals(
             "<p><svg class=\"icon\">star</svg></p>\n<p>&lt;svg class=&quot;icon&quot;&gt;star&lt;/svg&gt;</p>",
             result.trim()
         )
     }
-
-    @Test
-    fun `layout rendering with block and properties`() {
-
-    }
-
 }

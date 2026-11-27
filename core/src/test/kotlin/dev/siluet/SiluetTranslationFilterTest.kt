@@ -34,7 +34,7 @@ class SiluetTranslationFilterTest {
     data class Page(val hintKey: String)
 
     private fun render(layout: String, model: Any? = null, locale: Locale = Locale.ENGLISH): String {
-        val siluet = Siluet {
+        val theme = Siluet{}.theme {
             assetLoader = InMemorySiluetAssetLoader(
                 mapOf(
                     "templates/home.json" to """{ "layout": "main" }""",
@@ -45,9 +45,9 @@ class SiluetTranslationFilterTest {
             )
         }
         return if (model == null) {
-            siluet.render("home") { this.locale = locale }
+            theme.render("home") { this.locale = locale }
         } else {
-            siluet.render("home", model) { this.locale = locale }
+            theme.render("home", model) { this.locale = locale }
         }
     }
 

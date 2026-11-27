@@ -2,7 +2,7 @@ package dev.siluet.exception
 
 /**
  * Thrown when an asset requested directly by the application does not exist, e.g. when
- * `siluet.render("homee")` is called and the asset loader has no template named `homee`.
+ * `theme.render("homee")` is called and the asset loader has no template named `homee`.
  *
  * Assets referenced from other assets (a component used in a view, a section group used by
  * `@sections`) are reported as [SiluetViewException] at the place where they are referenced.

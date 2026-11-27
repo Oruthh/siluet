@@ -8,13 +8,19 @@ import java.util.Locale
 import kotlin.random.Random
 
 fun main() {
-    // 1. Initialize the engine pointing to the resources directory
-    // (You can replace this with your own custom asset loader implementation)
-    val siluet = Siluet {
+    // 1. Create the engine. Everything shared by all themes is configured here:
+    //    filters, directives, plugins, the security policy and render limits.
+    val siluet = Siluet {}
+
+    // 2. Create a theme pointing to the resources directory.
+    //    A theme owns its templates, views and translations together with their caches,
+    //    so create it once and reuse it for every render.
+    //    (You can replace the loader with your own implementation, e.g. a database-backed one.)
+    val theme = siluet.theme {
         assetLoader = ResourceSiluetAssetLoader("theme")
     }
 
-    // 2. Prepare the model data
+    // 3. Prepare the model data
     val model = StorefrontModel(
         storeName = "Siluet Tech Store",
         activeUser = "Jane Doe",
@@ -26,9 +32,9 @@ fun main() {
         )
     )
 
-    // 3. Render the "home" template configuration
+    // 4. Render the "home" template configuration
     // The locale determines which translation file (e.g., en.json) is loaded.
-    val rendered = siluet.render("home", model) {
+    val rendered = theme.render("home", model) {
         locale = Locale.ENGLISH
         zoneId = ZoneId.of("Europe/London")
     }

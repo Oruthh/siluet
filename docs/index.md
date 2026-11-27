@@ -45,6 +45,11 @@ features:
     details: Add your own filters, directives and plugins, and load themes from files, a database or any other store.
     link: /reference/extending
     linkText: Extending Siluet
+  - icon: 🏬
+    title: Many themes, one engine
+    details: Serve a theme per tenant from one engine. Each theme has its own files, translations and bounded cache.
+    link: /guide/themes
+    linkText: Themes & Caching
   - icon: 🎨
     title: Built for theme editors
     details: Designed as the engine behind visual, no-code theme builders where merchants arrange sections themselves.
@@ -91,12 +96,14 @@ Each section is plain HTML with directives and print expressions:
 Render it from Kotlin:
 
 ```kotlin
-val siluet = Siluet {
+val siluet = Siluet {}
+
+val theme = siluet.theme {
     assetLoader = ResourceSiluetAssetLoader("theme")
 }
 
 // model: your view model, e.g. a data class with featuredProducts
-val html = siluet.render("home", model) {
+val html = theme.render("home", model) {
     locale = Locale.ENGLISH
 }
 ```

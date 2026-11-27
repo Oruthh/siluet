@@ -16,13 +16,13 @@ class SiluetComponentScopeReportingTest {
 
     @Test
     fun `section variable is visible in a component only when passed`() {
-        val siluet = Siluet {
-            assetLoader = ResourceSiluetAssetLoader("test23")
-        }
+        val siluet = Siluet { }
 
         assertEquals(
             "<main><section>[-] [Summer sale]</section></main>",
-            siluet.render("main").trim()
+            siluet.theme {
+                assetLoader = ResourceSiluetAssetLoader("test23")
+            }.render("main").trim()
         )
     }
 }

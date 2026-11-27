@@ -2,6 +2,7 @@ package dev.siluet
 
 import dev.siluet.loader.ResourceSiluetAssetLoader
 import dev.siluet.support.CountingSiluetAssetLoader
+import dev.siluet.theme.SiluetTheme
 import org.junit.jupiter.api.Test
 import java.time.ZoneOffset
 import java.util.Locale
@@ -32,14 +33,12 @@ class SiluetCachingTest {
     )
 
     private fun newEngine(
-        loader: CountingSiluetAssetLoader,
         configure: SiluetConfig.() -> Unit = {},
     ): Siluet = Siluet {
-        assetLoader = loader
         configure()
     }
 
-    private fun Siluet.renderPage(template: String, locale: Locale = Locale.ENGLISH): String =
+    private fun SiluetTheme.renderPage(template: String, locale: Locale = Locale.ENGLISH): String =
         render(template, model) {
             this.locale = locale
             zoneId = ZoneOffset.UTC
@@ -48,10 +47,13 @@ class SiluetCachingTest {
     @Test
     fun `rendering the same template twice loads every asset only once`() {
         val loader = CountingSiluetAssetLoader(ResourceSiluetAssetLoader("test16"))
-        val siluet = newEngine(loader)
+        val siluet = newEngine()
+        val theme = siluet.theme {
+            assetLoader = loader
+        }
 
-        val first = siluet.renderPage("home")
-        val second = siluet.renderPage("home")
+        val first = theme.renderPage("home")
+        val second = theme.renderPage("home")
 
         assertEquals(first, second, "Cached render must produce identical output")
         assertEquals(
@@ -75,11 +77,14 @@ class SiluetCachingTest {
     @Test
     fun `second render does not call the asset loader at all`() {
         val loader = CountingSiluetAssetLoader(ResourceSiluetAssetLoader("test16"))
-        val siluet = newEngine(loader)
+        val siluet = newEngine()
+        val theme = siluet.theme {
+            assetLoader = loader
+        }
 
-        siluet.renderPage("home")
+        theme.renderPage("home")
         loader.reset()
-        siluet.renderPage("home")
+        theme.renderPage("home")
 
         assertEquals(emptyMap(), loader.snapshot(), "Fully cached render should not touch the loader")
     }
@@ -87,12 +92,15 @@ class SiluetCachingTest {
     @Test
     fun `views shared between templates are loaded only once`() {
         val loader = CountingSiluetAssetLoader(ResourceSiluetAssetLoader("test16"))
-        val siluet = newEngine(loader)
+        val siluet = newEngine()
+        val theme = siluet.theme {
+            assetLoader = loader
+        }
 
         repeat(2) {
-            siluet.renderPage("home")
-            siluet.renderPage("catalog")
-            siluet.renderPage("landing")
+            theme.renderPage("home")
+            theme.renderPage("catalog")
+            theme.renderPage("landing")
         }
 
         val calls = loader.snapshot()
@@ -110,11 +118,14 @@ class SiluetCachingTest {
     @Test
     fun `each locale is loaded once and does not invalidate cached views`() {
         val loader = CountingSiluetAssetLoader(ResourceSiluetAssetLoader("test16"))
-        val siluet = newEngine(loader)
+        val siluet = newEngine()
+        val theme = siluet.theme {
+            assetLoader = loader
+        }
 
         repeat(2) {
-            siluet.renderPage("home", Locale.ENGLISH)
-            siluet.renderPage("home", Locale.of("pl"))
+            theme.renderPage("home", Locale.ENGLISH)
+            theme.renderPage("home", Locale.of("pl"))
         }
 
         assertEquals(1, loader.callsFor("locales/en"))
@@ -151,10 +162,13 @@ class SiluetCachingTest {
 
     private fun assertSharedNameRendersCorrectly(template: String, expected: String) {
         val loader = CountingSiluetAssetLoader(ResourceSiluetAssetLoader("test17"))
-        val siluet = newEngine(loader)
+        val siluet = newEngine()
+        val theme = siluet.theme {
+            assetLoader = loader
+        }
 
         repeat(2) { attempt ->
-            assertEquals(expected, siluet.render(template).trim(), "Unexpected output on render #${attempt + 1}")
+            assertEquals(expected, theme.render(template).trim(), "Unexpected output on render #${attempt + 1}")
         }
 
         assertEquals(1, loader.callsFor("sections/shared"), "Section must be loaded once. Calls: ${loader.snapshot()}")
@@ -162,22 +176,25 @@ class SiluetCachingTest {
     }
 
     @Test
-    fun `views are loaded again when the view cache is too small to hold them`() {
+    fun `assets are loaded again when the theme cache is too small to hold them`() {
         val loader = CountingSiluetAssetLoader(ResourceSiluetAssetLoader("test16"))
-        val siluet = newEngine(loader) {
+        val siluet = newEngine {
             cache {
-                maxViews = 1
+                maxEntriesPerTheme = 1
             }
         }
+        val theme = siluet.theme {
+            assetLoader = loader
+        }
 
-        siluet.renderPage("home")
+        theme.renderPage("home")
         loader.reset()
-        siluet.renderPage("home")
+        theme.renderPage("home")
 
         val viewLoads = loader.totalCallsFor("layouts/") +
                 loader.totalCallsFor("sections/") +
                 loader.totalCallsFor("components/")
-        assertTrue(viewLoads > 0, "With maxViews = 1 views must be reloaded. Calls: ${loader.snapshot()}")
-        assertEquals(0, loader.callsFor("templates/home"), "Template cache is independent of maxViews")
+        assertTrue(viewLoads > 0, "With maxEntriesPerTheme = 1 views must be reloaded. Calls: ${loader.snapshot()}")
+        assertEquals(1, loader.callsFor("templates/home"), "Templates share the theme cache with views. Calls: ${loader.snapshot()}")
     }
 }

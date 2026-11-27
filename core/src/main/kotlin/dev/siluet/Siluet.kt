@@ -1,44 +1,55 @@
 package dev.siluet
 
-import dev.siluet.render.RenderContext
+import dev.siluet.theme.SiluetTheme
+import dev.siluet.theme.SiluetThemeConfig
 
 /**
  * Primary entry point for the Siluet templating engine.
  *
- * Provides methods for rendering structured templates
+ * The engine holds everything that is shared by all themes: filters, directives, plugins, the security policy,
+ * render limits and cache limits. Pages are rendered through a [SiluetTheme], which brings its own asset loader,
+ * compiled views and translations. One engine can serve a single theme or many themes, e.g. one per tenant.
  *
- * Instances can be constructed using the DSL factory method provided by the companion object:
+ * Instances are created with the DSL factory method provided by the companion object:
  * ```kotlin
  * val siluet = Siluet {
+ *     strictMode = true
+ * }
+ *
+ * val theme = siluet.theme {
  *     assetLoader = ResourceSiluetAssetLoader("theme")
  * }
+ *
+ * val html = theme.render("home", model) { locale = Locale.ENGLISH }
  * ```
+ *
+ * A [Siluet] instance and its themes are thread-safe. Create them once and share them across requests.
+ *
  * @see SiluetConfig
+ * @see SiluetTheme
  */
 interface Siluet {
     /**
-     * Renders a fully orchestrated template defined by a JSON configuration.
+     * Creates a new [SiluetTheme] that renders with this engine.
      *
-     * This method resolves the template configuration file from `templates/<templateName>.json`,
-     * loads the associated layout, binds configured dynamic sections, and renders the result.
+     * Every call creates a separate theme with its own, initially empty cache, so create a theme once
+     * (e.g. at startup or when a tenant is first used) and reuse it for all renders.
      *
      * ### Example:
      * ```kotlin
-     * val html = siluet.render("main", model) {
-     *     locale = Locale.ENGLISH
-     *     zoneId = ZoneId.of("Europe/London")
+     * val theme = siluet.theme {
+     *     assetLoader = TenantDatabaseAssetLoader(tenantId)
+     *     maxCacheEntries = 200
      * }
      * ```
      *
-     * @param templateName The identifier of the template configuration (without the `.json` extension).
-     * @param model The data model exposed to the template context. Defaults to [Unit] when no data is required.
-     * @param contextBuilder Optional DSL builder configuring render-time context parameters such as locale or timezone.
-     * @return The fully rendered HTML string.
-     * @throws dev.siluet.exception.SiluetViewException If rendering fails at a position in an HTML view.
-     * @throws dev.siluet.exception.SiluetBlueprintException If the template or a section group it uses is invalid.
-     * @throws dev.siluet.exception.SiluetAssetNotFoundException If the template does not exist.
+     * @param themeConfig Configuration lambda applied to [SiluetThemeConfig].
+     * @return A new theme using this engine's filters, directives and settings.
+     * @throws IllegalArgumentException if no [SiluetThemeConfig.assetLoader] is set, or if
+     * [SiluetThemeConfig.maxCacheEntries] is not greater than `0` or exceeds
+     * [dev.siluet.cache.CacheConfig.maxTotalEntries].
      */
-    fun render(templateName: String, model: Any = Unit, contextBuilder: RenderContext.Builder.() -> Unit = {}): String
+    fun theme(themeConfig: SiluetThemeConfig.() -> Unit): SiluetTheme
 
     companion object {
         /**
@@ -47,12 +58,17 @@ interface Siluet {
          * ### Example:
          * ```kotlin
          * val siluet = Siluet {
-         *     assetLoader = ResourceSiluetAssetLoader("theme")
+         *     maxLoopIterations = 5_000
+         *     cache {
+         *         maxTotalEntries = 20_000
+         *     }
          * }
          * ```
          *
          * @param block Configuration lambda applied to [SiluetConfig].
          * @return A configured [Siluet] instance backed by [DefaultSiluet].
+         * @throws IllegalArgumentException if the configuration is invalid, e.g. cache limits that are not
+         * greater than `0` (see [dev.siluet.cache.CacheConfig]).
          */
         operator fun invoke(block: SiluetConfig.() -> Unit = {}): Siluet {
             val config = SiluetConfig().apply(block)

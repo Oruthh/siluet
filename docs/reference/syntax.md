@@ -245,4 +245,4 @@ Syntax errors are reported when a view is compiled, with the file, line and colu
 Unclosed <style> element: missing </style> at /theme/sections/hero.html:4:5
 ```
 
-See [Error Handling](/reference/errors) for the exceptions thrown by `siluet.render(...)`.
+See [Error Handling](/reference/errors) for the exceptions thrown by `theme.render(...)`.

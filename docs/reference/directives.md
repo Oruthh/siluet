@@ -48,7 +48,6 @@ Lazy sources such as a `Sequence`, a stream or a database cursor are traversed e
 
 ```kotlin
 val siluet = Siluet {
-    assetLoader = ResourceSiluetAssetLoader("theme")
     maxLoopIterations = 5_000
 }
 ```

@@ -9,17 +9,18 @@ import dev.siluet.filter.BuiltInFilter
 import dev.siluet.filter.Filter
 import dev.siluet.plugin.SiluetPlugin
 import dev.siluet.render.RenderContext
+import kotlin.time.TimeSource
 
 /**
  * DSL configuration for instantiating a [Siluet] template engine.
  *
- * Provides options for asset resolution, cache limits, reflection security,
- * iteration guardrails, custom directives, filters, and third-party plugins.
+ * Provides options for cache limits, reflection security, iteration guardrails, custom directives,
+ * filters, and third-party plugins. Everything configured here is shared by all themes created with
+ * [Siluet.theme]; the asset loader is configured per theme in [dev.siluet.theme.SiluetThemeConfig].
  *
  * ### Example:
  * ```kotlin
  * val siluet = Siluet {
- *     assetLoader = ResourceSiluetAssetLoader("theme")
  *     maxLoopIterations = 5_000
  *
  *     filter("reverse") { value, _, _ ->
@@ -42,8 +43,10 @@ class SiluetConfig {
 
     private var installingPlugin: SiluetPlugin<*>? = null
 
+    internal var timeSource: TimeSource.WithComparableMarks = TimeSource.Monotonic
+
     /**
-     * Configuration defining capacity limits for internal engine caches.
+     * Limits of the theme caches: entries per theme, entries across all themes and idle eviction.
      *
      * Configurable via the [cache] DSL block.
      */
@@ -51,13 +54,14 @@ class SiluetConfig {
         private set
 
     /**
-     * Configures internal cache capacities using a [CacheConfig] DSL block.
+     * Configures the theme caches using a [CacheConfig] DSL block.
      *
      * ### Example:
      * ```kotlin
      * cache {
-     *     maxViews = 2_000
-     *     maxTemplates = 100
+     *     maxEntriesPerTheme = 1_000
+     *     maxTotalEntries = 100_000
+     *     evictIdleThemesAfter = 1.hours
      * }
      * ```
      *
@@ -66,12 +70,6 @@ class SiluetConfig {
     fun cache(block: CacheConfig.() -> Unit) {
         cacheConfig = CacheConfig().apply(block)
     }
-
-    /**
-     * The loader responsible for resolving templates, layouts, sections, components,
-     * and locale files from the filesystem, classpath resources, or a remote store.
-     */
-    var assetLoader: SiluetAssetLoader? = null
 
     /**
      * Security policy regulating reflection, member access, and forbidden types

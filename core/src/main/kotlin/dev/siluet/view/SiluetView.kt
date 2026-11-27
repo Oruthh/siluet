@@ -7,7 +7,7 @@ import dev.siluet.parser.SiluetNode
  *
  * A [SiluetView] encapsulates the compiled Abstract Syntax Tree ([ast]) generated
  * after lexical analysis and parsing. Instances of this class are stored in a
- * [dev.siluet.cache.SiluetCache] to bypass subsequent compilation passes when rendering
+ * [dev.siluet.cache.ThemeCache] to bypass subsequent compilation passes when rendering
  * the same view or layout repeatedly.
  *
  * @property ast The ordered sequence of root-level [dev.siluet.parser.SiluetNode] elements composing the template AST.
@@ -15,7 +15,7 @@ import dev.siluet.parser.SiluetNode
  *   [dev.siluet.loader.SiluetAssetLoader] (e.g. `/theme/components/productCard.html`). Used in error messages,
  *   source locations and to tell views apart when detecting infinite recursion.
  */
-open class SiluetView(
+internal open class SiluetView(
     val ast: List<SiluetNode>,
     val sourceName: String
 )

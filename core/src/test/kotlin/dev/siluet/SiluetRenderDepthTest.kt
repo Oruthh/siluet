@@ -32,12 +32,14 @@ class SiluetComponentDepthTest {
         const val DEFAULT_MAX_DEPTH = 32
     }
 
-    private val siluet = Siluet {
+    private val siluetTheme = Siluet {
+
+    }.theme {
         assetLoader = ResourceSiluetAssetLoader("test19")
     }
 
     private fun renderTree(root: CategoryNode): String =
-        siluet.render("tree", mapOf("root" to root)).trim()
+        siluetTheme.render("tree", mapOf("root" to root)).trim()
 
     /** Mirrors `layouts/tree.html` + `components/category.html`. */
     private fun expectedTree(root: CategoryNode): String {
@@ -57,7 +59,7 @@ class SiluetComponentDepthTest {
     @Test
     fun `direct recursion fails with SiluetException instead of StackOverflowError`() {
         val exception = assertFailsWith<SiluetException> {
-            siluet.render("loop")
+            siluetTheme.render("loop")
         }
 
         val message = exception.message.orEmpty()
@@ -71,7 +73,7 @@ class SiluetComponentDepthTest {
     @Test
     fun `direct recursion error points to the component call in the template`() {
         val exception = assertFailsWith<SiluetViewException> {
-            siluet.render("loop")
+            siluetTheme.render("loop")
         }
 
         // <div>@component("loop")</div> - directive locations currently point to the directive
@@ -82,7 +84,7 @@ class SiluetComponentDepthTest {
     @Test
     fun `direct recursion error shows the chain and where the recursion started`() {
         val exception = assertFailsWith<SiluetException> {
-            siluet.render("loop")
+            siluetTheme.render("loop")
         }
 
         val message = exception.message.orEmpty()
@@ -100,7 +102,7 @@ class SiluetComponentDepthTest {
     @Test
     fun `indirect recursion fails with SiluetException`() {
         val exception = assertFailsWith<SiluetViewException> {
-            siluet.render("mutual")
+            siluetTheme.render("mutual")
         }
 
         val message = exception.message.orEmpty()
@@ -114,7 +116,7 @@ class SiluetComponentDepthTest {
     @Test
     fun `error message contains the component chain`() {
         val exception = assertFailsWith<SiluetException> {
-            siluet.render("mutual")
+            siluetTheme.render("mutual")
         }
 
         val message = exception.message.orEmpty()
@@ -179,7 +181,7 @@ class SiluetComponentDepthTest {
         // 100 components rendered one after another, never nested deeper than 1.
         val items = (1..100).toList()
 
-        val output = siluet.render("siblings", mapOf("items" to items)).trim()
+        val output = siluetTheme.render("siblings", mapOf("items" to items)).trim()
 
         assertEquals(items.joinToString("") { "<s>$it</s>" }, output)
     }
@@ -187,7 +189,7 @@ class SiluetComponentDepthTest {
     @Test
     fun `engine keeps working after a recursion error`() {
         assertFailsWith<SiluetException> {
-            siluet.render("loop")
+            siluetTheme.render("loop")
         }
 
         val tree = chain(DEFAULT_MAX_DEPTH)

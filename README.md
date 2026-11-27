@@ -38,6 +38,7 @@ Instead of monolithic page templates, Siluet separates **what is on a page** fro
 - **Safe by default.** Every printed value is HTML-escaped, templates can only read getters, and a security policy blocks reflection, I/O and other dangerous classes.
 - **Built-in localization.** JSON dictionaries per locale, the `t` filter in views and `t:`-prefixed properties in templates.
 - **Extensible.** Custom filters, directives and plugins, and asset loaders that read themes from the classpath, a database or any other store.
+- **Many themes, one engine.** Each theme (e.g., one per tenant) has its own files, translations and bounded cache, while filters, directives and settings are shared.
 
 ## At a Glance
 
@@ -76,12 +77,14 @@ Sections are plain HTML (`sections/banner.html`, `sections/featuredProducts.html
 Render the page from Kotlin:
 
 ```kotlin
-val siluet = Siluet {
+val siluet = Siluet {}
+
+val theme = siluet.theme {
     assetLoader = ResourceSiluetAssetLoader("theme")
 }
 
 // model: your view model, e.g. a data class with featuredProducts
-val html = siluet.render("home", model) {
+val html = theme.render("home", model) {
     locale = Locale.ENGLISH
 }
 ```
@@ -158,6 +161,7 @@ The planned building blocks:
 - [x] Dynamic section and block properties in templates (`section.properties`, `block.properties`)
 - [x] Kotlin API reference (KDoc)
 - [x] Template syntax and directives guide
+- [x] Multiple themes per engine with bounded, per-theme caches
 - [ ] HTML output beautifier and whitespace management
 - [ ] `@schema` directive for section configuration and metadata
 - [ ] IntelliJ IDEA plugin with syntax highlighting

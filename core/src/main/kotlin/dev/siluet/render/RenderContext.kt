@@ -1,5 +1,6 @@
 package dev.siluet.render
 
+import dev.siluet.locale.LocaleRegistry
 import java.time.ZoneId
 import java.util.Locale
 
@@ -11,7 +12,7 @@ import java.util.Locale
  *
  * Instances are typically configured per render invocation via [RenderContext.Builder]:
  * ```kotlin
- * val html = siluet.render("orderSummary", order) {
+ * val html = theme.render("orderSummary", order) {
  *     locale = Locale.GERMANY
  *     zoneId = ZoneId.of("Europe/Berlin")
  * }
@@ -20,9 +21,10 @@ import java.util.Locale
  * @property locale The active [Locale] used for localization dictionaries and regional formatting.
  * @property zoneId The active [ZoneId] used to normalize temporal values and timestamps during formatting.
  */
-data class RenderContext(
+class RenderContext internal constructor(
     val locale: Locale,
     val zoneId: ZoneId,
+    internal val localeRegistry: LocaleRegistry ?= null
 ) {
     /**
      * Builder for constructing customized [RenderContext] instances.
@@ -54,6 +56,15 @@ data class RenderContext(
             return RenderContext(
                 locale = locale,
                 zoneId = zoneId,
+                localeRegistry = null
+            )
+        }
+
+        internal fun build(localeRegistry: LocaleRegistry): RenderContext {
+            return RenderContext(
+                locale = locale,
+                zoneId = zoneId,
+                localeRegistry = localeRegistry
             )
         }
     }

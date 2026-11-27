@@ -12,23 +12,24 @@ import kotlin.test.assertFailsWith
  */
 class SiluetDirectiveErrorReportingTest {
 
-    private fun siluet(layout: String, configure: SiluetConfig.() -> Unit = {}) = Siluet {
+    private fun siluetTheme(layout: String, configure: SiluetConfig.() -> Unit = {}) = Siluet {
+        configure()
+    }.theme {
         assetLoader = InMemorySiluetAssetLoader(
             mapOf(
                 "templates/home.json" to """{ "layout": "main" }""",
                 "layouts/main.html" to layout,
             )
         )
-        configure()
     }
 
     @Test
     fun `custom directive error names the directive and the view location`() {
-        val engine = siluet("<div>\n  @alert(\"warning\")\n</div>") {
+        val theme = siluetTheme("<div>\n  @alert(\"warning\")\n</div>") {
             directive("alert") { _, _, _, _, _ -> throw IllegalStateException("theme has no alert styles") }
         }
 
-        val exception = assertFailsWith<SiluetViewException> { engine.render("home") }
+        val exception = assertFailsWith<SiluetViewException> { theme.render("home") }
 
         assertEquals(
             "Directive 'alert' failed: theme has no alert styles at memory:layouts/main.html:2:4",
@@ -39,11 +40,11 @@ class SiluetDirectiveErrorReportingTest {
 
     @Test
     fun `custom directive exception without a message does not break error reporting`() {
-        val engine = siluet("<p>@broken()</p>") {
+        val theme = siluetTheme("<p>@broken()</p>") {
             directive("broken") { _, _, _, _, _ -> throw IllegalStateException() }
         }
 
-        val exception = assertFailsWith<SiluetViewException> { engine.render("home") }
+        val exception = assertFailsWith<SiluetViewException> { theme.render("home") }
 
         assertEquals("Directive 'broken' failed: IllegalStateException at memory:layouts/main.html:1:5", exception.message)
     }

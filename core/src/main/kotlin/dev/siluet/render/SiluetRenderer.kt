@@ -28,6 +28,7 @@ import dev.siluet.parser.SiluetNode
 import dev.siluet.parser.TextNode
 import dev.siluet.reflect.PropertyAccessor
 import dev.siluet.render.stack.RenderStack
+import dev.siluet.theme.SiluetTheme
 
 internal class SiluetRenderer(
     private val maxLoopIterations: Int,
@@ -35,15 +36,10 @@ internal class SiluetRenderer(
     private val strictMode: Boolean,
     private val accessor: PropertyAccessor = CachedReflectionPropertyAccessor(),
     private val filters: Map<String, Filter> = emptyMap(),
-    private val directives: Map<String, Directive> = emptyMap(),
-    private val viewsLoader: SiluetViewsLoader,
-    private val sectionsGroupsLoader: SiluetSectionsGroupLoader,
-    private val localeRegistry: LocaleRegistry
+    private val directives: Map<String, Directive> = emptyMap()
 ) {
-    fun render(nodes: List<SiluetNode>, model: Any?, template: Template, contextBuilder: RenderContext.Builder.() -> Unit = {}): String {
-        val renderContextBuilder = RenderContext.Builder()
-        renderContextBuilder.contextBuilder()
-        val renderContext = renderContextBuilder.build()
+    fun render(nodes: List<SiluetNode>, model: Any?, template: Template, theme: SiluetTheme, contextBuilder: RenderContext.Builder.() -> Unit = {}): String {
+        val renderContext = RenderContext.Builder().apply (contextBuilder).build(theme.translations)
 
         val buffer = StringBuilder()
         val evaluationContext = EvaluationContext(
@@ -52,7 +48,7 @@ internal class SiluetRenderer(
             filters = filters,
             directives = directives,
             template = template,
-            localeRegistry = localeRegistry,
+            localeRegistry = theme.translations,
             locale = renderContext.locale
         )
         val evaluator = ExpressionEvaluator(
@@ -63,79 +59,65 @@ internal class SiluetRenderer(
         val renderStack = RenderStack(maxRenderDepth)
 
         renderNodes(
-            nodes = nodes,
-            renderContext = renderContext,
-            evaluationContext = evaluationContext,
-            evaluator = evaluator,
-            renderStack = renderStack,
-            buffer = buffer)
+                nodes = nodes,
+                session = RenderSession(
+                    theme = theme,
+                    renderContext = renderContext,
+                    renderStack = renderStack,
+                    evaluationContext = evaluationContext,
+                    evaluator = evaluator,
+                    buffer = buffer
+                )
+            )
         return buffer.toString()
     }
 
     private fun renderNodes(
         nodes: List<SiluetNode>,
-        renderContext: RenderContext,
-        evaluationContext: EvaluationContext,
-        evaluator: ExpressionEvaluator,
-        renderStack: RenderStack,
-        buffer: Appendable
+        session: RenderSession
     ) {
         for(node in nodes) {
             renderNode(
                 node = node,
-                renderContext = renderContext,
-                evaluationContext = evaluationContext,
-                evaluator = evaluator,
-                renderStack = renderStack,
-                buffer = buffer
+                session = session
             )
         }
     }
 
     private fun renderNode(
         node: SiluetNode,
-        renderContext: RenderContext,
-        evaluationContext: EvaluationContext,
-        evaluator: ExpressionEvaluator,
-        renderStack: RenderStack,
-        buffer: Appendable
+        session: RenderSession
     ) {
         when (node) {
-            is TextNode -> buffer.append(node.text)
+            is TextNode -> session.buffer.append(node.text)
 
             is PrintNode -> {
-                val rawValue = evaluator.evaluate(node.expression)
-                val filteredValue = evaluator.applyFilters(rawValue, node.filters, renderContext)
+                val rawValue = session.evaluator.evaluate(node.expression)
+                val filteredValue = session.evaluator.applyFilters(rawValue, node.filters, session.renderContext)
                 val escapedValue = HTMLEscape.escape(filteredValue)
 
                 if(filteredValue != null) {
-                    buffer.append(escapedValue)
+                    session.buffer.append(escapedValue)
                 }
             }
 
             is IfNode -> {
-                val conditionResult = evaluator.isTruthy(evaluator.evaluate((node.condition)))
+                val conditionResult = session.evaluator.isTruthy(session.evaluator.evaluate((node.condition)))
                 if(conditionResult) {
                     renderNodes(
                         nodes = node.thenBody,
-                        renderContext = renderContext,
-                        evaluationContext = evaluationContext,
-                        evaluator = evaluator,
-                        renderStack = renderStack,
-                        buffer = buffer)
+                        session = session
+                    )
                 } else if(node.elseBody != null) {
                     renderNodes(
                         nodes = node.elseBody,
-                        renderContext = renderContext,
-                        evaluationContext = evaluationContext,
-                        evaluator = evaluator,
-                        renderStack = renderStack,
-                        buffer = buffer)
+                        session = session
+                    )
                 }
             }
 
             is ForNode -> {
-                val collection = evaluator.evaluate(node.collectionExpression)
+                val collection = session.evaluator.evaluate(node.collectionExpression)
                 val items = try{
                      toIterable(collection)
                 } catch (e: IllegalArgumentException) {
@@ -152,7 +134,7 @@ internal class SiluetRenderer(
                     )
                 }
 
-                evaluationContext.pushScope()
+                session.evaluationContext.pushScope()
                 try {
                     var iterations = 0
 
@@ -164,30 +146,26 @@ internal class SiluetRenderer(
                             )
                         }
 
-                        evaluationContext.setLocal(node.variableName, item)
+                        session.evaluationContext.setLocal(node.variableName, item)
                         renderNodes(
                             nodes = node.body,
-                            renderContext = renderContext,
-                            evaluationContext = evaluationContext,
-                            evaluator = evaluator,
-                            renderStack = renderStack,
-                            buffer = buffer
+                            session = session
                         )
                     }
                 } finally {
-                    evaluationContext.popScope()
+                    session.evaluationContext.popScope()
                 }
             }
 
             is ComponentNode -> {
-                val componentName = evaluator.evaluate(node.componentName)?.toString()
+                val componentName = session.evaluator.evaluate(node.componentName)?.toString()
                     ?: throw RenderException(
                         "Component name evaluated to null",
                         sourceLocation = node.sourceLocation
                     )
 
                 val componentView = try {
-                    viewsLoader.getOrCompileComponentView(componentName)
+                    session.theme.getComponentView(componentName)
                 } catch (e: ComponentViewNotFoundException) {
                     throw RenderException(
                         e.message!!,
@@ -196,7 +174,7 @@ internal class SiluetRenderer(
                 }
 
                 val properties = node.properties.mapValues {
-                    evaluator.evaluate(it.value)
+                    session.evaluator.evaluate(it.value)
                 }
 
                 val componentEvaluationContext = EvaluationContext(
@@ -204,9 +182,9 @@ internal class SiluetRenderer(
                     accessor = accessor,
                     filters = filters,
                     directives = directives,
-                    template = evaluationContext.template,
-                    localeRegistry = localeRegistry,
-                    locale = renderContext.locale
+                    template = session.evaluationContext.template,
+                    localeRegistry = session.theme.translations,
+                    locale = session.renderContext.locale
                 )
 
                 val componentEvaluator = ExpressionEvaluator(
@@ -214,24 +192,23 @@ internal class SiluetRenderer(
                     strictMode = strictMode
                 )
 
-                renderStack.withFrame(
+                session.renderStack.withFrame(
                     sourceName = componentView.sourceName,
                     callSite = node.sourceLocation
                 ){
                     renderNodes(
                         nodes = componentView.ast,
-                        renderContext = renderContext,
-                        evaluationContext = componentEvaluationContext,
-                        evaluator = componentEvaluator,
-                        renderStack = renderStack,
-                        buffer = buffer
+                        session = session.copy(
+                            evaluationContext = componentEvaluationContext,
+                            evaluator = componentEvaluator
+                        )
                     )
                 }
             }
 
             is SectionsNode -> {
                 val sectionsGroupName = if(node.sectionsGroupName != null) {
-                    evaluator.evaluate(node.sectionsGroupName)?.toString()
+                    session.evaluator.evaluate(node.sectionsGroupName)?.toString()
                         ?: throw RenderException(
                             "Sections group name evaluated to null",
                             sourceLocation = node.sourceLocation
@@ -242,7 +219,7 @@ internal class SiluetRenderer(
 
                 val sections = if(sectionsGroupName != null) {
                     try{
-                        sectionsGroupsLoader.getOrCompileSectionsGroup(sectionsGroupName).sections
+                        session.theme.getSectionsGroup(sectionsGroupName).sections
                     } catch (e: SectionsGroupNotFoundException) {
                         throw RenderException(
                             e.message!!,
@@ -255,12 +232,12 @@ internal class SiluetRenderer(
                         )
                     }
                 } else {
-                    evaluationContext.template.sections
+                    session.evaluationContext.template.sections
                 }
 
                 for(section in sections) {
                     val sectionView = try {
-                        viewsLoader.getOrCompileSectionView(section.name)
+                        session.theme.getSectionView(section.name)
                     } catch (e: SectionViewNotFoundException) {
                         throw RenderException(
                             e.message!!,
@@ -268,46 +245,42 @@ internal class SiluetRenderer(
                         )
                     }
 
-                    renderStack.withFrame(
+                    session.renderStack.withFrame(
                         sourceName = sectionView.sourceName,
                         callSite = node.sourceLocation
                     ) {
-                        evaluationContext.pushScope()
-                        evaluationContext.setLocal("section", section)
+                        session.evaluationContext.pushScope()
+                        session.evaluationContext.setLocal("section", section)
                         try{
                             this.renderNodes(
                                 nodes = sectionView.ast,
-                                renderContext = renderContext,
-                                evaluationContext = evaluationContext,
-                                evaluator = evaluator,
-                                renderStack = renderStack,
-                                buffer = buffer
+                                session = session
                             )
                         } finally {
-                            evaluationContext.popScope()
+                            session.evaluationContext.popScope()
                         }
                     }
                 }
             }
 
             is PaginateNode -> {
-                val rawCollection = evaluator.evaluate(node.collectionExpression)
+                val rawCollection = session.evaluator.evaluate(node.collectionExpression)
                 val variableName = node.variableName
 
-                val rawPageSize = evaluator.evaluate(node.pageSizeExpression)
+                val rawPageSize = session.evaluator.evaluate(node.pageSizeExpression)
 
                 val pageSize = (rawPageSize as? Number)?.toInt()?.coerceAtLeast(1) ?: 10
 
                 val currentPage = if (node.pageNumberExpression != null){
-                    (evaluator.evaluate(node.pageNumberExpression) as? Number)?.toInt()
+                    (session.evaluator.evaluate(node.pageNumberExpression) as? Number)?.toInt()
                         ?: throw RenderException(
                             "Page must be a integer",
                             sourceLocation = node.pageNumberExpression.sourceLocation
                         )
                 } else {
                     //TODO are we sure that we want to left this?
-                    (evaluationContext.variableOrNull("currentPage") as? Number)?.toInt()
-                        ?: (evaluationContext.variableOrNull("pageNumber") as? Number)?.toInt()
+                    (session.evaluationContext.variableOrNull("currentPage") as? Number)?.toInt()
+                        ?: (session.evaluationContext.variableOrNull("pageNumber") as? Number)?.toInt()
                         ?: 1
                 }
 
@@ -331,30 +304,27 @@ internal class SiluetRenderer(
                     }
                 }
 
-                evaluationContext.pushScope()
+                session.evaluationContext.pushScope()
                 try {
-                    evaluationContext.setLocal(variableName, paginationContext)
+                    session.evaluationContext.setLocal(variableName, paginationContext)
                     renderNodes(
                         nodes = node.body,
-                        renderContext = renderContext,
-                        evaluationContext = evaluationContext,
-                        evaluator = evaluator,
-                        renderStack = renderStack,
-                        buffer = buffer)
+                        session = session
+                    )
                 } finally {
-                    evaluationContext.popScope()
+                    session.evaluationContext.popScope()
                 }
             }
 
             is DirectiveNode -> {
-                val directive = evaluationContext.directives[node.name]
+                val directive = session.evaluationContext.directives[node.name]
                     ?: throw RenderException(
                         "Unknown directive: @${node.name}",
                         sourceLocation = node.sourceLocation
                     )
 
-                val args = node.arguments.map { evaluator.evaluate(it) }
-                val namedArgs = node.namedArguments.mapValues { evaluator.evaluate(it.value) }
+                val args = node.arguments.map { session.evaluator.evaluate(it) }
+                val namedArgs = node.namedArguments.mapValues { session.evaluator.evaluate(it.value) }
 
                 var blockFailure: Throwable? = null
 
@@ -363,11 +333,10 @@ internal class SiluetRenderer(
                         val bodyBuffer = StringBuffer()
                         renderNodes(
                             nodes = bodyNodes,
-                            renderContext = renderContext,
-                            evaluationContext = evaluationContext,
-                            evaluator = evaluator,
-                            renderStack = renderStack,
-                            buffer = bodyBuffer)
+                            session = session.copy(
+                                buffer = bodyBuffer
+                            )
+                        )
                         bodyBuffer.toString()
                     } catch (e: Throwable) {
                         blockFailure = e
@@ -376,7 +345,7 @@ internal class SiluetRenderer(
                 }}
 
                 try{
-                    directive.execute(args, namedArgs, bodySupplier, renderContext, buffer)
+                    directive.execute(args, namedArgs, bodySupplier, session.renderContext, session.buffer)
                 } catch (e: Exception) {
                     if(e === blockFailure) {
                         throw e

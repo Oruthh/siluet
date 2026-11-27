@@ -3,6 +3,7 @@ package dev.siluet
 import dev.siluet.plugin.SiluetPlugin
 import dev.siluet.directive.Directive
 import dev.siluet.support.InMemorySiluetAssetLoader
+import dev.siluet.theme.SiluetTheme
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -18,9 +19,10 @@ class SiluetReservedNamesTest {
 
     private val noop = Directive { _, _, _, _, _ -> }
 
-    private fun build(configure: SiluetConfig.() -> Unit): Siluet = Siluet {
-        assetLoader = InMemorySiluetAssetLoader(emptyMap())
+    private fun build(configure: SiluetConfig.() -> Unit): SiluetTheme = Siluet {
         configure()
+    }.theme {
+        assetLoader = InMemorySiluetAssetLoader(emptyMap())
     }
 
     // --- filters ----------------------------------------------------------------------------------

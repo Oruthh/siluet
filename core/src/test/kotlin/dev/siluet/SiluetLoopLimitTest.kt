@@ -1,16 +1,11 @@
 package dev.siluet
 
 import dev.siluet.blueprint.Template
-import dev.siluet.cache.InMemorySiluetCache
 import dev.siluet.exception.internal.LoopLimitExceededException
 import dev.siluet.lexer.SiluetLexer
-import dev.siluet.loader.ResourceSiluetAssetLoader
-import dev.siluet.loader.SiluetSectionsGroupLoader
-import dev.siluet.loader.SiluetViewsLoader
-import dev.siluet.locale.LocaleRegistry
 import dev.siluet.parser.SiluetParser
 import dev.siluet.render.SiluetRenderer
-import kotlinx.serialization.json.Json
+import dev.siluet.support.testTheme
 import org.junit.jupiter.api.Assertions.assertTimeoutPreemptively
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.function.Executable
@@ -33,30 +28,19 @@ class SiluetLoopLimitTest {
         val TIMEOUT: Duration = Duration.ofSeconds(5)
     }
 
-    private val json = Json { ignoreUnknownKeys = true }
-
     private fun renderLoop(items: Any?, maxLoopIterations: Int = LIMIT): String {
         val tokens = SiluetLexer(LOOP_TEMPLATE).tokenize()
         val ast = SiluetParser(tokens).parseAsNodeList()
+
         val renderer = SiluetRenderer(
             maxLoopIterations = maxLoopIterations,
             maxRenderDepth = 32,
             strictMode = false,
-            viewsLoader = SiluetViewsLoader(
-                cache = InMemorySiluetCache(),
-                assetLoader = ResourceSiluetAssetLoader(),
-            ),
-            sectionsGroupsLoader = SiluetSectionsGroupLoader(
-                assetLoader = ResourceSiluetAssetLoader(),
-                json = json,
-                cache = InMemorySiluetCache(),
-            ),
-            localeRegistry = LocaleRegistry(
-                assetLoader = ResourceSiluetAssetLoader(),
-                strictMode = false
-            ),
         )
-        return renderer.render(ast, mapOf("items" to items), Template(layout = "", sections = emptyList()))
+
+        val theme = testTheme(renderer)
+
+        return renderer.render(ast, mapOf("items" to items), Template(layout = "", sections = emptyList()), theme)
     }
 
     private fun expectedOutput(vararg items: Any): String = items.joinToString("") { "<i>$it</i>" }
