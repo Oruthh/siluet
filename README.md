@@ -94,7 +94,7 @@ val html = theme.render("home", model) {
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("dev.siluet:siluet-core:0.0.4")
+    implementation("dev.siluet:siluet-core:0.0.5")
 }
 ```
 
@@ -102,7 +102,7 @@ dependencies {
 <dependency>
     <groupId>dev.siluet</groupId>
     <artifactId>siluet-core</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
 </dependency>
 ```
 

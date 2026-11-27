@@ -10,7 +10,7 @@ plugins {
     id("com.vanniktech.maven.publish") version "0.37.0" apply false
 }
 
-val libVersion = "0.0.4"
+val libVersion = "0.0.5"
 val libGroup = "dev.siluet"
 
 dependencies {
